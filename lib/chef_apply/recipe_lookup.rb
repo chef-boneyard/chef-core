@@ -16,11 +16,11 @@
 #
 
 require "chef-config/config"
-require "chef-run/config"
-require "chef-run/error"
-require "chef-run/log"
+require "chef_apply/config"
+require "chef_apply/error"
+require "chef_apply/log"
 
-module ChefRun
+module ChefApply
   # When users are trying to converge a local recipe on a remote target, there
   # is a very specific (but expansive) set of things they can specify. This
   # class encapsulates that logic for testing purposes. We either return
@@ -90,22 +90,22 @@ module ChefRun
       end
     end
 
-    class InvalidCookbook < ChefRun::Error
+    class InvalidCookbook < ChefApply::Error
       def initialize(cookbook_path); super("CHEFVAL005", cookbook_path); end
     end
 
-    class CookbookNotFound < ChefRun::Error
+    class CookbookNotFound < ChefApply::Error
       def initialize(cookbook_name, repo_paths)
         repo_paths = repo_paths.join("\n")
         super("CHEFVAL006", cookbook_name, repo_paths)
       end
     end
 
-    class NoDefaultRecipe < ChefRun::Error
+    class NoDefaultRecipe < ChefApply::Error
       def initialize(cookbook_path, cookbook_name); super("CHEFVAL007", cookbook_path, cookbook_name); end
     end
 
-    class RecipeNotFound < ChefRun::Error
+    class RecipeNotFound < ChefApply::Error
       def initialize(cookbook_path, recipe_name, available_recipes, cookbook_name)
         available_recipes.map! { |r| "'#{r}'" }
         available_recipes = available_recipes.join(", ")

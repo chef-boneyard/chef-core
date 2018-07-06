@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-module ChefRun
+module ChefApply
   module UI
     class PlainTextElement
       def initialize(format, opts)
@@ -57,7 +57,7 @@ module ChefRun
         params.each_pair do |k, v|
           msg.gsub!(/:#{k}/, v)
         end
-        ChefRun::Log.send(log_method, msg)
+        ChefApply::Log.send(log_method, msg)
         @output.puts(msg)
       end
 

@@ -16,12 +16,12 @@
 #
 
 require "tty-spinner"
-require "chef-run/status_reporter"
-require "chef-run/config"
-require "chef-run/log"
-require "chef-run/ui/plain_text_element"
+require "chef_apply/status_reporter"
+require "chef_apply/config"
+require "chef_apply/log"
+require "chef_apply/ui/plain_text_element"
 
-module ChefRun
+module ChefApply
   module UI
     class Terminal
       class Job
@@ -76,7 +76,7 @@ module ChefRun
         # TODO update this to accept a job instead of a block, for consistency of usage
         #      between render_job and render_parallel
         def render_job(msg, prefix: "", &block)
-          klass = ChefRun::UI.const_get(ChefRun::Config.dev.spinner)
+          klass = ChefApply::UI.const_get(ChefApply::Config.dev.spinner)
           spinner = klass.new(spinner_prefix(prefix), output: @location)
           reporter = StatusReporter.new(spinner, prefix: prefix, key: :status)
           reporter.update(msg)
