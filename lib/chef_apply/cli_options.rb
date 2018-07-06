@@ -15,23 +15,23 @@
 # limitations under the License.
 #
 
-require "chef-run/text"
-require "chef-run/action/install_chef"
+require "chef_apply/text"
+require "chef_apply/action/install_chef"
 
 # Moving the options into here so the cli.rb file is smaller and easier to read
-# For options that need to be merged back into the global ChefRun::Config object
+# For options that need to be merged back into the global ChefApply::Config object
 #   we do that with a proc in the option itself. We decided to do that because it is
 #   an easy, straight forward way to merge those options when they do not directly
 #   map back to keys in the Config global. IE, we cannot just do
-#   `ChefRun::Config.merge!(options)` because the keys do not line up, and we do
+#   `ChefApply::Config.merge!(options)` because the keys do not line up, and we do
 #   not want all CLI params merged back into the global config object.
 # We know that the config is already loaded from the file (or program defaults)
 #   because the `Startup` class was invoked to start the program.
-module ChefRun
+module ChefApply
   module CLIOptions
 
-    T = ChefRun::Text.cli
-    TS = ChefRun::Text.status
+    T = ChefApply::Text.cli
+    TS = ChefApply::Text.status
 
     def self.included(klass)
       klass.banner T.description + "\n" + T.usage_full
@@ -54,9 +54,9 @@ module ChefRun
       klass.option :config_path,
         short: "-c PATH",
         long: "--config PATH",
-        description: T.default_config_location(ChefRun::Config.default_location),
-        default: ChefRun::Config.default_location,
-        proc: Proc.new { |path| ChefRun::Config.custom_location(path) }
+        description: T.default_config_location(ChefApply::Config.default_location),
+        default: ChefApply::Config.default_location,
+        proc: Proc.new { |path| ChefApply::Config.custom_location(path) }
 
       klass.option :identity_file,
         long: "--identity-file PATH",
@@ -72,25 +72,25 @@ module ChefRun
 
       klass.option :ssl,
         long: "--[no-]ssl",
-        description:  T.ssl.desc(ChefRun::Config.connection.winrm.ssl),
+        description:  T.ssl.desc(ChefApply::Config.connection.winrm.ssl),
         boolean: true,
-        default: ChefRun::Config.connection.winrm.ssl,
-        proc: Proc.new { |val| ChefRun::Config.connection.winrm.ssl(val) }
+        default: ChefApply::Config.connection.winrm.ssl,
+        proc: Proc.new { |val| ChefApply::Config.connection.winrm.ssl(val) }
 
       klass.option :ssl_verify,
         long: "--[no-]ssl-verify",
-        description:  T.ssl.verify_desc(ChefRun::Config.connection.winrm.ssl_verify),
+        description:  T.ssl.verify_desc(ChefApply::Config.connection.winrm.ssl_verify),
         boolean: true,
-        default: ChefRun::Config.connection.winrm.ssl_verify,
-        proc: Proc.new { |val| ChefRun::Config.connection.winrm.ssl_verify(val) }
+        default: ChefApply::Config.connection.winrm.ssl_verify,
+        proc: Proc.new { |val| ChefApply::Config.connection.winrm.ssl_verify(val) }
 
       klass.option :protocol,
         long: "--protocol <PROTOCOL>",
         short: "-p",
-        description: T.protocol_description(ChefRun::Config::SUPPORTED_PROTOCOLS.join(" "),
-                                            ChefRun::Config.connection.default_protocol),
-        default: ChefRun::Config.connection.default_protocol,
-        proc: Proc.new { |val| ChefRun::Config.connection.default_protocol(val) }
+        description: T.protocol_description(ChefApply::Config::SUPPORTED_PROTOCOLS.join(" "),
+                                            ChefApply::Config.connection.default_protocol),
+        default: ChefApply::Config.connection.default_protocol,
+        proc: Proc.new { |val| ChefApply::Config.connection.default_protocol(val) }
 
       klass.option :user,
         long: "--user <USER>",
@@ -103,10 +103,10 @@ module ChefRun
       klass.option :cookbook_repo_paths,
         long: "--cookbook-repo-paths PATH",
         description: T.cookbook_repo_paths,
-        default: ChefRun::Config.chef.cookbook_repo_paths,
+        default: ChefApply::Config.chef.cookbook_repo_paths,
         proc: (Proc.new do |paths|
           paths = paths.split(",")
-          ChefRun::Config.chef.cookbook_repo_paths(paths)
+          ChefApply::Config.chef.cookbook_repo_paths(paths)
           paths
         end)
 

@@ -15,8 +15,8 @@
 # limitations under the License.
 #
 
-module ChefRun::Action::InstallChef
-  class Linux < ChefRun::Action::InstallChef::Base
+module ChefApply::Action::InstallChef
+  class Linux < ChefApply::Action::InstallChef::Base
     def install_chef_to_target(remote_path)
       install_cmd = case File.extname(remote_path)
                     when ".rpm"
