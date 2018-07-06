@@ -15,24 +15,28 @@
 # limitations under the License.
 #
 
-module ChefRun::Action::InstallChef
-  class Linux < ChefRun::Action::InstallChef::Base
-    def install_chef_to_target(remote_path)
-      install_cmd = case File.extname(remote_path)
-                    when ".rpm"
-                      "rpm -Uvh #{remote_path}"
-                    when ".deb"
-                      "dpkg -i #{remote_path}"
-                    end
-      target_host.run_command!(install_cmd)
-      nil
+require "mixlib/log"
+
+module ChefApply
+  class Log
+    extend Mixlib::Log
+
+    def self.setup(location, log_level)
+      @location = location
+      if location.is_a?(String)
+        if location.casecmp("stdout") == 0
+          location = $stdout
+        else
+          location = File.open(location, "w+")
+        end
+      end
+      init(location)
+      Log.level = log_level
     end
 
-    def setup_remote_temp_path
-      installer_dir = "/tmp/chef-installer"
-      target_host.run_command!("mkdir -p #{installer_dir}")
-      target_host.run_command!("chmod 777 #{installer_dir}")
-      installer_dir
+    def self.location
+      @location
     end
+
   end
 end

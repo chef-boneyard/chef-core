@@ -21,11 +21,11 @@ require "singleton"
 require "json"
 require "digest/sha1"
 require "securerandom"
-require "chef-run/version"
-require "chef-run/config"
+require "chef_apply/version"
+require "chef_apply/config"
 require "yaml"
 
-module ChefRun
+module ChefApply
 
   # This definites the Telemeter interface. Implementation thoughts for
   # when we unstub it:
@@ -46,7 +46,7 @@ module ChefRun
 
     def enabled?
       require "telemetry/decision"
-      ChefRun::Config.telemetry.enable && !Telemetry::Decision.env_opt_out?
+      ChefApply::Config.telemetry.enable && !Telemetry::Decision.env_opt_out?
     end
 
     def initialize
@@ -110,9 +110,9 @@ module ChefRun
     def installation_id
       @installation_id ||=
         begin
-          File.read(ChefRun::Config.telemetry_installation_identifier_file).chomp
+          File.read(ChefApply::Config.telemetry_installation_identifier_file).chomp
         rescue
-          ChefRun::Log.info "could not read #{ChefRun::Config.telemetry_installation_identifier_file} - using default id"
+          ChefApply::Log.info "could not read #{ChefApply::Config.telemetry_installation_identifier_file} - using default id"
           DEFAULT_INSTALLATION_GUID
         end
     end
@@ -138,7 +138,7 @@ module ChefRun
     end
 
     def convert_events_to_session
-      YAML.dump({ "version" => ChefRun::VERSION,
+      YAML.dump({ "version" => ChefApply::VERSION,
                   "entries" => @events_to_send })
     end
 
@@ -151,7 +151,7 @@ module ChefRun
       filename = ""
       loop do
         id += 1
-        filename = File.join(ChefRun::Config.telemetry_path,
+        filename = File.join(ChefApply::Config.telemetry_path,
                              "telemetry-payload-#{id}.yml")
         break unless File.exist?(filename)
       end

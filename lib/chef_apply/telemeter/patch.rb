@@ -15,6 +15,18 @@
 # limitations under the License.
 #
 
-module ChefRun
+class Telemetry
+  class Session
+    # The telemetry session data is normally kept in .chef, which we don't have.
+    def session_file
+      ChefApply::Config.telemetry_session_file.freeze
+    end
+  end
 
+  def deliver(data = {})
+    if ChefApply::Telemeter.instance.enabled?
+      payload = event.prepare(data)
+      client.await.fire(payload)
+    end
+  end
 end
