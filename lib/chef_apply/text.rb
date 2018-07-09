@@ -19,7 +19,7 @@ require "r18n-desktop"
 
 # A very thin wrapper around R18n, the idea being that we're likely to replace r18n
 # down the road and don't want to have to change all of our commands.
-module ChefRun
+module ChefApply
   class Text
     R18n.from_env(File.join(File.dirname(__FILE__), "../..", "i18n/"))
     t = R18n.get.t

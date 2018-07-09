@@ -17,16 +17,16 @@
 
 require "net/http"
 require "uri"
-require "chef-run/config"
-require "chef-run/log"
+require "chef_apply/config"
+require "chef_apply/log"
 
-module ChefRun
+module ChefApply
   class FileFetcher
     class << self
       # Simple fetcher of an http(s) url. Returns the local path
       # of the downloaded file.
       def fetch(path)
-        cache_path = ChefRun::Config.cache.path
+        cache_path = ChefApply::Config.cache.path
         FileUtils.mkdir_p(cache_path)
         url = URI.parse(path)
         name = File.basename(url.path)
@@ -42,7 +42,7 @@ module ChefRun
       def download_file(url, local_path)
         temp_path = "#{local_path}.downloading"
         file = open(temp_path, "wb")
-        ChefRun::Log.debug "Downloading: #{temp_path}"
+        ChefApply::Log.debug "Downloading: #{temp_path}"
         Net::HTTP.start(url.host) do |http|
           begin
             http.request_get(url.path) do |resp|

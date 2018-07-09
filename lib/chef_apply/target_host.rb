@@ -15,10 +15,10 @@
 # limitations under the License.
 #
 
-require "chef-run/log"
-require "chef-run/error"
+require "chef_apply/log"
+require "chef_apply/error"
 require "train"
-module ChefRun
+module ChefApply
   class TargetHost
     attr_reader :config, :reporter, :backend, :transport_type
     # These values may exist in .ssh/config but will be ignored by train
@@ -45,7 +45,7 @@ module ChefRun
                           sudo: opts_in[:sudo] === false ? false : true,
                           www_form_encoded_password: true,
                           key_files: opts_in[:identity_file],
-                          logger: ChefRun::Log }
+                          logger: ChefApply::Log }
       if opts_in.has_key? :ssl
         connection_opts[:ssl] = opts_in[:ssl]
         connection_opts[:self_signed] = (opts_in[:ssl_verify] === false ? true : false)
@@ -113,7 +113,7 @@ module ChefRun
       else
         # TODO - this seems like it shouldn't happen here, when
         # all the caller is doing is asking about the OS
-        raise ChefRun::TargetHost::UnsupportedTargetOS.new(platform.name)
+        raise ChefApply::TargetHost::UnsupportedTargetOS.new(platform.name)
       end
     end
 
@@ -184,7 +184,7 @@ module ChefRun
       Net::SSH::Config.for(host)
     end
 
-    class RemoteExecutionFailed < ChefRun::ErrorNoLogs
+    class RemoteExecutionFailed < ChefApply::ErrorNoLogs
       attr_reader :stdout, :stderr
       def initialize(host, command, result)
         super("CHEFRMT001",
@@ -195,7 +195,7 @@ module ChefRun
       end
     end
 
-    class ConnectionFailure < ChefRun::ErrorNoLogs
+    class ConnectionFailure < ChefApply::ErrorNoLogs
       # TODO: Currently this only handles sudo-related errors;
       # we should also look at e.cause for underlying connection errors
       # which are presently only visible in log files.
@@ -226,7 +226,7 @@ module ChefRun
 
     class ChefNotInstalled < StandardError; end
 
-    class UnsupportedTargetOS < ChefRun::ErrorNoLogs
+    class UnsupportedTargetOS < ChefApply::ErrorNoLogs
       def initialize(os_name); super("CHEFTARG001", os_name); end
     end
   end

@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-module ChefRun
+module ChefApply
   class Error < StandardError
     attr_reader :id, :params
     attr_accessor :show_stack, :show_log, :decorate
@@ -53,7 +53,7 @@ module ChefRun
     end
   end
 
-  class MultiJobFailure < ChefRun::ErrorNoLogs
+  class MultiJobFailure < ChefApply::ErrorNoLogs
     attr_reader :jobs
     def initialize(jobs)
       super("CHEFMULTI001")
@@ -82,7 +82,7 @@ module ChefRun
       if id.nil?
         exception
       else
-        e = ChefRun::Error.new(id, exception.message)
+        e = ChefApply::Error.new(id, exception.message)
         e.show_log = show_log
         e.show_stack = show_stack
         e
