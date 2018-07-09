@@ -17,10 +17,10 @@
 
 require "tmpdir"
 require "fileutils"
-require "chef-run/log"
-require "chef-run/error"
+require "chef_apply/log"
+require "chef_apply/error"
 
-module ChefRun
+module ChefApply
   # This class knows how to create a local cookbook in a temp file, populate
   # it with various recipes, attributes, config, etc. and delete it when the
   # cookbook is no longer necessary
@@ -39,7 +39,7 @@ module ChefRun
       cb = cookbook_for_recipe(existing_recipe_path)
       if cb
         # Full existing cookbook - only needs policyfile
-        ChefRun::Log.debug("Found full cookbook at path '#{cb[:path]}' and using recipe '#{cb[:recipe_name]}'")
+        ChefApply::Log.debug("Found full cookbook at path '#{cb[:path]}' and using recipe '#{cb[:recipe_name]}'")
         name = cb[:name]
         recipe_name = cb[:recipe_name]
         FileUtils.cp_r(cb[:path], path)
@@ -51,7 +51,7 @@ module ChefRun
         # structure including metadata, then generate policyfile. We set the cookbook
         # name to the recipe name so hopefully this gives us better reporting info
         # in the future
-        ChefRun::Log.debug("Found single recipe at path '#{existing_recipe_path}'")
+        ChefApply::Log.debug("Found single recipe at path '#{existing_recipe_path}'")
         recipe = File.basename(existing_recipe_path)
         recipe_name = File.basename(existing_recipe_path, ext_name)
         name = "cw_recipe"
@@ -68,7 +68,7 @@ module ChefRun
       # Generate a cookbook containing a single default recipe with the specified
       # resource in it. Incloud the resource type in the cookbook name so hopefully
       # this gives us better reporting info in the future.
-      ChefRun::Log.debug("Generating cookbook for single resource '#{resource_type}[#{resource_name}]'")
+      ChefApply::Log.debug("Generating cookbook for single resource '#{resource_type}[#{resource_name}]'")
       name = "cw_#{resource_type}"
       recipe_name = "default"
       recipes_dir = generate_recipes_dir
@@ -126,7 +126,7 @@ module ChefRun
       else
         File.open(policy_file, "w+") do |f|
           f.print("name \"#{name}_policy\"\n")
-          ChefRun::Config.chef.cookbook_repo_paths.each do |p|
+          ChefApply::Config.chef.cookbook_repo_paths.each do |p|
             f.print("default_source :chef_repo, \"#{p}\"\n")
           end
           f.print("default_source :supermarket\n")
@@ -152,7 +152,7 @@ module ChefRun
       r
     end
 
-    class UnsupportedExtension < ChefRun::ErrorNoLogs
+    class UnsupportedExtension < ChefApply::ErrorNoLogs
       def initialize(ext); super("CHEFVAL009", ext); end
     end
   end

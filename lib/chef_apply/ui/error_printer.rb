@@ -17,18 +17,18 @@
 
 require "train/errors"
 require "pastel"
-require "chef-run/error"
-require "chef-run/config"
-require "chef-run/text"
-require "chef-run/ui/terminal"
+require "chef_apply/error"
+require "chef_apply/config"
+require "chef_apply/text"
+require "chef_apply/ui/terminal"
 
-module ChefRun::UI
+module ChefApply::UI
   class ErrorPrinter
     attr_reader :id, :pastel, :show_log, :show_stack, :exception, :target_host
     # TODO define 't' as a method is a temporary workaround
     # to ensure that text key lookups are testable.
     def t
-      ChefRun::Text.errors
+      ChefApply::Text.errors
     end
 
     DEFAULT_ERROR_NO = "CHEFINT001"
@@ -36,8 +36,8 @@ module ChefRun::UI
     def self.show_error(e)
       # Name is misleading - it's unwrapping but also doing further
       # error resolution for common errors:
-      unwrapped = ChefRun::StandardErrorResolver.unwrap_exception(e)
-      if unwrapped.class == ChefRun::MultiJobFailure
+      unwrapped = ChefApply::StandardErrorResolver.unwrap_exception(e)
+      if unwrapped.class == ChefApply::MultiJobFailure
         capture_multiple_failures(unwrapped)
       end
       formatter = ErrorPrinter.new(e, unwrapped)
@@ -47,11 +47,11 @@ module ChefRun::UI
     end
 
     def self.capture_multiple_failures(e)
-      out_file = ChefRun::Config.error_output_path
+      out_file = ChefApply::Config.error_output_path
       e.params << out_file # Tell the operator where to find this info
       File.open(out_file, "w") do |out|
         e.jobs.each do |j|
-          wrapped = ChefRun::StandardErrorResolver.wrap_exception(j.exception, j.target_host)
+          wrapped = ChefApply::StandardErrorResolver.wrap_exception(j.exception, j.target_host)
           ep = ErrorPrinter.new(wrapped)
           msg = ep.format_body().tr("\n", " ").gsub(/ {2,}/, " ").chomp.strip
           out.write("Host: #{j.target_host.hostname} ")
@@ -142,7 +142,7 @@ module ChefRun::UI
     end
 
     def format_body
-      if exception.kind_of? ChefRun::Error
+      if exception.kind_of? ChefApply::Error
         format_workstation_exception
       elsif exception.kind_of? Train::Error
         format_train_exception
@@ -154,10 +154,10 @@ module ChefRun::UI
     def format_footer
       if show_log
         if show_stack
-          t.footer.both(ChefRun::Config.log.location,
-                        ChefRun::Config.stack_trace_path)
+          t.footer.both(ChefApply::Config.log.location,
+                        ChefApply::Config.stack_trace_path)
         else
-          t.footer.log_only(ChefRun::Config.log.location)
+          t.footer.log_only(ChefApply::Config.log.location)
         end
       else
         if show_stack
@@ -176,22 +176,22 @@ module ChefRun::UI
     end
 
     def save_backtrace(output)
-      File.open(ChefRun::Config.stack_trace_path, "ab+") do |f|
+      File.open(ChefApply::Config.stack_trace_path, "ab+") do |f|
         f.write(output.string)
       end
     end
 
     def self.error_summary(e)
-      if e.kind_of? ChefRun::Error
+      if e.kind_of? ChefApply::Error
         # By convention, all of our defined messages have a short summary on the first line.
-        ChefRun::Text.errors.send(e.id, *e.params).split("\n").first
+        ChefApply::Text.errors.send(e.id, *e.params).split("\n").first
       elsif e.kind_of? String
         e
       else
         if e.respond_to? :message
           e.message
         else
-          ChefRun::Text.errors.UNKNOWN
+          ChefApply::Text.errors.UNKNOWN
         end
       end
     end
