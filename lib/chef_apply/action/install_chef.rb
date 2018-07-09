@@ -1,5 +1,5 @@
 #
-# Copyright:: Copyright (c) 2018 Chef Software Inc.
+# Copyright:: Copyright (c) 2017 Chef Software Inc.
 # License:: Apache License, Version 2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,6 +15,16 @@
 # limitations under the License.
 #
 
-module ChefRun
+require "chef_apply/action/install_chef/base"
+require "chef_apply/action/install_chef/windows"
+require "chef_apply/action/install_chef/linux"
 
+module ChefApply::Action::InstallChef
+  def self.instance_for_target(target_host, opts = { check_only: false })
+    opts[:target_host] = target_host
+    case target_host.base_os
+    when :windows then Windows.new(opts)
+    when :linux then Linux.new(opts)
+    end
+  end
 end

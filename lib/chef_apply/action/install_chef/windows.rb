@@ -15,8 +15,8 @@
 # limitations under the License.
 #
 
-module ChefRun::Action::InstallChef
-  class Windows < ChefRun::Action::InstallChef::Base
+module ChefApply::Action::InstallChef
+  class Windows < ChefApply::Action::InstallChef::Base
 
     def perform_remote_install
       require "mixlib/install"

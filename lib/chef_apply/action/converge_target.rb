@@ -15,13 +15,13 @@
 # limitations under the License.
 #
 
-require "chef-run/action/base"
-require "chef-run/text"
+require "chef_apply/action/base"
+require "chef_apply/text"
 require "pathname"
 require "tempfile"
 require "chef/util/path_helper"
 
-module ChefRun::Action
+module ChefApply::Action
   class ConvergeTarget < Base
 
     def perform_action
@@ -37,19 +37,18 @@ module ChefRun::Action
       cmd_str = run_chef(remote_dir_path,
                          File.basename(remote_config_path),
                          File.basename(remote_policy_path))
-      require 'pry'; binding.pry
       c = target_host.run_command(cmd_str)
       target_host.run_command!("#{delete_folder} #{remote_dir_path}")
       if c.exit_status == 0
-        ChefRun::Log.debug(c.stdout)
+        ChefApply::Log.debug(c.stdout)
         notify(:success)
       elsif c.exit_status == 35
         notify(:reboot)
       else
         notify(:converge_error)
-        ChefRun::Log.error("Error running command [#{cmd_str}]")
-        ChefRun::Log.error("stdout: #{c.stdout}")
-        ChefRun::Log.error("stderr: #{c.stderr}")
+        ChefApply::Log.error("Error running command [#{cmd_str}]")
+        ChefApply::Log.error("stdout: #{c.stdout}")
+        ChefApply::Log.error("stderr: #{c.stderr}")
         handle_ccr_error()
       end
     end
@@ -60,7 +59,7 @@ module ChefRun::Action
       begin
         target_host.upload_file(local_policy_path, remote_policy_path)
       rescue RuntimeError => e
-        ChefRun::Log.error(e)
+        ChefApply::Log.error(e)
         raise PolicyUploadFailed.new()
       end
       remote_policy_path
@@ -75,13 +74,13 @@ module ChefRun::Action
         cache_path "#{cache_path}"
         chef_repo_path "#{cache_path}"
         require_relative "reporter"
-        reporter = ChefRun::Reporter.new
+        reporter = ChefApply::Reporter.new
         report_handlers << reporter
         exception_handlers << reporter
       EOM
 
       # Maybe add data collector endpoint.
-      dc = ChefRun::Config.data_collector
+      dc = ChefApply::Config.data_collector
       if !dc.url.nil? && !dc.token.nil?
         workstation_rb << <<~EOM
           data_collector.server_url "#{dc.url}"
@@ -120,7 +119,7 @@ module ChefRun::Action
     end
 
     def upload_trusted_certs(dir)
-      local_tcd = Chef::Util::PathHelper.escape_glob_dir(ChefRun::Config.chef.trusted_certs_dir)
+      local_tcd = Chef::Util::PathHelper.escape_glob_dir(ChefApply::Config.chef.trusted_certs_dir)
       certs = Dir.glob(File.join(local_tcd, "*.{crt,pem}"))
       return if certs.empty?
       notify(:uploading_trusted_certs)
@@ -136,7 +135,7 @@ module ChefRun::Action
     end
 
     def handle_ccr_error
-      require "chef-run/errors/ccr_failure_mapper"
+      require "chef_apply/errors/ccr_failure_mapper"
       mapper_opts = {}
       c = target_host.run_command(read_chef_report)
       if c.exit_status == 0
@@ -145,29 +144,29 @@ module ChefRun::Action
         # remote failure that does not write a chef stacktrace its possible to get an old
         # stale stacktrace.
         target_host.run_command!(delete_chef_report)
-        ChefRun::Log.error("Remote chef-client error follows:")
-        ChefRun::Log.error(report["exception"])
+        ChefApply::Log.error("Remote chef-client error follows:")
+        ChefApply::Log.error(report["exception"])
       else
         report = {}
-        ChefRun::Log.error("Could not read remote report:")
-        ChefRun::Log.error("stdout: #{c.stdout}")
-        ChefRun::Log.error("stderr: #{c.stderr}")
+        ChefApply::Log.error("Could not read remote report:")
+        ChefApply::Log.error("stdout: #{c.stdout}")
+        ChefApply::Log.error("stderr: #{c.stderr}")
         mapper_opts[:stdout] = c.stdout
         mapper_opts[:stderr] = c.stderr
       end
-      mapper = ChefRun::Errors::CCRFailureMapper.new(report["exception"], mapper_opts)
+      mapper = ChefApply::Errors::CCRFailureMapper.new(report["exception"], mapper_opts)
       mapper.raise_mapped_exception!
     end
 
-    class ConfigUploadFailed < ChefRun::Error
+    class ConfigUploadFailed < ChefApply::Error
       def initialize(); super("CHEFUPL003"); end
     end
 
-    class HandlerUploadFailed < ChefRun::Error
+    class HandlerUploadFailed < ChefApply::Error
       def initialize(); super("CHEFUPL004"); end
     end
 
-    class PolicyUploadFailed < ChefRun::Error
+    class PolicyUploadFailed < ChefApply::Error
       def initialize(); super("CHEFUPL005"); end
     end
   end

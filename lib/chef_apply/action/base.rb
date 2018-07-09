@@ -15,10 +15,10 @@
 # limitations under the License.
 #
 
-require "chef-run/telemeter"
-require "chef-run/error"
+require "chef_apply/telemeter"
+require "chef_apply/error"
 
-module ChefRun
+module ChefApply
   module Action
     # Derive new Actions from Action::Base
     # "target_host" is a TargetHost that the action is being applied to. May be nil
@@ -137,7 +137,7 @@ module ChefRun
 
       def notify(action, *args)
         return if @notification_handler.nil?
-        ChefRun::Log.debug("[#{self.class.name}] Action: #{action}, Action Data: #{args}")
+        ChefApply::Log.debug("[#{self.class.name}] Action: #{action}, Action Data: #{args}")
         @notification_handler.call(action, args) if @notification_handler
       end
 

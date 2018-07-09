@@ -15,11 +15,11 @@
 # limitations under the License.
 #
 
-require "chef-run/action/base"
+require "chef_apply/action/base"
 require "fileutils"
 
-module ChefRun::Action::InstallChef
-  class Base < ChefRun::Action::Base
+module ChefApply::Action::InstallChef
+  class Base < ChefApply::Action::Base
     MIN_CHEF_VERSION = Gem::Version.new("13.0.0")
 
     def perform_action
@@ -33,7 +33,7 @@ module ChefRun::Action::InstallChef
       #       upgrades to behave.
       # @upgrading = true
       # perform_local_install
-    rescue ChefRun::TargetHost::ChefNotInstalled
+    rescue ChefApply::TargetHost::ChefNotInstalled
       if config[:check_only]
         raise ClientNotInstalled.new()
       end
@@ -82,7 +82,7 @@ module ChefRun::Action::InstallChef
         platform: platform.name,
         architecture: platform.arch,
         product_name: "chef",
-        product_version: "13.9.4",
+        product_version: :latest,
         channel: :stable,
         platform_version_compatibility_mode: true
       }
@@ -105,8 +105,8 @@ module ChefRun::Action::InstallChef
     end
 
     def download_to_workstation(url_path)
-      require "chef-run/file_fetcher"
-      ChefRun::FileFetcher.fetch(url_path)
+      require "chef_apply/file_fetcher"
+      ChefApply::FileFetcher.fetch(url_path)
     end
 
     def upload_to_target(local_path)
@@ -125,11 +125,11 @@ module ChefRun::Action::InstallChef
     end
   end
 
-  class ClientNotInstalled < ChefRun::ErrorNoLogs
+  class ClientNotInstalled < ChefApply::ErrorNoLogs
     def initialize(); super("CHEFINS002"); end
   end
 
-  class ClientOutdated < ChefRun::ErrorNoLogs
+  class ClientOutdated < ChefApply::ErrorNoLogs
     def initialize(current_version, target_version)
       super("CHEFINS003", current_version, target_version)
     end
