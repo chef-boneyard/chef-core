@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-require "spec_helper"
+require "actions/spec_helper"
 require "chef_apply/temp_cookbook"
 require "tempfile"
 require "securerandom"
