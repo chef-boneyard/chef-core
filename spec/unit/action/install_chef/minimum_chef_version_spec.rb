@@ -17,7 +17,7 @@
 
 require "chef_apply/minimum_chef_version"
 require "chef_apply/target_host"
-require "spec_helper"
+require "actions/spec_helper"
 
 RSpec.describe ChefApply::MinimumChefVersion do
   let(:base_os) { :linux }

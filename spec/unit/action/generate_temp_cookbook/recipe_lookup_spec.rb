@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-require "spec_helper"
+require "actions/spec_helper"
 require "chef_apply/recipe_lookup"
 require "chef/exceptions"
 require "chef/cookbook/cookbook_version_loader"
