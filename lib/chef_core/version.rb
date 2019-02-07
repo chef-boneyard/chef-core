@@ -1,5 +1,5 @@
 #
-# Copyright:: Copyright (c) 2017 Chef Software Inc.
+# Copyright:: Copyright (c) 2018 Chef Software Inc.
 # License:: Apache License, Version 2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,28 +15,6 @@
 # limitations under the License.
 #
 
-require "mixlib/log"
-
 module ChefCore
-  class Log
-    extend Mixlib::Log
-
-    def self.setup(location, log_level)
-      if location.is_a?(String)
-        if location.casecmp("stdout") == 0
-          location = $stdout
-        else
-          location = File.open(location, "w+")
-        end
-      end
-      @location = location
-      init(location)
-      Log.level = log_level
-    end
-
-    def self.location
-      @location
-    end
-
-  end
+  VERSION = "0.0.1".freeze
 end

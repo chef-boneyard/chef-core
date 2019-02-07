@@ -37,7 +37,7 @@ def assert_string_lookup(key, retval = "testvalue")
     # we need to add this individually instead of using
     # `receive_messages`, which doesn't appear to give a way to
     # guarantee ordering
-    expect(ChefApply::Text).to receive(top_level_method)
+    expect(ChefCore::Text).to receive(top_level_method)
       .and_return(tmock)
     call_seq.each do |m|
       expect(tmock).to receive(m).ordered.and_return(tmock)
@@ -66,8 +66,8 @@ RSpec.configure do |config|
   end
 
   config.before(:all) do
-    ChefApply::Log.setup "/dev/null", :error
-    ChefApply::UI::Terminal.init(File.open("/dev/null", "w"))
+    ChefCore::Log.setup "/dev/null", :error
+    ChefCore::UI::Terminal.init(File.open("/dev/null", "w"))
   end
 end
 

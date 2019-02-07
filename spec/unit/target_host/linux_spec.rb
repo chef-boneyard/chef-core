@@ -1,8 +1,8 @@
 require "spec_helper"
-require "chef_apply/target_host"
-require "chef_apply/target_host/linux"
+require "chef_core/target_host"
+require "chef_core/target_host/linux"
 
-RSpec.describe ChefApply::TargetHost::Linux do
+RSpec.describe ChefCore::TargetHost::Linux do
   let(:user) { "testuser" }
   let(:host) { "mock://#{user}@example.com" }
   let(:family) { "linux" }
@@ -10,13 +10,13 @@ RSpec.describe ChefApply::TargetHost::Linux do
   let(:path) { "/tmp/blah" }
 
   subject do
-    ChefApply::TargetHost.mock_instance(host, family: family, name: name)
+    ChefCore::TargetHost.mock_instance(host, family: family, name: name)
   end
 
   context "#make_temp_dir" do
     it "creates the directory using a properly formed make_temp_dir" do
       expect(subject).to receive(:run_command!)
-        .with("bash -c '#{ChefApply::TargetHost::Linux::MKTEMP_COMMAND}'")
+        .with("bash -c '#{ChefCore::TargetHost::Linux::MKTEMP_COMMAND}'")
         .and_return(instance_double("result", stdout: "/tmp/blah"))
       expect(subject.make_temp_dir).to eq "/tmp/blah"
     end

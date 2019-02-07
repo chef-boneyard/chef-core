@@ -21,11 +21,11 @@ require "singleton"
 require "json"
 require "digest/sha1"
 require "securerandom"
-require "chef_apply/version"
-require "chef_apply/config"
+require "chef_core/version"
+require "chef_core/config"
 require "yaml"
 
-module ChefApply
+module ChefCore
 
   # This definites the Telemeter interface. Implementation thoughts for
   # when we unstub it:
@@ -46,7 +46,7 @@ module ChefApply
 
     def enabled?
       require "telemetry/decision"
-      ChefApply::Config.telemetry.enable && !Telemetry::Decision.env_opt_out?
+      ChefCore::Config.telemetry.enable && !Telemetry::Decision.env_opt_out?
     end
 
     def initialize
@@ -110,9 +110,9 @@ module ChefApply
     def installation_id
       @installation_id ||=
         begin
-          File.read(ChefApply::Config.telemetry_installation_identifier_file).chomp
+          File.read(ChefCore::Config.telemetry_installation_identifier_file).chomp
         rescue
-          ChefApply::Log.info "could not read #{ChefApply::Config.telemetry_installation_identifier_file} - using default id"
+          ChefCore::Log.info "could not read #{ChefApply::Config.telemetry_installation_identifier_file} - using default id"
           DEFAULT_INSTALLATION_GUID
         end
     end
@@ -138,7 +138,7 @@ module ChefApply
     end
 
     def convert_events_to_session
-      YAML.dump({ "version" => ChefApply::VERSION,
+      YAML.dump({ "version" => ChefCore::VERSION,
                   "entries" => @events_to_send })
     end
 
@@ -151,7 +151,7 @@ module ChefApply
       filename = ""
       loop do
         id += 1
-        filename = File.join(ChefApply::Config.telemetry_path,
+        filename = File.join(ChefCore::Config.telemetry_path,
                              "telemetry-payload-#{id}.yml")
         break unless File.exist?(filename)
       end

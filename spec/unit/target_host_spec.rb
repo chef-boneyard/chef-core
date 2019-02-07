@@ -17,15 +17,15 @@
 
 require "spec_helper"
 require "ostruct"
-require "chef_apply/target_host"
+require "chef_core/target_host"
 
-RSpec.describe ChefApply::TargetHost do
+RSpec.describe ChefCore::TargetHost do
   let(:host) { "mock://user@example.com" }
   let(:family) { "debian" }
   let(:name) { "ubuntu" }
 
   subject do
-    ChefApply::TargetHost.mock_instance(host, family: family, name: name)
+    ChefCore::TargetHost.mock_instance(host, family: family, name: name)
   end
 
   context "#base_os" do
@@ -57,8 +57,8 @@ RSpec.describe ChefApply::TargetHost do
   context "#installed_chef_version" do
     context "when no version manifest is present" do
       it "raises ChefNotInstalled" do
-        expect(subject).to receive(:read_chef_version_manifest).and_raise(ChefApply::TargetHost::ChefNotInstalled.new)
-        expect { subject.installed_chef_version }.to raise_error(ChefApply::TargetHost::ChefNotInstalled)
+        expect(subject).to receive(:read_chef_version_manifest).and_raise(ChefCore::TargetHost::ChefNotInstalled.new)
+        expect { subject.installed_chef_version }.to raise_error(ChefCore::TargetHost::ChefNotInstalled)
       end
     end
 
@@ -74,7 +74,7 @@ RSpec.describe ChefApply::TargetHost do
   context "connect!" do
     # For all other tets, target_host is a mocked instance that is already connected
     # In this case, we want to build a new one that is not yet connected to test connect! itself.
-    let(:target_host) { ChefApply::TargetHost.new(host, sudo: false) }
+    let(:target_host) { ChefCore::TargetHost.new(host, sudo: false) }
     let(:train_connection_mock) { double("train connection") }
     before do
       allow(target_host).to receive(:train_connection).and_return(train_connection_mock)
@@ -82,13 +82,13 @@ RSpec.describe ChefApply::TargetHost do
     context "when an Train::UserError occurs" do
       it "raises a ConnectionFailure" do
         allow(train_connection_mock).to receive(:connection).and_raise Train::UserError
-        expect { target_host.connect! }.to raise_error(ChefApply::TargetHost::ConnectionFailure)
+        expect { target_host.connect! }.to raise_error(ChefCore::TargetHost::ConnectionFailure)
       end
     end
     context "when a Train::Error occurs" do
       it "raises a ConnectionFailure" do
         allow(train_connection_mock).to receive(:connection).and_raise Train::Error
-        expect { target_host.connect! }.to raise_error(ChefApply::TargetHost::ConnectionFailure)
+        expect { target_host.connect! }.to raise_error(ChefCore::TargetHost::ConnectionFailure)
       end
     end
   end
@@ -102,7 +102,7 @@ RSpec.describe ChefApply::TargetHost do
     context "when base_os is linux" do
       let(:base_os) { :linux }
       it "mixes in Linux support" do
-        expect(subject.class).to receive(:include).with(ChefApply::TargetHost::Linux)
+        expect(subject.class).to receive(:include).with(ChefCore::TargetHost::Linux)
         subject.mix_in_target_platform!
       end
     end
@@ -110,7 +110,7 @@ RSpec.describe ChefApply::TargetHost do
     context "when base_os is windows" do
       let(:base_os) { :windows }
       it "mixes in Windows support" do
-        expect(subject.class).to receive(:include).with(ChefApply::TargetHost::Windows)
+        expect(subject.class).to receive(:include).with(ChefCore::TargetHost::Windows)
         subject.mix_in_target_platform!
       end
     end
@@ -118,7 +118,7 @@ RSpec.describe ChefApply::TargetHost do
     context "when base_os is other" do
       let(:base_os) { :other }
       it "raises UnsupportedTargetOS" do
-        expect { subject.mix_in_target_platform! }.to raise_error(ChefApply::TargetHost::UnsupportedTargetOS)
+        expect { subject.mix_in_target_platform! }.to raise_error(ChefCore::TargetHost::UnsupportedTargetOS)
       end
 
     end
@@ -177,7 +177,7 @@ RSpec.describe ChefApply::TargetHost do
     context "when an error occurs" do
       let(:exit_status) { 1 }
       it "raises a RemoteExecutionFailed error" do
-        expected_error = ChefApply::TargetHost::RemoteExecutionFailed
+        expected_error = ChefCore::TargetHost::RemoteExecutionFailed
         expect { subject.run_command!(command) }.to raise_error(expected_error)
       end
     end
@@ -193,7 +193,7 @@ RSpec.describe ChefApply::TargetHost do
     context "when manifest is missing" do
       let(:manifest_content) { nil }
       it "raises ChefNotInstalled" do
-        expect { subject.read_chef_version_manifest }.to raise_error(ChefApply::TargetHost::ChefNotInstalled)
+        expect { subject.read_chef_version_manifest }.to raise_error(ChefCore::TargetHost::ChefNotInstalled)
       end
     end
 
@@ -259,7 +259,7 @@ RSpec.describe ChefApply::TargetHost do
       allow(subject).to receive(:ssh_config_for_host).and_return ssh_host_config
     end
 
-    ChefApply::TargetHost::SSH_CONFIG_OVERRIDE_KEYS.each do |key|
+    ChefCore::TargetHost::SSH_CONFIG_OVERRIDE_KEYS.each do |key|
       context "when a value is not explicitly provided in options" do
         it "replaces config config[:#{key}] with the ssh config value" do
           subject.apply_ssh_config(connection_config, key => nil)

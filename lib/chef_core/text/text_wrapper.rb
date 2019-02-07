@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-module ChefApply
+module ChefCore
   module Text
     # Our text spinner class really doesn't like handling the TranslatedString or Untranslated classes returned
     # by the R18n library. So instead we return these TextWrapper instances which have dynamically defined methods

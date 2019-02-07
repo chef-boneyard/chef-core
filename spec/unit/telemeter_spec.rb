@@ -16,10 +16,10 @@
 #
 
 require "spec_helper"
-require "chef_apply/telemeter"
+require "chef_core/telemeter"
 
-RSpec.describe ChefApply::Telemeter do
-  subject { ChefApply::Telemeter.instance }
+RSpec.describe ChefCore::Telemeter do
+  subject { ChefCore::Telemeter.instance }
   let(:host_platform) { "linux" }
 
   before do
@@ -93,7 +93,7 @@ RSpec.describe ChefApply::Telemeter do
           expect(subject).to receive(:timed_capture)
             .with(:action, expected_data)
           subject.timed_action_capture(
-            ChefApply::Action::Base.new(target_host: nil)
+            ChefCore::Action::Base.new(target_host: nil)
           ) { :ok }
         end
       end
@@ -104,7 +104,7 @@ RSpec.describe ChefApply::Telemeter do
     let(:enabled_flag) { false }
     let(:config) { double("config") }
     before do
-      allow(ChefApply::Config).to receive(:telemetry).and_return(config)
+      allow(ChefCore::Config).to receive(:telemetry).and_return(config)
       allow(config).to receive(:enable).and_return(enabled_flag)
     end
 

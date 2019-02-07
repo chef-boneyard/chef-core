@@ -16,12 +16,12 @@
 #
 
 require "telemetry"
-require "chef_apply/telemeter"
-require "chef_apply/telemeter/patch"
-require "chef_apply/log"
-require "chef_apply/version"
+require "chef_core/telemeter"
+require "chef_core/telemeter/patch"
+require "chef_core/log"
+require "chef_core/version"
 
-module ChefApply
+module ChefCore
   class Telemeter
     class Sender
       attr_reader :session_files
@@ -36,10 +36,10 @@ module ChefApply
       end
 
       def self.find_session_files
-        ChefApply::Log.info("Looking for telemetry data to submit")
-        session_search = File.join(ChefApply::Config.telemetry_path, "telemetry-payload-*.yml")
+        ChefCore::Log.info("Looking for telemetry data to submit")
+        session_search = File.join(ChefCore::Config.telemetry_path, "telemetry-payload-*.yml")
         session_files = Dir.glob(session_search)
-        ChefApply::Log.info("Found #{session_files.length} sessions to submit")
+        ChefCore::Log.info("Found #{session_files.length} sessions to submit")
         session_files
       end
 
@@ -48,10 +48,10 @@ module ChefApply
       end
 
       def run
-        if ChefApply::Telemeter.enabled?
-          ChefApply::Log.info("Telemetry enabled, beginning upload of previous session(s)")
+        if ChefCore::Telemeter.enabled?
+          ChefCore::Log.info("Telemetry enabled, beginning upload of previous session(s)")
           # dev mode telemetry gets sent to a different location
-          if ChefApply::Config.telemetry.dev
+          if ChefCore::Config.telemetry.dev
             ENV["CHEF_TELEMETRY_ENDPOINT"] ||= "https://telemetry-acceptance.chef.io"
           end
           session_files.each { |path| process_session(path) }
@@ -59,17 +59,17 @@ module ChefApply
           # If telemetry is not enabled, just clean up and return. Even though
           # the telemetry gem will not send if disabled, log output saying that we're submitting
           # it when it has been disabled can be alarming.
-          ChefApply::Log.info("Telemetry disabled, clearing any existing session captures without sending them.")
+          ChefCore::Log.info("Telemetry disabled, clearing any existing session captures without sending them.")
           session_files.each { |path| FileUtils.rm_rf(path) }
         end
-        FileUtils.rm_rf(ChefApply::Config.telemetry_session_file)
-        ChefApply::Log.info("Terminating, nothing more to do.")
+        FileUtils.rm_rf(ChefCore::Config.telemetry_session_file)
+        ChefCore::Log.info("Terminating, nothing more to do.")
       rescue => e
-        ChefApply::Log.fatal "Sender thread aborted: '#{e}' failed at  #{e.backtrace[0]}"
+        ChefCore::Log.fatal "Sender thread aborted: '#{e}' failed at  #{e.backtrace[0]}"
       end
 
       def process_session(path)
-        ChefApply::Log.info("Processing telemetry entries from #{path}")
+        ChefCore::Log.info("Processing telemetry entries from #{path}")
         content = load_and_clear_session(path)
         submit_session(content)
       end
@@ -78,7 +78,7 @@ module ChefApply
         # Each file contains the actions taken within a single run of the chef tool.
         # Each run is one session, so we'll first remove remove the session file
         # to force creating a new one.
-        FileUtils.rm_rf(ChefApply::Config.telemetry_session_file)
+        FileUtils.rm_rf(ChefCore::Config.telemetry_session_file)
         # We'll use the version captured in the sesion file
         entries = content["entries"]
         cli_version = content["version"]
@@ -94,13 +94,13 @@ module ChefApply
       end
 
       def submit_entry(telemetry, entry, sequence, total)
-        ChefApply::Log.info("Submitting telemetry entry #{sequence}/#{total}: #{entry} ")
+        ChefCore::Log.info("Submitting telemetry entry #{sequence}/#{total}: #{entry} ")
         telemetry.deliver(entry)
-        ChefApply::Log.info("Entry #{sequence}/#{total} submitted.")
+        ChefCore::Log.info("Entry #{sequence}/#{total} submitted.")
       rescue => e
         # No error handling in telemetry lib, so at least track the failrue
-        ChefApply::Log.error("Failed to send entry #{sequence}/#{total}: #{e}")
-        ChefApply::Log.error("Backtrace: #{e.backtrace} ")
+        ChefCore::Log.error("Failed to send entry #{sequence}/#{total}: #{e}")
+        ChefCore::Log.error("Backtrace: #{e.backtrace} ")
       end
 
       private

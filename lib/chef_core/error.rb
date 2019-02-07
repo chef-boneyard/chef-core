@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-module ChefApply
+module ChefCore
   class Error < StandardError
     attr_reader :id, :params
     attr_accessor :show_stack, :show_log, :decorate

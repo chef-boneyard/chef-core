@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-module ChefApply
+module ChefCore
   module Text
     class ErrorTranslation
       ATTRIBUTES = [:decorations, :header, :footer, :stack, :log].freeze

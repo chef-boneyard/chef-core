@@ -1,4 +1,4 @@
-module ChefApply
+module ChefCore
   module Errors
     # Provides mappings of common errors that we don't explicitly
     # handle, but can offer expanded help text around.
@@ -19,7 +19,7 @@ module ChefApply
         if id.nil?
           exception
         else
-          e = ChefApply::Error.new(id, exception.message)
+          e = ChefCore::Error.new(id, exception.message)
           e.show_log = show_log
           e.show_stack = show_stack
           e

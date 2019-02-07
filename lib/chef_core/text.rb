@@ -16,12 +16,12 @@
 #
 
 require "r18n-desktop"
-require "chef_apply/text/text_wrapper"
-require "chef_apply/text/error_translation"
+require "chef_core/text/text_wrapper"
+require "chef_core/text/error_translation"
 
 # A very thin wrapper around R18n, the idea being that we're likely to replace r18n
 # down the road and don't want to have to change all of our commands.
-module ChefApply
+module ChefCore
   module Text
     def self._error_table
       # Though ther may be several translations, en.yml will be the only one with

@@ -1,6 +1,6 @@
 
 
-module ChefApply
+module ChefCore
   class TargetHost
     module Linux
       def omnibus_manifest_path

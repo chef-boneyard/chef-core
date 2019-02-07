@@ -15,11 +15,11 @@
 # limitations under the License.
 #
 
-require "chef_apply/log"
-require "chef_apply/error"
+require "chef_core/log"
+require "chef_core/error"
 require "train"
 
-module ChefApply
+module ChefCore
   class TargetHost
     attr_reader :config, :reporter, :backend, :transport_type
     # These values may exist in .ssh/config but will be ignored by train
@@ -81,7 +81,7 @@ module ChefApply
                           # train does not currently exposes these as separate controls. Ideally I'd like to see a 'retry_on_auth_failure' option.
                           connection_retries: 2,
                           connection_retry_sleep: 0.15,
-                          logger: ChefApply::Log }
+                          logger: ChefCore::Log }
       if opts_in.key? :ssl
         connection_opts[:ssl] = opts_in[:ssl]
         connection_opts[:self_signed] = (opts_in[:ssl_verify] === false ? true : false)
@@ -133,13 +133,13 @@ module ChefApply
     def mix_in_target_platform!
       case base_os
       when :linux
-        require "chef_apply/target_host/linux"
-        class << self; include ChefApply::TargetHost::Linux; end
+        require "chef_core/target_host/linux"
+        class << self; include ChefCore::TargetHost::Linux; end
       when :windows
-        require "chef_apply/target_host/windows"
-        class << self; include ChefApply::TargetHost::Windows; end
+        require "chef_core/target_host/windows"
+        class << self; include ChefCore::TargetHost::Windows; end
       when :other
-        raise ChefApply::TargetHost::UnsupportedTargetOS.new(platform.name)
+        raise ChefCore::TargetHost::UnsupportedTargetOS.new(platform.name)
       end
     end
 
@@ -279,7 +279,7 @@ module ChefApply
       Net::SSH::Config.for(host)
     end
 
-    class RemoteExecutionFailed < ChefApply::ErrorNoLogs
+    class RemoteExecutionFailed < ChefCore::ErrorNoLogs
       attr_reader :stdout, :stderr
       def initialize(host, command, result)
         super("CHEFRMT001",
@@ -290,7 +290,7 @@ module ChefApply
       end
     end
 
-    class ConnectionFailure < ChefApply::ErrorNoLogs
+    class ConnectionFailure < ChefCore::ErrorNoLogs
       # TODO: Currently this only handles sudo-related errors;
       # we should also look at e.cause for underlying connection errors
       # which are presently only visible in log files.
@@ -319,7 +319,7 @@ module ChefApply
       end
     end
     class ChefNotInstalled < StandardError; end
-    class UnsupportedTargetOS < ChefApply::ErrorNoLogs
+    class UnsupportedTargetOS < ChefCore::ErrorNoLogs
       def initialize(os_name); super("CHEFTARG001", os_name); end
     end
   end

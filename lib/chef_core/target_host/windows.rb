@@ -1,5 +1,5 @@
 
-module ChefApply
+module ChefCore
   class TargetHost
     module Windows
       def omnibus_manifest_path

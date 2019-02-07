@@ -1,22 +1,22 @@
 
 require "spec_helper"
-require "chef_apply/target_host"
-require "chef_apply/target_host/windows"
+require "chef_core/target_host"
+require "chef_core/target_host/windows"
 
-RSpec.describe ChefApply::TargetHost::Windows do
+RSpec.describe ChefCore::TargetHost::Windows do
   let(:host) { "mock://user@example.com" }
   let(:family) { "windows" }
   let(:name) { "windows" }
   let(:path) { "C:\\temp\\blah" }
 
   subject do
-    ChefApply::TargetHost.mock_instance(host, family: family, name: name)
+    ChefCore::TargetHost.mock_instance(host, family: family, name: name)
   end
 
   context "#make_temp_dir" do
     it "creates the temporary directory using the correct PowerShell command and returns the path" do
       expect(subject).to receive(:run_command!)
-        .with(ChefApply::TargetHost::Windows::MKTEMP_COMMAND)
+        .with(ChefCore::TargetHost::Windows::MKTEMP_COMMAND)
         .and_return(instance_double("result", stdout: path))
       expect(subject.make_temp_dir()).to eq(path)
     end
