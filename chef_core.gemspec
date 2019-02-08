@@ -41,6 +41,8 @@ Gem::Specification.new do |spec|
    spec.add_dependency "mixlib-log"    # Basis for our traditional logger
    spec.add_dependency "train" # remote connection management over ssh, winrm
    spec.add_dependency "chef-telemetry"
+  spec.add_dependency "r18n-desktop" # easy path to message text management via
+                                     # localization gem...
 
   spec.add_development_dependency "bundler"
   spec.add_development_dependency "rake"
