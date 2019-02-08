@@ -18,7 +18,7 @@
 require "chef_apply/error"
 require "chef_apply/action/install_chef/minimum_chef_version"
 
-module ChefApply
+module ChefCore::Actions
   module Action
     class InstallChef < Base
       class MinimumChefVersion
@@ -37,7 +37,7 @@ module ChefApply
         def self.check!(target, check_only)
           begin
             installed_version = target.installed_chef_version
-          rescue ChefApply::TargetHost::ChefNotInstalled
+          rescue ChefCore::Actions::TargetHost::ChefNotInstalled
             if check_only
               raise ClientNotInstalled.new()
             end
@@ -63,17 +63,17 @@ module ChefApply
           :minimum_version_met
         end
 
-        class ClientNotInstalled < ChefApply::ErrorNoLogs
+        class ClientNotInstalled < ChefCore::Actions::ErrorNoLogs
           def initialize(); super("CHEFINS002"); end
         end
 
-        class Client13Outdated < ChefApply::ErrorNoLogs
+        class Client13Outdated < ChefCore::Actions::ErrorNoLogs
           def initialize(current_version, min_13_version, min_14_version)
             super("CHEFINS003", current_version, min_13_version, min_14_version)
           end
         end
 
-        class Client14Outdated < ChefApply::ErrorNoLogs
+        class Client14Outdated < ChefCore::Actions::ErrorNoLogs
           def initialize(current_version, target_version)
             super("CHEFINS004", current_version, target_version)
           end

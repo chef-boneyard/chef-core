@@ -62,12 +62,12 @@ require "support/matchers/output_to_terminal"
 
 RemoteExecResult = Struct.new(:exit_status, :stdout, :stderr)
 
-class ChefApply::MockReporter
-  def update(msg); ChefApply::UI::Terminal.output msg; end
+class ChefCore::Actions::MockReporter
+  def update(msg); ChefCore::Actions::UI::Terminal.output msg; end
 
-  def success(msg); ChefApply::UI::Terminal.output "SUCCESS: #{msg}"; end
+  def success(msg); ChefCore::Actions::UI::Terminal.output "SUCCESS: #{msg}"; end
 
-  def error(msg); ChefApply::UI::Terminal.output "FAILURE: #{msg}"; end
+  def error(msg); ChefCore::Actions::UI::Terminal.output "FAILURE: #{msg}"; end
 end
 
 RSpec::Matchers.define :exit_with_code do |expected_code|
@@ -113,7 +113,7 @@ def assert_string_lookup(key, retval = "testvalue")
     # we need to add this individually instead of using
     # `receive_messages`, which doesn't appear to give a way to
     # guarantee ordering
-    expect(ChefApply::Text).to receive(top_level_method)
+    expect(ChefCore::Actions::Text).to receive(top_level_method)
       .and_return(tmock)
     call_seq.each do |m|
       expect(tmock).to receive(m).ordered.and_return(tmock)
@@ -142,8 +142,8 @@ RSpec.configure do |config|
   end
 
   config.before(:all) do
-    ChefApply::Log.setup "/dev/null", :error
-    ChefApply::UI::Terminal.init(File.open("/dev/null", "w"))
+    ChefCore::Actions::Log.setup "/dev/null", :error
+    ChefCore::Actions::UI::Terminal.init(File.open("/dev/null", "w"))
   end
 end
 

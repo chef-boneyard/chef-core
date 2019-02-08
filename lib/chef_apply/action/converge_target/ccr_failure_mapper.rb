@@ -17,7 +17,7 @@
 
 require "chef_apply/error"
 
-module ChefApply
+module ChefCore::Actions
   module Action
     class ConvergeTarget
       # This converts chef client run failures
@@ -81,15 +81,15 @@ module ChefApply
           end
         end
 
-        class RemoteChefClientRunFailed < ChefApply::ErrorNoLogs
+        class RemoteChefClientRunFailed < ChefCore::Actions::ErrorNoLogs
           def initialize(id, *args); super(id, *args); end
         end
 
-        class RemoteChefClientRunFailedUnknownReason < ChefApply::ErrorNoStack
+        class RemoteChefClientRunFailedUnknownReason < ChefCore::Actions::ErrorNoStack
           def initialize(); super("CHEFCCR099"); end
         end
 
-        class RemoteChefRunFailedToResolveError < ChefApply::ErrorNoStack
+        class RemoteChefRunFailedToResolveError < ChefCore::Actions::ErrorNoStack
           def initialize(path); super("CHEFCCR001", path); end
         end
 

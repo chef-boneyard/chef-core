@@ -21,7 +21,7 @@ require "chef_apply/error"
 require "chef_apply/log"
 require "chef_apply/action/base"
 
-module ChefApply
+module ChefCore::Actions
   module Action
     class GenerateTempCookbook
       # When users are trying to converge a local recipe on a remote target, there
@@ -93,22 +93,22 @@ module ChefApply
           end
         end
 
-        class InvalidCookbook < ChefApply::Error
+        class InvalidCookbook < ChefCore::Actions::Error
           def initialize(cookbook_path); super("CHEFVAL005", cookbook_path); end
         end
 
-        class CookbookNotFound < ChefApply::Error
+        class CookbookNotFound < ChefCore::Actions::Error
           def initialize(cookbook_name, repo_paths)
             repo_paths = repo_paths.join("\n")
             super("CHEFVAL006", cookbook_name, repo_paths)
           end
         end
 
-        class NoDefaultRecipe < ChefApply::Error
+        class NoDefaultRecipe < ChefCore::Actions::Error
           def initialize(cookbook_path, cookbook_name); super("CHEFVAL007", cookbook_path, cookbook_name); end
         end
 
-        class RecipeNotFound < ChefApply::Error
+        class RecipeNotFound < ChefCore::Actions::Error
           def initialize(cookbook_path, recipe_name, available_recipes, cookbook_name)
             available_recipes.map! { |r| "'#{r}'" }
             available_recipes = available_recipes.join(", ")

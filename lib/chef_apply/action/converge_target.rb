@@ -21,7 +21,7 @@ require "tempfile"
 # FLAG: require "chef/util/path_helper"
 require "chef/util/path_helper"
 
-module ChefApply
+module ChefCore::Actions
   module Action
     class ConvergeTarget < Base
 
@@ -44,15 +44,15 @@ module ChefApply
         c = target_host.run_command(cmd_str)
         target_host.del_dir(remote_dir_path)
         if c.exit_status == 0
-          ChefApply::Log.info(c.stdout)
+          ChefCore::Actions::Log.info(c.stdout)
           notify(:success)
         elsif c.exit_status == 35
           notify(:reboot)
         else
           notify(:converge_error)
-          ChefApply::Log.error("Error running command [#{cmd_str}]")
-          ChefApply::Log.error("stdout: #{c.stdout}")
-          ChefApply::Log.error("stderr: #{c.stderr}")
+          ChefCore::Actions::Log.error("Error running command [#{cmd_str}]")
+          ChefCore::Actions::Log.error("stdout: #{c.stdout}")
+          ChefCore::Actions::Log.error("stderr: #{c.stderr}")
           handle_ccr_error()
         end
       end
@@ -63,7 +63,7 @@ module ChefApply
         begin
           target_host.upload_file(local_policy_path, remote_policy_path)
         rescue RuntimeError => e
-          ChefApply::Log.error(e)
+          ChefCore::Actions::Log.error(e)
           raise PolicyUploadFailed.new()
         end
         remote_policy_path
@@ -78,7 +78,7 @@ module ChefApply
           cache_path "#{target_host.ws_cache_path}"
           chef_repo_path "#{target_host.ws_cache_path}"
           require_relative "reporter"
-          reporter = ChefApply::Reporter.new
+          reporter = ChefCore::Actions::Reporter.new
           report_handlers << reporter
           exception_handlers << reporter
         EOM
@@ -86,7 +86,7 @@ module ChefApply
         # add the target host's log level value
         # (we don't set a location because we want output to
         #   go in stdout for reporting back to chef-apply)
-        log_settings = ChefApply::Config.log
+        log_settings = ChefCore::Actions::Config.log
         if !log_settings.target_level.nil?
           workstation_rb << <<~EOM
             log_level :#{log_settings.target_level}
@@ -94,7 +94,7 @@ module ChefApply
         end
 
         # Maybe add data collector endpoint.
-        dc = ChefApply::Config.data_collector
+        dc = ChefCore::Actions::Config.data_collector
         if !dc.url.nil? && !dc.token.nil?
           workstation_rb << <<~EOM
             data_collector.server_url "#{dc.url}"
@@ -137,7 +137,7 @@ module ChefApply
 
       def upload_trusted_certs(dir)
         # TODO BOOTSTRAP - trusted certs dir and other config to be received as argument to constructor
-        local_tcd = Chef::Util::PathHelper.escape_glob_dir(ChefApply::Config.chef.trusted_certs_dir)
+        local_tcd = Chef::Util::PathHelper.escape_glob_dir(ChefCore::Actions::Config.chef.trusted_certs_dir)
         certs = Dir.glob(File.join(local_tcd, "*.{crt,pem}"))
         return if certs.empty?
 
@@ -160,17 +160,17 @@ module ChefApply
         if content.nil?
           report = {}
           mapper_opts[:failed_report_path] = chef_report_path
-          ChefApply::Log.error("Could not read remote report at #{chef_report_path}")
+          ChefCore::Actions::Log.error("Could not read remote report at #{chef_report_path}")
         else
           # We need to delete the stacktrace after copying it over. Otherwise if we get a
           # remote failure that does not write a chef stacktrace its possible to get an old
           # stale stacktrace.
           target_host.del_file(chef_report_path)
           report = JSON.parse(content)
-          ChefApply::Log.error("Remote chef-client error follows:")
-          ChefApply::Log.error(report["exception"])
+          ChefCore::Actions::Log.error("Remote chef-client error follows:")
+          ChefCore::Actions::Log.error(report["exception"])
         end
-        mapper = ChefApply::Action::ConvergeTarget::CCRFailureMapper.new(report["exception"], mapper_opts)
+        mapper = ChefCore::Actions::Action::ConvergeTarget::CCRFailureMapper.new(report["exception"], mapper_opts)
         mapper.raise_mapped_exception!
       end
 
@@ -197,15 +197,15 @@ module ChefApply
         end
       end
 
-      class ConfigUploadFailed < ChefApply::Error
+      class ConfigUploadFailed < ChefCore::Actions::Error
         def initialize(); super("CHEFUPL003"); end
       end
 
-      class HandlerUploadFailed < ChefApply::Error
+      class HandlerUploadFailed < ChefCore::Actions::Error
         def initialize(); super("CHEFUPL004"); end
       end
 
-      class PolicyUploadFailed < ChefApply::Error
+      class PolicyUploadFailed < ChefCore::Actions::Error
         def initialize(); super("CHEFUPL005"); end
       end
     end

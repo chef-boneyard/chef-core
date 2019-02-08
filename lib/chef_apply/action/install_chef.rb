@@ -19,7 +19,7 @@ require "chef_apply/action/base"
 require "chef_apply/action/install_chef/minimum_chef_version"
 require "fileutils"
 
-module ChefApply
+module ChefCore::Actions
   module Action
     class InstallChef < Base
       def initialize(opts = { check_only: false })
@@ -104,7 +104,7 @@ module ChefApply
 
       def download_to_workstation(url_path)
         require "chef_apply/file_fetcher"
-        ChefApply::FileFetcher.fetch(Chef::Config.cache.path,
+        ChefCore::Actions::FileFetcher.fetch(Chef::Config.cache.path,
                                      url_path)
       end
 

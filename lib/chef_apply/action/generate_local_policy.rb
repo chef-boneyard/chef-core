@@ -17,7 +17,7 @@
 
 require "chef_apply/action/base"
 require "chef_apply/error"
-module ChefApply
+module ChefCore::Actions
   module Action
     class GenerateLocalPolicy < Base
       attr_reader :archive_file_location
@@ -54,7 +54,7 @@ module ChefApply
       end
 
     end
-    class PolicyfileInstallError < ChefApply::Error
+    class PolicyfileInstallError < ChefCore::Actions::Error
       def initialize(cause_err); super("CHEFPOLICY001", cause_err.message); end
     end
   end

@@ -18,7 +18,7 @@
 require "chef_apply/telemeter"
 require "chef_apply/error"
 
-module ChefApply
+module ChefCore::Actions
   module Action
     # Derive new Actions from Action::Base
     # "target_host" is a TargetHost that the action is being applied to. May be nil
@@ -86,7 +86,7 @@ module ChefApply
 
       def notify(action, *args)
         return if @notification_handler.nil?
-        ChefApply::Log.debug("[#{self.class.name}] Action: #{action}, Action Data: #{args}")
+        ChefCore::Actions::Log.debug("[#{self.class.name}] Action: #{action}, Action Data: #{args}")
         @notification_handler.call(action, args) if @notification_handler
       end
     end

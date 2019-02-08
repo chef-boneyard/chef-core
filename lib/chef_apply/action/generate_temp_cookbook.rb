@@ -16,7 +16,7 @@
 #
 require "chef_apply/action/base"
 require "chef_apply/error"
-module ChefApply
+module ChefCore::Actions
   module Action
     class GenerateTempCookbook < Base
       attr_reader :generated_cookbook
@@ -54,9 +54,9 @@ module ChefApply
       def generate
         recipe_specifier = config.delete :recipe_spec
         repo_paths = config.delete :cookbook_repo_paths
-        ChefApply::Log.debug("Beginning to look for recipe specified as #{recipe_specifier}")
+        ChefCore::Actions::Log.debug("Beginning to look for recipe specified as #{recipe_specifier}")
         if File.file?(recipe_specifier)
-          ChefApply::Log.debug("#{recipe_specifier} is a valid path to a recipe")
+          ChefCore::Actions::Log.debug("#{recipe_specifier} is a valid path to a recipe")
           recipe_path = recipe_specifier
         else
           require "chef_apply/action/generate_temp_cookbook/recipe_lookup"
@@ -74,12 +74,12 @@ module ChefApply
         type = config.delete :resource_type
         name = config.delete :resource_name
         props = config.delete :resource_properties
-        ChefApply::Log.debug("Generating cookbook for ad-hoc resource #{type}[#{name}]")
+        ChefCore::Actions::Log.debug("Generating cookbook for ad-hoc resource #{type}[#{name}]")
         generated_cookbook.from_resource(type, name, props)
       end
     end
 
-    class MissingOptions < ChefApply::APIError
+    class MissingOptions < ChefCore::Actions::APIError
       def initialize(*args); super("CHEFAPI001", *args); end
     end
   end
