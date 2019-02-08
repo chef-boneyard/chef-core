@@ -18,7 +18,19 @@
 require "spec_helper"
 require "chef_core/text"
 
+# This is a bit of a hack - the 'errors' key does not actually exist
+# on Text because we're not loading real data.  We're going to fake it
+# this way, which will let us mock out 'Text.errors' for testing the
+# error loading behaviors of ErrorTranslation
+module ChefCore
+  module Text
+    def self.errors
+    end
+  end
+end
+
 RSpec.describe ChefCore::Text::ErrorTranslation do
+
 
   let(:display_defaults) do
     {
