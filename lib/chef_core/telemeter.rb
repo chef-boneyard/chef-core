@@ -21,8 +21,6 @@ require "singleton"
 require "json"
 require "digest/sha1"
 require "securerandom"
-require "chef_core/version"
-require "chef_core/config"
 require "yaml"
 
 module ChefCore
@@ -37,16 +35,30 @@ module ChefCore
 
     class << self
       extend Forwardable
-      def_delegators :instance, :timed_capture, :capture, :commit, :timed_action_capture, :timed_run_capture
+      def_delegators :instance, :setup, :timed_capture, :capture, :commit, :timed_run_capture
       def_delegators :instance, :pending_event_count, :last_event, :enabled?
-      def_delegators :instance, :make_event_payload
+      def_delegators :instance, :make_event_payload, :config
     end
 
-    attr_reader :events_to_send, :run_timestamp
+    attr_reader :events_to_send, :run_timestamp, :config
+
+    def setup(config)
+      # TODO validate required & correct keys
+      # :payload_dir #required
+      # :session_file # required
+      # :installation_identifier_file # required
+      # :enabled  # false, not required
+      # :dev_mode # false, not required
+      config[:dev_mode] ||= false
+      config[:enabled] ||= false
+      require "chef_core/telemeter/sender"
+      @config = config
+      Sender.start_upload_thread(config)
+    end
 
     def enabled?
       require "telemetry/decision"
-      ChefCore::Config.telemetry.enable && !Telemetry::Decision.env_opt_out?
+      config[:enabled] && !Telemetry::Decision.env_opt_out?
     end
 
     def initialize
@@ -54,24 +66,14 @@ module ChefCore
       @run_timestamp =  Time.now.utc.strftime("%FT%TZ")
     end
 
-    def timed_action_capture(action, &block)
-      # Note: we do not directly capture hostname for privacy concerns, but
-      # using a sha1 digest will allow us to anonymously see
-      # unique hosts to derive number of hosts affected by a command
-      target = action.target_host
-      target_data = { platform: {}, hostname_sha1: nil, transport_type: nil }
-      if target
-        target_data[:platform][:name] = target.base_os # :windows, :linux, eventually :macos
-        target_data[:platform][:version] = target.version
-        target_data[:platform][:architecture] = target.architecture
-        target_data[:hostname_sha1] = Digest::SHA1.hexdigest(target.hostname.downcase)
-        target_data[:transport_type] = target.transport_type
-      end
-      timed_capture(:action, { action: action.name, target: target_data }, &block)
-    end
-
     def timed_run_capture(arguments, &block)
       timed_capture(:run, arguments: arguments, &block)
+    end
+
+    def timed_capture(name, data = {})
+      time = Benchmark.measure { yield }
+      data[:duration] = time.real
+      capture(name, data)
     end
 
     def capture(name, data = {})
@@ -79,12 +81,6 @@ module ChefCore
       # sequence of events is preserved when we send the final payload
       payload = make_event_payload(name, data)
       @events_to_send.unshift payload
-    end
-
-    def timed_capture(name, data = {})
-      time = Benchmark.measure { yield }
-      data[:duration] = time.real
-      capture(name, data)
     end
 
     def commit
@@ -110,9 +106,9 @@ module ChefCore
     def installation_id
       @installation_id ||=
         begin
-          File.read(ChefCore::Config.telemetry_installation_identifier_file).chomp
+          File.read(config[:installation_identifier_file]).chomp
         rescue
-          ChefCore::Log.info "could not read #{ChefApply::Config.telemetry_installation_identifier_file} - using default id"
+          ChefCore::Log.info "could not read #{config[:installation_identifier_file]} - using default id"
           DEFAULT_INSTALLATION_GUID
         end
     end
@@ -151,8 +147,7 @@ module ChefCore
       filename = ""
       loop do
         id += 1
-        filename = File.join(ChefCore::Config.telemetry_path,
-                             "telemetry-payload-#{id}.yml")
+        filename = File.join(config[:payload_dir], "telemetry-payload-#{id}.yml")
         break unless File.exist?(filename)
       end
       filename

@@ -35,6 +35,10 @@ module ChefCore
       @translation_path ||= File.join(File.dirname(__FILE__), "..", "..", "i18n")
     end
 
+    # TODO BOOTSTRAP - must support loading from each gem's
+    #                  text (in particular i18n/errors/*.yml)
+    #                  We may need to accept the translation paths
+    #                  as a list.
     def self.load
       R18n.from_env(Text._translation_path)
       R18n.extension_places << File.join(Text._translation_path, "errors")

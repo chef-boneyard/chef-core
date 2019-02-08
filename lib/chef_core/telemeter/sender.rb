@@ -24,34 +24,36 @@ require "chef_core/version"
 module ChefCore
   class Telemeter
     class Sender
-      attr_reader :session_files
+      attr_reader :session_files, :config
 
-      def self.start_upload_thread
+      def self.start_upload_thread(config)
         # Find the files before we spawn the thread - otherwise
         # we may accidentally pick up the current run's session file if it
         # finishes before the thread scans for new files
-        session_files = Sender.find_session_files
-        sender = Sender.new(session_files)
+        session_files = Sender.find_session_files(config)
+        sender = Sender.new(session_files, config)
         Thread.new { sender.run }
-      end
+     end
 
-      def self.find_session_files
+      def self.find_session_files(config)
         ChefCore::Log.info("Looking for telemetry data to submit")
-        session_search = File.join(ChefCore::Config.telemetry_path, "telemetry-payload-*.yml")
+        session_search = File.join(config[:payload_dir], "telemetry-payload-*.yml")
         session_files = Dir.glob(session_search)
         ChefCore::Log.info("Found #{session_files.length} sessions to submit")
         session_files
       end
 
-      def initialize(session_files)
+      def initialize(session_files, config)
         @session_files = session_files
+        @config = config
       end
 
       def run
         if ChefCore::Telemeter.enabled?
           ChefCore::Log.info("Telemetry enabled, beginning upload of previous session(s)")
           # dev mode telemetry gets sent to a different location
-          if ChefCore::Config.telemetry.dev
+
+          if config[:dev_mode]
             ENV["CHEF_TELEMETRY_ENDPOINT"] ||= "https://telemetry-acceptance.chef.io"
           end
           session_files.each { |path| process_session(path) }
@@ -62,7 +64,7 @@ module ChefCore
           ChefCore::Log.info("Telemetry disabled, clearing any existing session captures without sending them.")
           session_files.each { |path| FileUtils.rm_rf(path) }
         end
-        FileUtils.rm_rf(ChefCore::Config.telemetry_session_file)
+        FileUtils.rm_rf(config[:session_file])
         ChefCore::Log.info("Terminating, nothing more to do.")
       rescue => e
         ChefCore::Log.fatal "Sender thread aborted: '#{e}' failed at  #{e.backtrace[0]}"
@@ -78,7 +80,7 @@ module ChefCore
         # Each file contains the actions taken within a single run of the chef tool.
         # Each run is one session, so we'll first remove remove the session file
         # to force creating a new one.
-        FileUtils.rm_rf(ChefCore::Config.telemetry_session_file)
+        FileUtils.rm_rf(config[:session_file])
         # We'll use the version captured in the sesion file
         entries = content["entries"]
         cli_version = content["version"]

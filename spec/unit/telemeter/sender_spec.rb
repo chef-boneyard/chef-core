@@ -17,21 +17,26 @@
 
 require "spec_helper"
 require "chef_core/telemeter/sender"
-require "chef_core/config"
 
 RSpec.describe ChefCore::Telemeter::Sender do
   let(:session_files) { %w{file1 file2} }
   let(:enabled_flag) { true }
   let(:dev_mode) { false }
-  let(:config) { double("config") }
-
-  let(:subject) { ChefCore::Telemeter::Sender.new(session_files) }
+  let(:config) {
+    {
+      payload_dir: "/tmp/telemeter-test/payloads",
+      session_file: "/tmp/telemeter-test/TELEMETRY_SESSION_ID",
+      installation_identifier_file: "/etc/chef/chef_guid",
+      dev_mode:dev_mode
+    }
+  }
+  let(:subject) { ChefCore::Telemeter::Sender.new(session_files, config) }
 
   before do
-    allow(config).to receive(:dev).and_return dev_mode
-    allow(ChefCore::Config).to receive(:telemetry).and_return config
+    allow(subject).to receive(:config).and_return(config)
     allow(ChefCore::Telemeter).to receive(:enabled?).and_return enabled_flag
-    # Ensure this is not set for each test:
+    # Ensure this is not set for each test since we have tested behavior
+    # based on presence of this variable.
     ENV.delete("CHEF_TELEMETRY_ENDPOINT")
   end
 
@@ -39,16 +44,16 @@ RSpec.describe ChefCore::Telemeter::Sender do
     let(:sender_mock) { instance_double(ChefCore::Telemeter::Sender) }
     it "spawns a thread to run the send" do
       expect(ChefCore::Telemeter::Sender).to receive(:find_session_files).and_return session_files
-      expect(ChefCore::Telemeter::Sender).to receive(:new).with(session_files).and_return sender_mock
+      expect(ChefCore::Telemeter::Sender).to receive(:new).with(session_files, config).and_return sender_mock
       expect(sender_mock).to receive(:run)
       expect(::Thread).to receive(:new).and_yield
-      ChefCore::Telemeter::Sender.start_upload_thread
+      ChefCore::Telemeter::Sender.start_upload_thread(config)
     end
   end
 
   describe "#run" do
     before do
-      expect(subject).to receive(:session_files).and_return session_files
+      allow(subject).to receive(:session_files).and_return session_files
     end
 
     context "when telemetry is disabled" do
@@ -56,7 +61,7 @@ RSpec.describe ChefCore::Telemeter::Sender do
       it "deletes session files without sending" do
         expect(FileUtils).to receive(:rm_rf).with("file1")
         expect(FileUtils).to receive(:rm_rf).with("file2")
-        expect(FileUtils).to receive(:rm_rf).with(ChefCore::Config.telemetry_session_file)
+        expect(FileUtils).to receive(:rm_rf).with(config[:session_file])
         expect(subject).to_not receive(:process_session)
         subject.run
       end
@@ -87,14 +92,13 @@ RSpec.describe ChefCore::Telemeter::Sender do
       it "submits the session capture for each session file found" do
         expect(subject).to receive(:process_session).with("file1")
         expect(subject).to receive(:process_session).with("file2")
-        expect(FileUtils).to receive(:rm_rf).with(ChefCore::Config.telemetry_session_file)
         subject.run
       end
     end
 
     context "when an error occurrs" do
       it "logs it" do
-        allow(config).to receive(:enabled?).and_raise("Failed")
+        allow(ChefCore::Telemeter).to receive(:enabled?).and_raise("Failed")
         expect(ChefCore::Log).to receive(:fatal)
         subject.run
       end
@@ -103,9 +107,8 @@ RSpec.describe ChefCore::Telemeter::Sender do
 
   describe "::find_session_files" do
     it "finds all telemetry-payload-*.yml files in the telemetry directory" do
-      expect(ChefCore::Config).to receive(:telemetry_path).and_return("/tmp")
-      expect(Dir).to receive(:glob).with("/tmp/telemetry-payload-*.yml").and_return []
-      ChefCore::Telemeter::Sender.find_session_files
+      expect(Dir).to receive(:glob).with("/tmp/telemeter-test/payloads/telemetry-payload-*.yml").and_return []
+      ChefCore::Telemeter::Sender.find_session_files(config)
     end
   end
 
@@ -120,8 +123,7 @@ RSpec.describe ChefCore::Telemeter::Sender do
   describe "submit_session" do
     let(:telemetry) { instance_double("telemetry") }
     it "removes the telemetry session file and starts a new session, then submits each entry in the session" do
-      expect(ChefCore::Config).to receive(:telemetry_session_file).and_return("/tmp/SESSION_ID")
-      expect(FileUtils).to receive(:rm_rf).with("/tmp/SESSION_ID")
+      expect(FileUtils).to receive(:rm_rf).with(config[:session_file])
       expect(Telemetry).to receive(:new).and_return telemetry
       expect(subject).to receive(:submit_entry).with(telemetry, { "event" => "action1" }, 1, 2)
       expect(subject).to receive(:submit_entry).with(telemetry, { "event" => "action2" }, 2, 2)
