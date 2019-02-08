@@ -21,7 +21,7 @@ require "chef_core/actions/version"
 
 Gem::Specification.new do |spec|
   spec.name          = "chef-core_actions"
-  spec.version       = ChefApply::VERSION
+  spec.version       = ChefCore::Actions::VERSION
   spec.authors       = ["Chef Software, Inc"]
   spec.email         = ["workstation@chef.io"]
 
@@ -38,6 +38,8 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency "chef_core"
+  spec.add_dependency "chef"
+  spec.add_dependency "chef-dk"
 
   spec.add_development_dependency "bundler"
   spec.add_development_dependency "rake"
