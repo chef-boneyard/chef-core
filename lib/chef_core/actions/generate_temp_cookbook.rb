@@ -14,8 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-require "chef_apply/action/base"
-require "chef_apply/error"
+require "chef_core/actions/base"
+require "chef_core/error"
 module ChefCore::Actions
   module Action
     class GenerateTempCookbook < Base
@@ -35,7 +35,7 @@ module ChefCore::Actions
 
       def initialize(options)
         super(options)
-        require "chef_apply/action/generate_temp_cookbook/temp_cookbook"
+        require "chef_core/actions/generate_temp_cookbook/temp_cookbook"
         @generated_cookbook ||= TempCookbook.new
       end
 
@@ -59,7 +59,7 @@ module ChefCore::Actions
           ChefCore::Actions::Log.debug("#{recipe_specifier} is a valid path to a recipe")
           recipe_path = recipe_specifier
         else
-          require "chef_apply/action/generate_temp_cookbook/recipe_lookup"
+          require "chef_core/actions/generate_temp_cookbook/recipe_lookup"
           rl = RecipeLookup.new(repo_paths)
           cookbook_path_or_name, optional_recipe_name = rl.split(recipe_specifier)
           cookbook = rl.load_cookbook(cookbook_path_or_name)

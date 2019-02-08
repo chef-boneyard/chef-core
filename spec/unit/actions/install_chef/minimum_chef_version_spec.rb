@@ -15,8 +15,8 @@
 # limitations under the License.
 #
 
-require "chef_apply/action/install_chef/minimum_chef_version"
-require "chef_apply/target_host"
+require "chef_core/actions/install_chef/minimum_chef_version"
+require "chef_core/target_host"
 require "actions/spec_helper"
 
 RSpec.describe ChefCore::Actions::Action::InstallChef::MinimumChefVersion do

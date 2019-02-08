@@ -16,7 +16,7 @@
 #
 
 require "actions/spec_helper"
-require "chef_apply/action/install_chef"
+require "chef_core/actions/install_chef"
 
 RSpec.describe ChefCore::Actions::Action::InstallChef do
   let(:mock_os_name) { "linux" }

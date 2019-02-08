@@ -15,8 +15,8 @@
 # limitations under the License.
 #
 
-require "chef_apply/telemeter"
-require "chef_apply/error"
+require "chef_core/telemeter"
+require "chef_core/error"
 
 module ChefCore::Actions
   module Action

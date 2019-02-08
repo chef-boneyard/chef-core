@@ -17,9 +17,9 @@
 
 require "tmpdir"
 require "fileutils"
-require "chef_apply/log"
-require "chef_apply/error"
-require "chef_apply/action/generate_temp_cookbook"
+require "chef_core/log"
+require "chef_core/error"
+require "chef_core/actions/generate_temp_cookbook"
 module ChefCore::Actions
   module Action
     class GenerateTempCookbook

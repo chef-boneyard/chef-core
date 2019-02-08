@@ -15,8 +15,8 @@
 # limitations under the License.
 #
 
-require "chef_apply/error"
-require "chef_apply/action/install_chef/minimum_chef_version"
+require "chef_core/error"
+require "chef_core/actions/install_chef/minimum_chef_version"
 
 module ChefCore::Actions
   module Action

@@ -16,9 +16,9 @@
 #
 
 require "actions/spec_helper"
-require "chef_apply/action/base"
-require "chef_apply/telemeter"
-require "chef_apply/target_host"
+require "chef_core/actions/base"
+require "chef_core/telemeter"
+require "chef_core/target_host"
 
 RSpec.describe ChefCore::Actions::Action::Base do
   let(:family) { "windows" }

@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-require "chef_apply/action/generate_temp_cookbook"
+require "chef_core/actions/generate_temp_cookbook"
 
 RSpec.describe ChefCore::Actions::Action::GenerateTempCookbook do
   let(:options) { {} }

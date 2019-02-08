@@ -16,7 +16,7 @@
 #
 
 require "actions/spec_helper"
-require "chef_apply/action/converge_target/ccr_failure_mapper"
+require "chef_core/actions/converge_target/ccr_failure_mapper"
 
 RSpec.describe ChefCore::Actions::Action::ConvergeTarget::CCRFailureMapper do
   let(:cause_line) { nil }

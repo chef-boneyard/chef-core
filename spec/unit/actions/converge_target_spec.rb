@@ -16,9 +16,9 @@
 #
 
 require "actions/spec_helper"
-require "chef_apply/target_host"
-require "chef_apply/action/converge_target"
-require "chef_apply/action/converge_target/ccr_failure_mapper"
+require "chef_core/target_host"
+require "chef_core/actions/converge_target"
+require "chef_core/actions/converge_target/ccr_failure_mapper"
 
 RSpec.describe ChefCore::Actions::Action::ConvergeTarget do
   let(:archive) { "archive.tgz" }

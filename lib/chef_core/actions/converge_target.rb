@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-require "chef_apply/action/base"
+require "chef_core/actions/base"
 require "pathname"
 require "tempfile"
 # FLAG: require "chef/util/path_helper"
@@ -154,7 +154,7 @@ module ChefCore::Actions
       end
 
       def handle_ccr_error
-        require "chef_apply/action/converge_target/ccr_failure_mapper"
+        require "chef_core/actions/converge_target/ccr_failure_mapper"
         mapper_opts = {}
         content = target_host.fetch_file_contents(chef_report_path)
         if content.nil?
