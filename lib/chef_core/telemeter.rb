@@ -51,7 +51,9 @@ module ChefCore
       # :dev_mode # false, not required
       config[:dev_mode] ||= false
       config[:enabled] ||= false
+      require "chef_core/telemeter/sender"
       @config = config
+      Sender.start_upload_thread(config)
     end
 
     def enabled?
