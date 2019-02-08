@@ -17,16 +17,13 @@
 
 require "net/http"
 require "uri"
-require "chef_core/config"
-require "chef_core/log"
 
 module ChefCore
   class FileFetcher
     class << self
       # Simple fetcher of an http(s) url. Returns the local path
       # of the downloaded file.
-      def fetch(path)
-        cache_path = ChefCore::Config.cache.path
+      def fetch(cache_path, path)
         FileUtils.mkdir_p(cache_path)
         url = URI.parse(path)
         name = File.basename(url.path)

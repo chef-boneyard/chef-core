@@ -19,13 +19,14 @@ require "chef_core/file_fetcher"
 require "spec_helper"
 
 RSpec.describe ChefCore::FileFetcher do
-  let(:expected_local_location) { File.join(ChefCore::Config.cache.path, "example.txt") }
+  let(:expected_local_location) { "/tmp/cache/example.txt" }
   subject { ChefCore::FileFetcher }
   describe ".fetch" do
     it "returns the local path when the file is cached" do
       allow(FileUtils).to receive(:mkdir)
       expect(File).to receive(:exist?).with(expected_local_location).and_return(true)
-      result = subject.fetch("https://example.com/example.txt")
+
+      result = subject.fetch("/tmp/cache", "https://example.com/example.txt")
       expect(result).to eq expected_local_location
     end
 
@@ -33,7 +34,7 @@ RSpec.describe ChefCore::FileFetcher do
       allow(FileUtils).to receive(:mkdir)
       expect(File).to receive(:exist?).with(expected_local_location).and_return(false)
       expect(subject).to receive(:download_file)
-      result = subject.fetch("https://example.com/example.txt")
+      result = subject.fetch("/tmp/cache", "https://example.com/example.txt")
       expect(result).to eq expected_local_location
     end
   end
