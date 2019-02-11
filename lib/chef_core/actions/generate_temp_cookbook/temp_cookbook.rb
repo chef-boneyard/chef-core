@@ -20,16 +20,17 @@ require "fileutils"
 require "chef_core/log"
 require "chef_core/error"
 require "chef_core/actions/generate_temp_cookbook"
-module ChefCore::Actions
-  module Action
-    class GenerateTempCookbook
+module ChefCore
+  module Actions
+    class GenerateTempCookbook < Base
       # This class knows how to create a local cookbook in a temp file, populate
       # it with various recipes, attributes, config, etc. and delete it when the
       # cookbook is no longer necessary
       class TempCookbook
         attr_reader :path, :descriptor, :from
-        def initialize
+        def initialize(cookbook_repo_paths)
           @path = Dir.mktmpdir("cw")
+          @cookbook_repo_paths = cookbook_repo_paths
         end
 
         def from_existing_recipe(existing_recipe_path)
@@ -38,7 +39,7 @@ module ChefCore::Actions
           cb = cookbook_for_recipe(existing_recipe_path)
           if cb
             # Full existing cookbook - only needs policyfile
-            ChefCore::Actions::Log.debug("Found full cookbook at path '#{cb[:path]}' and using recipe '#{cb[:recipe_name]}'")
+            ChefCore::Log.debug("Found full cookbook at path '#{cb[:path]}' and using recipe '#{cb[:recipe_name]}'")
             @descriptor = "#{cb[:name]}::#{cb[:recipe_name]}"
             @from = "#{cb[:path]}"
             recipe_name = cb[:recipe_name]
@@ -51,7 +52,7 @@ module ChefCore::Actions
             # structure including metadata, then generate policyfile. We set the cookbook
             # name to the recipe name so hopefully this gives us better reporting info
             # in the future
-            ChefCore::Actions::Log.debug("Found single recipe at path '#{existing_recipe_path}'")
+            ChefCore::Log.debug("Found single recipe at path '#{existing_recipe_path}'")
             recipe = File.basename(existing_recipe_path)
             recipe_name = File.basename(recipe, ext_name)
             cb_name = "cw_recipe"
@@ -73,7 +74,7 @@ module ChefCore::Actions
           @descriptor = "#{resource_type}[#{resource_name}]"
           @from = "resource"
 
-          ChefCore::Actions::Log.debug("Generating cookbook for single resource '#{resource_type}[#{resource_name}]'")
+          ChefCore::Log.debug("Generating cookbook for single resource '#{resource_type}[#{resource_name}]'")
           name = "cw_#{resource_type}"
           recipe_name = "default"
           recipes_dir = generate_recipes_dir
@@ -131,7 +132,7 @@ module ChefCore::Actions
           else
             File.open(policy_file, "w+") do |f|
               f.print("name \"#{name}_policy\"\n")
-              ChefCore::Actions::Config.chef.cookbook_repo_paths.each do |p|
+              @cookbook_repo_paths.each do |p|
                 f.print("default_source :chef_repo, \"#{p}\"\n")
               end
               f.print("default_source :supermarket\n")
@@ -165,7 +166,7 @@ module ChefCore::Actions
           File.join(path, "export")
         end
 
-        class UnsupportedExtension < ChefCore::Actions::ErrorNoLogs
+        class UnsupportedExtension < ChefCore::ErrorNoLogs
           def initialize(ext); super("CHEFVAL009", ext); end
         end
       end

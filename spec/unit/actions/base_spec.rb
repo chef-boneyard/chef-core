@@ -20,37 +20,39 @@ require "chef_core/actions/base"
 require "chef_core/telemeter"
 require "chef_core/target_host"
 
-RSpec.describe ChefCore::Actions::Action::Base do
+RSpec.describe ChefCore::Actions::Base do
   let(:family) { "windows" }
   let(:target_host) do
     p = double("platform", family: family)
-    instance_double(ChefCore::Actions::TargetHost, platform: p)
+    instance_double(ChefCore::TargetHost, platform: p)
   end
   let(:opts) do
     { target_host: target_host,
       other: "something-else" } end
-  subject(:action) { ChefCore::Actions::Action::Base.new(opts) }
+  subject { ChefCore::Actions::Base.new(opts) }
 
   context "#initialize" do
     it "properly initializes exposed attr readers" do
-      expect(action.target_host).to eq target_host
-      expect(action.config).to eq({ other: "something-else" })
+      expect(subject.target_host).to eq target_host
+      expect(subject.config).to eq({ other: "something-else" })
     end
   end
 
   context "#run" do
     it "runs the underlying action, capturing timing via telemetry" do
-      expect(ChefCore::Actions::Telemeter).to receive(:timed_action_capture).with(subject).and_yield
-      expect(action).to receive(:perform_action)
-      action.run
+      expect(subject).to receive(:timed_action_capture).with(subject).and_yield
+      expect(subject).to receive(:perform_action)
+      subject.run
     end
 
     it "invokes an action handler when actions occur and a handler is provided" do
       @run_action = nil
       @args = nil
-      expect(ChefCore::Actions::Telemeter).to receive(:timed_action_capture).with(subject).and_yield
-      expect(action).to receive(:perform_action) { action.notify(:test_success, "some arg", "some other arg") }
-      action.run { |action, args| @run_action = action; @args = args }
+      expect(subject).to receive(:timed_action_capture).with(subject).and_yield
+      expect(subject).to receive(:perform_action) { subject.notify(:test_success, "some arg", "some other arg") }
+      subject.run do |action, args|
+        @run_action = action; @args = args
+      end
       expect(@run_action).to eq :test_success
       expect(@args).to eq ["some arg", "some other arg"]
     end
@@ -90,7 +92,7 @@ RSpec.describe ChefCore::Actions::Action::Base do
           expect(subject).to receive(:timed_capture)
             .with(:action, expected_data)
           subject.timed_action_capture(
-            ChefCore::Action::Base.new(target_host: nil)
+            ChefCore::Actions::Base.new(target_host: nil)
           ) { :ok }
         end
       end

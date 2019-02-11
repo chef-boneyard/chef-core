@@ -18,7 +18,7 @@
 require "chef/handler"
 require "chef/resource/directory"
 
-module ChefCore::Actions
+module ChefCore
   class Reporter < ::Chef::Handler
 
     def report

@@ -19,23 +19,15 @@ require "actions/spec_helper"
 require "tempfile"
 require "securerandom"
 require "chef_core/actions/generate_temp_cookbook/temp_cookbook"
-RSpec.describe "ChefCore::Actions::Action::GenerateTempCookbook::TempCookbook" do
-  subject(:tc) { ChefCore::Actions::Action::GenerateTempCookbook::TempCookbook.new }
+RSpec.describe "ChefCore::Actions::GenerateTempCookbook::TempCookbook" do
+  let(:repo_paths) { [] }
   let(:uuid) { SecureRandom.uuid }
+  subject(:tc) { ChefCore::Actions::GenerateTempCookbook::TempCookbook.new(repo_paths) }
 
-  before do
-    @repo_paths = ChefCore::Actions::Config.chef.cookbook_repo_paths
-    ChefCore::Actions::Config.chef.cookbook_repo_paths = []
-  end
-
-  after do
-    ChefCore::Actions::Config.chef.cookbook_repo_paths = @repo_paths
-    subject.delete
-  end
 
   describe "#from_existing_recipe" do
     it "raises an error if the recipe does not have a .rb extension" do
-      err = ChefCore::Actions::Action::GenerateTempCookbook::TempCookbook::UnsupportedExtension
+      err = ChefCore::Actions::GenerateTempCookbook::TempCookbook::UnsupportedExtension
       expect { subject.from_existing_recipe("/some/file.chef") }.to raise_error(err)
     end
 
@@ -128,8 +120,8 @@ RSpec.describe "ChefCore::Actions::Action::GenerateTempCookbook::TempCookbook" d
       end
 
       context "when there are configured cookbook_repo_paths" do
+        let(:repo_paths) { %w{one two} }
         it "generates a policyfile in the temp cookbook" do
-          ChefCore::Actions::Config.chef.cookbook_repo_paths = %w{one two}
           f = subject.generate_policyfile("foo", "bar")
           expect(File.read(f)).to eq <<~EXPECTED_POLICYFILE
             name "foo_policy"

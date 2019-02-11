@@ -18,14 +18,14 @@
 require "actions/spec_helper"
 require "chef_core/actions/converge_target/ccr_failure_mapper"
 
-RSpec.describe ChefCore::Actions::Action::ConvergeTarget::CCRFailureMapper do
+RSpec.describe ChefCore::Actions::ConvergeTarget::CCRFailureMapper do
   let(:cause_line) { nil }
   let(:resource) { "apt_package" }
   let(:params) do
     { resource: resource, resource_name: "a-test-thing",
       stderr: "an error", stdout: "other output" }
   end
-  subject { ChefCore::Actions::Action::ConvergeTarget::CCRFailureMapper.new(cause_line, params) }
+  subject { ChefCore::Actions::ConvergeTarget::CCRFailureMapper.new(cause_line, params) }
 
   describe "#exception_args_from_cause" do
     context "when resource properties have valid names but invalid values" do
@@ -79,7 +79,7 @@ RSpec.describe ChefCore::Actions::Action::ConvergeTarget::CCRFailureMapper do
     context "when no cause is provided" do
       let(:cause_line) { nil }
       it "raises a RemoteChefRunFailedToResolveError" do
-        expect { subject.raise_mapped_exception! }.to raise_error(ChefCore::Actions::Action::ConvergeTarget::CCRFailureMapper::RemoteChefRunFailedToResolveError)
+        expect { subject.raise_mapped_exception! }.to raise_error(ChefCore::Actions::ConvergeTarget::CCRFailureMapper::RemoteChefRunFailedToResolveError)
 
       end
     end
@@ -88,14 +88,14 @@ RSpec.describe ChefCore::Actions::Action::ConvergeTarget::CCRFailureMapper do
       context "but can't resolve it" do
         let(:cause_line) { "unparseable mess" }
         it "raises a RemoteChefClientRunFailedUnknownReason" do
-          expect { subject.raise_mapped_exception! }.to raise_error(ChefCore::Actions::Action::ConvergeTarget::CCRFailureMapper::RemoteChefClientRunFailedUnknownReason)
+          expect { subject.raise_mapped_exception! }.to raise_error(ChefCore::Actions::ConvergeTarget::CCRFailureMapper::RemoteChefClientRunFailedUnknownReason)
         end
       end
 
       context "and can resolve the cause" do
         let(:cause_line) { "NoMethodError: undefined method `badresourceprop' for Chef::Resource::User::LinuxUser" }
         it "raises a RemoteChefClientRunFailed" do
-          expect { subject.raise_mapped_exception! }.to raise_error(ChefCore::Actions::Action::ConvergeTarget::CCRFailureMapper::RemoteChefClientRunFailed)
+          expect { subject.raise_mapped_exception! }.to raise_error(ChefCore::Actions::ConvergeTarget::CCRFailureMapper::RemoteChefClientRunFailed)
         end
       end
     end

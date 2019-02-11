@@ -18,8 +18,9 @@
 require "chef_core/error"
 require "chef_core/actions/install_chef/minimum_chef_version"
 
-module ChefCore::Actions
-  module Action
+module ChefCore
+  module Actions
+    # TODO shouldn't be redeclaring Base here
     class InstallChef < Base
       class MinimumChefVersion
 
@@ -37,7 +38,7 @@ module ChefCore::Actions
         def self.check!(target, check_only)
           begin
             installed_version = target.installed_chef_version
-          rescue ChefCore::Actions::TargetHost::ChefNotInstalled
+          rescue ChefCore::TargetHost::ChefNotInstalled
             if check_only
               raise ClientNotInstalled.new()
             end
@@ -63,17 +64,17 @@ module ChefCore::Actions
           :minimum_version_met
         end
 
-        class ClientNotInstalled < ChefCore::Actions::ErrorNoLogs
+        class ClientNotInstalled < ChefCore::ErrorNoLogs
           def initialize(); super("CHEFINS002"); end
         end
 
-        class Client13Outdated < ChefCore::Actions::ErrorNoLogs
+        class Client13Outdated < ChefCore::ErrorNoLogs
           def initialize(current_version, min_13_version, min_14_version)
             super("CHEFINS003", current_version, min_13_version, min_14_version)
           end
         end
 
-        class Client14Outdated < ChefCore::Actions::ErrorNoLogs
+        class Client14Outdated < ChefCore::ErrorNoLogs
           def initialize(current_version, target_version)
             super("CHEFINS004", current_version, target_version)
           end

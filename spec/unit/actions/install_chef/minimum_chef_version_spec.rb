@@ -19,17 +19,17 @@ require "chef_core/actions/install_chef/minimum_chef_version"
 require "chef_core/target_host"
 require "actions/spec_helper"
 
-RSpec.describe ChefCore::Actions::Action::InstallChef::MinimumChefVersion do
+RSpec.describe ChefCore::Actions::InstallChef::MinimumChefVersion do
   let(:base_os) { :linux }
   let(:version) { 14 }
-  let(:target) { instance_double(ChefCore::Actions::TargetHost, base_os: base_os, installed_chef_version: version) }
-  subject(:klass) { ChefCore::Actions::Action::InstallChef::MinimumChefVersion }
+  let(:target) { instance_double(ChefCore::TargetHost, base_os: base_os, installed_chef_version: version) }
+  subject(:klass) { ChefCore::Actions::InstallChef::MinimumChefVersion }
 
   context "#check!" do
     context "when chef is not already installed on target" do
       before do
         expect(target).to receive(:installed_chef_version)
-          .and_raise ChefCore::Actions::TargetHost::ChefNotInstalled.new
+          .and_raise ChefCore::TargetHost::ChefNotInstalled.new
       end
 
       it "should return :client_not_installed" do
@@ -41,7 +41,7 @@ RSpec.describe ChefCore::Actions::Action::InstallChef::MinimumChefVersion do
         it "raises ClientNotInstalled" do
           expect do
             klass.check!(target, true)
-          end.to raise_error(ChefCore::Actions::Action::InstallChef::MinimumChefVersion::ClientNotInstalled)
+          end.to raise_error(ChefCore::Actions::InstallChef::MinimumChefVersion::ClientNotInstalled)
         end
       end
     end
@@ -51,7 +51,7 @@ RSpec.describe ChefCore::Actions::Action::InstallChef::MinimumChefVersion do
         let(:base_os) { os }
         [13, 14].each do |major_version|
           context "when chef is already installed at the correct minimum Chef #{major_version} version" do
-            let(:version) { ChefCore::Actions::Action::InstallChef::MinimumChefVersion::CONSTRAINTS[os][major_version] }
+            let(:version) { ChefCore::Actions::InstallChef::MinimumChefVersion::CONSTRAINTS[os][major_version] }
             it "should return :minimum_version_met" do
               actual = klass.check!(target, false)
               expect(:minimum_version_met).to eq(actual)
@@ -63,14 +63,14 @@ RSpec.describe ChefCore::Actions::Action::InstallChef::MinimumChefVersion do
 
     installed_expected = {
       windows: {
-        Gem::Version.new("12.1.1") => ChefCore::Actions::Action::InstallChef::MinimumChefVersion::Client13Outdated,
-        Gem::Version.new("13.9.0") => ChefCore::Actions::Action::InstallChef::MinimumChefVersion::Client13Outdated,
-        Gem::Version.new("14.3.37") => ChefCore::Actions::Action::InstallChef::MinimumChefVersion::Client14Outdated,
+        Gem::Version.new("12.1.1") => ChefCore::Actions::InstallChef::MinimumChefVersion::Client13Outdated,
+        Gem::Version.new("13.9.0") => ChefCore::Actions::InstallChef::MinimumChefVersion::Client13Outdated,
+        Gem::Version.new("14.3.37") => ChefCore::Actions::InstallChef::MinimumChefVersion::Client14Outdated,
       },
       linux: {
-        Gem::Version.new("12.1.1") => ChefCore::Actions::Action::InstallChef::MinimumChefVersion::Client13Outdated,
-        Gem::Version.new("13.9.0") => ChefCore::Actions::Action::InstallChef::MinimumChefVersion::Client13Outdated,
-        Gem::Version.new("14.1.0") => ChefCore::Actions::Action::InstallChef::MinimumChefVersion::Client14Outdated,
+        Gem::Version.new("12.1.1") => ChefCore::Actions::InstallChef::MinimumChefVersion::Client13Outdated,
+        Gem::Version.new("13.9.0") => ChefCore::Actions::InstallChef::MinimumChefVersion::Client13Outdated,
+        Gem::Version.new("14.1.0") => ChefCore::Actions::InstallChef::MinimumChefVersion::Client14Outdated,
       },
     }
     [:windows, :linux].each do |os|

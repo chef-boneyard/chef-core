@@ -16,10 +16,13 @@
 #
 
 require "chef_core/error"
+# TODO - this is a workaround that goes with having to specify inheritence in the module declaration
+#        should not be needed, and we need to track down why (here and in action classes)
+require "chef_core/actions/base"
 
-module ChefCore::Actions
-  module Action
-    class ConvergeTarget
+module ChefCore
+  module Actions
+    class ConvergeTarget < Base
       # This converts chef client run failures
       # to human-friendly exceptions with detail
       # and remediation steps based on the failure type.
@@ -81,15 +84,15 @@ module ChefCore::Actions
           end
         end
 
-        class RemoteChefClientRunFailed < ChefCore::Actions::ErrorNoLogs
+        class RemoteChefClientRunFailed < ChefCore::ErrorNoLogs
           def initialize(id, *args); super(id, *args); end
         end
 
-        class RemoteChefClientRunFailedUnknownReason < ChefCore::Actions::ErrorNoStack
+        class RemoteChefClientRunFailedUnknownReason < ChefCore::ErrorNoStack
           def initialize(); super("CHEFCCR099"); end
         end
 
-        class RemoteChefRunFailedToResolveError < ChefCore::Actions::ErrorNoStack
+        class RemoteChefRunFailedToResolveError < ChefCore::ErrorNoStack
           def initialize(path); super("CHEFCCR001", path); end
         end
 

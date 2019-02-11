@@ -16,14 +16,13 @@
 #
 
 require "chef-config/config"
-require "chef_core/config"
 require "chef_core/error"
 require "chef_core/log"
 require "chef_core/actions/base"
 
-module ChefCore::Actions
-  module Action
-    class GenerateTempCookbook
+module ChefCore
+  module Actions
+    class GenerateTempCookbook < Base
       # When users are trying to converge a local recipe on a remote target, there
       # is a very specific (but expansive) set of things they can specify. This
       # class encapsulates that logic for testing purposes. We either return
@@ -93,22 +92,22 @@ module ChefCore::Actions
           end
         end
 
-        class InvalidCookbook < ChefCore::Actions::Error
+        class InvalidCookbook < ChefCore::Error
           def initialize(cookbook_path); super("CHEFVAL005", cookbook_path); end
         end
 
-        class CookbookNotFound < ChefCore::Actions::Error
+        class CookbookNotFound < ChefCore::Error
           def initialize(cookbook_name, repo_paths)
             repo_paths = repo_paths.join("\n")
             super("CHEFVAL006", cookbook_name, repo_paths)
           end
         end
 
-        class NoDefaultRecipe < ChefCore::Actions::Error
+        class NoDefaultRecipe < ChefCore::Error
           def initialize(cookbook_path, cookbook_name); super("CHEFVAL007", cookbook_path, cookbook_name); end
         end
 
-        class RecipeNotFound < ChefCore::Actions::Error
+        class RecipeNotFound < ChefCore::Error
           def initialize(cookbook_path, recipe_name, available_recipes, cookbook_name)
             available_recipes.map! { |r| "'#{r}'" }
             available_recipes = available_recipes.join(", ")

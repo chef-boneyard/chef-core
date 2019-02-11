@@ -15,14 +15,13 @@
 # limitations under the License.
 #
 
-require "chef_core/actions/base"
 require "pathname"
 require "tempfile"
-# FLAG: require "chef/util/path_helper"
 require "chef/util/path_helper"
+require "chef_core/actions/base"
 
-module ChefCore::Actions
-  module Action
+module ChefCore
+  module Actions
     class ConvergeTarget < Base
 
       def perform_action
@@ -37,22 +36,21 @@ module ChefCore::Actions
         upload_trusted_certs(remote_dir_path)
 
         notify(:running_chef)
-        # TODO - just teach target_host how to run_chef?
         cmd_str = run_chef_cmd(remote_dir_path,
                                File.basename(remote_config_path),
                                File.basename(remote_policy_path))
         c = target_host.run_command(cmd_str)
         target_host.del_dir(remote_dir_path)
         if c.exit_status == 0
-          ChefCore::Actions::Log.info(c.stdout)
+          ChefCore::Log.info(c.stdout)
           notify(:success)
         elsif c.exit_status == 35
           notify(:reboot)
         else
           notify(:converge_error)
-          ChefCore::Actions::Log.error("Error running command [#{cmd_str}]")
-          ChefCore::Actions::Log.error("stdout: #{c.stdout}")
-          ChefCore::Actions::Log.error("stderr: #{c.stderr}")
+          ChefCore::Log.error("Error running command [#{cmd_str}]")
+          ChefCore::Log.error("stdout: #{c.stdout}")
+          ChefCore::Log.error("stderr: #{c.stderr}")
           handle_ccr_error()
         end
       end
@@ -63,7 +61,7 @@ module ChefCore::Actions
         begin
           target_host.upload_file(local_policy_path, remote_policy_path)
         rescue RuntimeError => e
-          ChefCore::Actions::Log.error(e)
+          ChefCore::Log.error(e)
           raise PolicyUploadFailed.new()
         end
         remote_policy_path
@@ -86,19 +84,18 @@ module ChefCore::Actions
         # add the target host's log level value
         # (we don't set a location because we want output to
         #   go in stdout for reporting back to chef-apply)
-        log_settings = ChefCore::Actions::Config.log
-        if !log_settings.target_level.nil?
+        if !config[:target_log_level].nil?
           workstation_rb << <<~EOM
-            log_level :#{log_settings.target_level}
+            log_level :#{config[:target_log_level]}
           EOM
         end
 
+
         # Maybe add data collector endpoint.
-        dc = ChefCore::Actions::Config.data_collector
-        if !dc.url.nil? && !dc.token.nil?
+        if !config[:data_collector_url].nil? && !config[:data_collector_token].nil?
           workstation_rb << <<~EOM
-            data_collector.server_url "#{dc.url}"
-            data_collector.token "#{dc.token}"
+            data_collector.server_url "#{config[:data_collector_url]}"
+            data_collector.token "#{config[:data_collector_token]}"
             data_collector.mode :solo
             data_collector.organization "Chef Workstation"
           EOM
@@ -137,7 +134,7 @@ module ChefCore::Actions
 
       def upload_trusted_certs(dir)
         # TODO BOOTSTRAP - trusted certs dir and other config to be received as argument to constructor
-        local_tcd = Chef::Util::PathHelper.escape_glob_dir(ChefCore::Actions::Config.chef.trusted_certs_dir)
+        local_tcd = Chef::Util::PathHelper.escape_glob_dir(config[:trusted_certs_dir])
         certs = Dir.glob(File.join(local_tcd, "*.{crt,pem}"))
         return if certs.empty?
 
@@ -160,20 +157,21 @@ module ChefCore::Actions
         if content.nil?
           report = {}
           mapper_opts[:failed_report_path] = chef_report_path
-          ChefCore::Actions::Log.error("Could not read remote report at #{chef_report_path}")
+          ChefCore::Log.error("Could not read remote report at #{chef_report_path}")
         else
           # We need to delete the stacktrace after copying it over. Otherwise if we get a
           # remote failure that does not write a chef stacktrace its possible to get an old
           # stale stacktrace.
           target_host.del_file(chef_report_path)
           report = JSON.parse(content)
-          ChefCore::Actions::Log.error("Remote chef-client error follows:")
-          ChefCore::Actions::Log.error(report["exception"])
+          ChefCore::Log.error("Remote chef-client error follows:")
+          ChefCore::Log.error(report["exception"])
         end
-        mapper = ChefCore::Actions::Action::ConvergeTarget::CCRFailureMapper.new(report["exception"], mapper_opts)
+        mapper = ChefCore::Actions::ConvergeTarget::CCRFailureMapper.new(report["exception"], mapper_opts)
         mapper.raise_mapped_exception!
       end
 
+      # TODO - move into target_host as 'get_ccr_command_string'
       # Chef will try 'downloading' the policy from the internet unless we pass it a valid, local file
       # in the working directory. By pointing it at a local file it will just copy it instead of trying
       # to download it.
@@ -197,15 +195,15 @@ module ChefCore::Actions
         end
       end
 
-      class ConfigUploadFailed < ChefCore::Actions::Error
+      class ConfigUploadFailed < ChefCore::Error
         def initialize(); super("CHEFUPL003"); end
       end
 
-      class HandlerUploadFailed < ChefCore::Actions::Error
+      class HandlerUploadFailed < ChefCore::Error
         def initialize(); super("CHEFUPL004"); end
       end
 
-      class PolicyUploadFailed < ChefCore::Actions::Error
+      class PolicyUploadFailed < ChefCore::Error
         def initialize(); super("CHEFUPL005"); end
       end
     end

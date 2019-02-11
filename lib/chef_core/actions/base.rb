@@ -18,8 +18,8 @@
 require "chef_core/telemeter"
 require "chef_core/error"
 
-module ChefCore::Actions
-  module Action
+module ChefCore
+  module Actions
     # Derive new Actions from Action::Base
     # "target_host" is a TargetHost that the action is being applied to. May be nil
     #               if the action does not require a target.
@@ -40,7 +40,7 @@ module ChefCore::Actions
 
       def run(&block)
         @notification_handler = block
-        timed_action_capture(action) do
+        timed_action_capture(self) do
           begin
             perform_action
           rescue StandardError => e
@@ -86,7 +86,7 @@ module ChefCore::Actions
 
       def notify(action, *args)
         return if @notification_handler.nil?
-        ChefCore::Actions::Log.debug("[#{self.class.name}] Action: #{action}, Action Data: #{args}")
+        ChefCore::Log.debug("[#{self.class.name}] Action: #{action}, Action Data: #{args}")
         @notification_handler.call(action, args) if @notification_handler
       end
     end

@@ -18,7 +18,7 @@
 require "actions/spec_helper"
 require "chef_core/actions/install_chef"
 
-RSpec.describe ChefCore::Actions::Action::InstallChef do
+RSpec.describe ChefCore::Actions::InstallChef do
   let(:mock_os_name) { "linux" }
   let(:mock_os_family) { "linux" }
   let(:mock_os_release ) { "unknown" }
@@ -31,35 +31,39 @@ RSpec.describe ChefCore::Actions::Action::InstallChef do
     }
   end
   let(:target_host) do
-    ChefCore::Actions::TargetHost.mock_instance("mock://user1:password1@localhost", mock_opts)
+    ChefCore::TargetHost.mock_instance("mock://user1:password1@localhost", mock_opts)
   end
 
-  let(:reporter) do
-    ChefCore::Actions::MockReporter.new
+
+  let(:cache_path) { "/tmp/cache" }
+  let(:config) do
+    {
+     target_host: target_host,
+     check_only: false,
+     cache_path: cache_path
+    }
   end
 
   subject(:install) do
-    ChefCore::Actions::Action::InstallChef.new(target_host: target_host,
-                                       reporter: reporter,
-                                       check_only: false)
+    ChefCore::Actions::InstallChef.new(config)
   end
 
   context "#perform_action" do
     context "when chef is already installed on target" do
       it "notifies of success and takes no further action" do
-        expect(ChefCore::Actions::Action::InstallChef::MinimumChefVersion).to receive(:check!).with(install.target_host, false)
+        expect(ChefCore::Actions::InstallChef::MinimumChefVersion).to receive(:check!).with(subject.target_host, false)
                        .and_return(:minimum_version_met)
         expect(install).not_to receive(:perform_local_install)
-        install.perform_action
+        subject.perform_action
       end
     end
 
     context "when chef is not already installed on target" do
       it "should invoke perform_local_install" do
-        expect(ChefCore::Actions::Action::InstallChef::MinimumChefVersion).to receive(:check!).with(install.target_host, false)
+        expect(ChefCore::Actions::InstallChef::MinimumChefVersion).to receive(:check!).with(subject.target_host, false)
                        .and_return(:client_not_installed)
         expect(install).to receive(:perform_local_install)
-        install.perform_action
+        subject.perform_action
       end
     end
   end
@@ -77,7 +81,7 @@ RSpec.describe ChefCore::Actions::Action::InstallChef do
       expect(install).to receive(:upload_to_target).with("/local/path").and_return("/remote/path")
       expect(target_host).to receive(:install_package).with("/remote/path")
 
-      install.perform_local_install
+      subject.perform_local_install
     end
   end
 
@@ -95,7 +99,7 @@ RSpec.describe ChefCore::Actions::Action::InstallChef do
       end
 
       it "sets platform name to 'windows'" do
-        mixlib_info = install.train_to_mixlib(platform)
+        mixlib_info = subject.train_to_mixlib(platform)
         expect(mixlib_info[:platform]).to eq "windows"
       end
     end
@@ -106,7 +110,7 @@ RSpec.describe ChefCore::Actions::Action::InstallChef do
       end
 
       it "sets platform name to 'el'" do
-        mixlib_info = install.train_to_mixlib(platform)
+        mixlib_info = subject.train_to_mixlib(platform)
         expect(mixlib_info[:platform]).to eq "el"
       end
     end
@@ -117,7 +121,7 @@ RSpec.describe ChefCore::Actions::Action::InstallChef do
       end
 
       it "sets platform name to 'el'" do
-        mixlib_info = install.train_to_mixlib(platform)
+        mixlib_info = subject.train_to_mixlib(platform)
         expect(mixlib_info[:platform]).to eq "el"
       end
     end
@@ -128,7 +132,7 @@ RSpec.describe ChefCore::Actions::Action::InstallChef do
       end
 
       it "sets platform name to 'sles'" do
-        mixlib_info = install.train_to_mixlib(platform)
+        mixlib_info = subject.train_to_mixlib(platform)
         expect(mixlib_info[:platform]).to eq "sles"
       end
     end
@@ -143,7 +147,7 @@ RSpec.describe ChefCore::Actions::Action::InstallChef do
         end
 
         it "sets platform name to 'amazon' and plaform_version to '6'" do
-          mixlib_info = install.train_to_mixlib(platform)
+          mixlib_info = subject.train_to_mixlib(platform)
           expect(mixlib_info[:platform]).to eq "el"
           expect(mixlib_info[:platform_version]).to eq "6"
         end
@@ -154,7 +158,7 @@ RSpec.describe ChefCore::Actions::Action::InstallChef do
         end
 
         it "sets platform name to 'amazon' and plaform_version to '7'" do
-          mixlib_info = install.train_to_mixlib(platform)
+          mixlib_info = subject.train_to_mixlib(platform)
           expect(mixlib_info[:platform]).to eq "el"
           expect(mixlib_info[:platform_version]).to eq "7"
         end

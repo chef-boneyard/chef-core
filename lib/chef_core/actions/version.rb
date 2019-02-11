@@ -15,6 +15,8 @@
 # limitations under the License.
 #
 
-module ChefApply
-  VERSION = "0.0.1".freeze
+module ChefCore
+  module Actions
+    VERSION = "0.0.1".freeze
+  end
 end
