@@ -18,8 +18,8 @@
 require "cliux/spec_helper"
 require "chef_apply/ui/terminal"
 
-RSpec.describe ChefApply::UI::Terminal do
-  Terminal = ChefApply::UI::Terminal
+RSpec.describe ChefCore::CLIUX::UI::Terminal do
+  Terminal = ChefCore::CLIUX::UI::Terminal
   # Lets send our Terminal output somewhere so it does not clutter the
   # test output
   Terminal.location = StringIO.new
@@ -63,8 +63,8 @@ RSpec.describe ChefApply::UI::Terminal do
     end
   end
 
-  describe ChefApply::UI::Terminal::Job do
-    subject { ChefApply::UI::Terminal::Job }
+  describe ChefCore::CLIUX::UI::Terminal::Job do
+    subject { ChefCore::CLIUX::UI::Terminal::Job }
     context "#exception" do
       context "when no exception occurs in execution" do
         context "and it's been invoked directly" do

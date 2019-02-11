@@ -17,30 +17,33 @@
 require "thread"
 require "chef_apply/ui/plain_text_element"
 
-module ChefApply
-  module UI
-    class PlainTextHeader
-      def initialize(format, opts)
-        @format = format
-        @output = opts[:output]
-        @children = {}
-        @threads = []
-      end
-
-      def register(child_format, child_opts, &block)
-        child_opts[:output] = @output
-        child = PlainTextElement.new(child_format, child_opts)
-        @children[child] = block
-      end
-
-      def auto_spin
-        msg = @format.gsub(/:spinner/, " HEADER ")
-        @output.puts(msg)
-        @children.each do |child, block|
-          @threads << Thread.new { block.call(child) }
+module ChefCore
+  module CLIUX
+    module UI
+      class PlainTextHeader
+        def initialize(format, opts)
+          @format = format
+          @output = opts[:output]
+          @children = {}
+          @threads = []
         end
-        @threads.each { |thr| thr.join }
+
+        def register(child_format, child_opts, &block)
+          child_opts[:output] = @output
+          child = PlainTextElement.new(child_format, child_opts)
+          @children[child] = block
+        end
+
+        def auto_spin
+          msg = @format.gsub(/:spinner/, " HEADER ")
+          @output.puts(msg)
+          @children.each do |child, block|
+            @threads << Thread.new { block.call(child) }
+          end
+          @threads.each { |thr| thr.join }
+        end
       end
     end
   end
 end
+

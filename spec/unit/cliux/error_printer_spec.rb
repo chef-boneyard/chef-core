@@ -21,11 +21,11 @@ require "chef_apply/text/error_translation"
 require "chef_apply/errors/standard_error_resolver"
 require "chef_apply/target_host"
 
-RSpec.describe ChefApply::UI::ErrorPrinter do
+RSpec.describe ChefCore::CLIUX::UI::ErrorPrinter do
 
   let(:orig_exception) { StandardError.new("test") }
-  let(:target_host) { ChefApply::TargetHost.mock_instance("mock://localhost") }
-  let(:wrapped_exception) { ChefApply::WrappedError.new(orig_exception, target_host) }
+  let(:target_host) { ChefCore::TargetHost.mock_instance("mock://localhost") }
+  let(:wrapped_exception) { ChefCore::WrappedError.new(orig_exception, target_host) }
 
   let(:show_footer) { true }
   let(:show_log) { true }
@@ -33,7 +33,7 @@ RSpec.describe ChefApply::UI::ErrorPrinter do
   let(:has_decorations) { true }
   let(:show_header) { true }
   let(:translation_mock) do
-    instance_double("ChefApply::Errors::ErrorTranslation",
+    instance_double("ChefCore::Errors::ErrorTranslation",
                     footer: show_footer,
                     log: show_log,
                     stack: show_stack,
@@ -41,10 +41,10 @@ RSpec.describe ChefApply::UI::ErrorPrinter do
                     decorations: has_decorations
                    )
   end
-  subject { ChefApply::UI::ErrorPrinter.new(wrapped_exception, nil) }
+  subject { ChefCore::CLIUX::UI::ErrorPrinter.new(wrapped_exception, nil) }
 
   before do
-    allow(ChefApply::Text::ErrorTranslation).to receive(:new).and_return translation_mock
+    allow(ChefCore::Text::ErrorTranslation).to receive(:new).and_return translation_mock
   end
 
   context "#format_error" do
@@ -67,8 +67,8 @@ RSpec.describe ChefApply::UI::ErrorPrinter do
   end
 
   context "#format_body" do
-    RC = ChefApply::TargetHost
-    context "when exception is a ChefApply::Error" do
+    RC = ChefCore::TargetHost
+    context "when exception is a ChefCore::Error" do
       let(:result) { RemoteExecResult.new(1, "", "failed") }
       let(:orig_exception) { RC::RemoteExecutionFailed.new("localhost", "test", result) }
       it "invokes the right handler" do
@@ -98,11 +98,11 @@ RSpec.describe ChefApply::UI::ErrorPrinter do
   end
 
   context ".show_error" do
-    subject { ChefApply::UI::ErrorPrinter }
+    subject { ChefCore::CLIUX::UI::ErrorPrinter }
     context "when handling a MultiJobFailure" do
       it "recognizes it and invokes capture_multiple_failures" do
-        underlying_error = ChefApply::MultiJobFailure.new([])
-        error_to_process = ChefApply::Errors::StandardErrorResolver.wrap_exception(underlying_error)
+        underlying_error = ChefCore::MultiJobFailure.new([])
+        error_to_process = ChefCore::Errors::StandardErrorResolver.wrap_exception(underlying_error)
         expect(subject).to receive(:capture_multiple_failures).with(underlying_error)
         subject.show_error(error_to_process)
 
@@ -112,9 +112,9 @@ RSpec.describe ChefApply::UI::ErrorPrinter do
     context "when an error occurs in error handling" do
       it "processes the new failure with dump_unexpected_error" do
         error_to_raise = StandardError.new("this will be raised")
-        error_to_process = ChefApply::Errors::StandardErrorResolver.wrap_exception(StandardError.new("this is being shown"))
+        error_to_process = ChefCore::Errors::StandardErrorResolver.wrap_exception(StandardError.new("this is being shown"))
         # Intercept a known call to raise an error
-        expect(ChefApply::UI::Terminal).to receive(:output).and_raise error_to_raise
+        expect(ChefCore::CLIUX::UI::Terminal).to receive(:output).and_raise error_to_raise
         expect(subject).to receive(:dump_unexpected_error).with(error_to_raise)
         subject.show_error(error_to_process)
       end
@@ -123,10 +123,10 @@ RSpec.describe ChefApply::UI::ErrorPrinter do
   end
 
   context ".capture_multiple_failures" do
-    subject { ChefApply::UI::ErrorPrinter }
+    subject { ChefCore::CLIUX::UI::ErrorPrinter }
     let(:file_content_capture) { StringIO.new }
     before do
-      allow(ChefApply::Config).to receive(:error_output_path).and_return "/dev/null"
+      allow(ChefCore::Config).to receive(:error_output_path).and_return "/dev/null"
       allow(File).to receive(:open).with("/dev/null", "w").and_yield(file_content_capture)
     end
 
@@ -135,12 +135,12 @@ RSpec.describe ChefApply::UI::ErrorPrinter do
       #        to rely on specific known error IDs that may change or be removed,
       #        and arent' directly relevant to the test at hand.
       job1 = double("Job", target_host: double("TargetHost", hostname: "host1"),
-                           exception: ChefApply::Error.new("CHEFUPL005"))
+                           exception: ChefCore::Error.new("CHEFUPL005"))
       job2 = double("Job", target_host: double("TargetHost", hostname: "host2"),
                            exception: StandardError.new("Hello World"))
 
       expected_content = File.read("spec/unit/cliux/fixtures/multi-error.out")
-      multifailure = ChefApply::MultiJobFailure.new([job1, job2] )
+      multifailure = ChefCore::MultiJobFailure.new([job1, job2] )
       subject.capture_multiple_failures(multifailure)
       expect(file_content_capture.string).to eq expected_content
     end
@@ -148,7 +148,7 @@ RSpec.describe ChefApply::UI::ErrorPrinter do
 
   context "#format_footer" do
     let(:formatter) do
-      ChefApply::UI::ErrorPrinter.new(wrapped_exception, nil)
+      ChefCore::CLIUX::UI::ErrorPrinter.new(wrapped_exception, nil)
     end
 
     subject do
@@ -181,9 +181,9 @@ RSpec.describe ChefApply::UI::ErrorPrinter do
   end
 
   context ".write_backtrace" do
-    let(:inst) { double(ChefApply::UI::ErrorPrinter) }
+    let(:inst) { double(ChefCore::CLIUX::UI::ErrorPrinter) }
     before do
-      allow(ChefApply::UI::ErrorPrinter).to receive(:new).and_return inst
+      allow(ChefCore::CLIUX::UI::ErrorPrinter).to receive(:new).and_return inst
     end
 
     let(:orig_args) { %w{test} }
@@ -191,7 +191,7 @@ RSpec.describe ChefApply::UI::ErrorPrinter do
       expect(inst).to receive(:add_backtrace_header).with(anything(), orig_args)
       expect(inst).to receive(:add_formatted_backtrace)
       expect(inst).to receive(:save_backtrace)
-      ChefApply::UI::ErrorPrinter.write_backtrace(wrapped_exception, orig_args)
+      ChefCore::CLIUX::UI::ErrorPrinter.write_backtrace(wrapped_exception, orig_args)
     end
   end
 end

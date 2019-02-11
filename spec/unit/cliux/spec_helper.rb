@@ -20,12 +20,16 @@ require "simplecov"
 require "rspec/expectations"
 RemoteExecResult = Struct.new(:exit_status, :stdout, :stderr)
 
-class ChefCore::Testing::MockReporter
-  def update(msg); ChefApply::UI::Terminal.output msg; end
+module ChefCore
+  module Testing
+    class MockReporter
+      def update(msg); ChefCore::CLIUX::UI::Terminal.output msg; end
 
-  def success(msg); ChefApply::UI::Terminal.output "SUCCESS: #{msg}"; end
+      def success(msg); ChefCore::CLIUX::UI::Terminal.output "SUCCESS: #{msg}"; end
 
-  def error(msg); ChefApply::UI::Terminal.output "FAILURE: #{msg}"; end
+      def error(msg); ChefCore::CLIUX::UI::Terminal.output "FAILURE: #{msg}"; end
+    end
+  end
 end
 
 def assert_string_lookup(key, retval = "testvalue")

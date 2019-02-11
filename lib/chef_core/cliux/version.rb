@@ -17,26 +17,6 @@
 
 module ChefCore
   module CLIUX
-    module UI
-      class Terminal
-        class Job
-          attr_reader :proc, :prefix, :target_host, :exception
-          def initialize(prefix, target_host, &block)
-            @proc = block
-            @prefix = prefix
-            @target_host = target_host
-            @error = nil
-          end
-
-          def run(reporter)
-            @proc.call(reporter)
-          rescue => e
-            reporter.error(e.to_s)
-            @exception = e
-          end
-        end
-      end
-    end
+    VERSION = "0.0.1".freeze
   end
 end
-
