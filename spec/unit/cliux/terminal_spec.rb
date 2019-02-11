@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-require "spec_helper"
+require "cliux/spec_helper"
 require "chef_apply/ui/terminal"
 
 RSpec.describe ChefApply::UI::Terminal do
@@ -70,7 +70,7 @@ RSpec.describe ChefApply::UI::Terminal do
         context "and it's been invoked directly" do
           it "exception is nil" do
             job = subject.new("", nil) { 0 }
-            job.run(ChefApply::MockReporter.new)
+            job.run(ChefCore::Testing::MockReporter.new)
             expect(job.exception).to eq nil
           end
         end
@@ -79,8 +79,8 @@ RSpec.describe ChefApply::UI::Terminal do
             job1 = subject.new("", nil) { 0 }
             job2 = subject.new("", nil) { 0 }
             threads = []
-            threads << Thread.new { job1.run(ChefApply::MockReporter.new) }
-            threads << Thread.new { job2.run(ChefApply::MockReporter.new) }
+            threads << Thread.new { job1.run(ChefCore::Testing::MockReporter.new) }
+            threads << Thread.new { job2.run(ChefCore::Testing::MockReporter.new) }
             threads.each(&:join)
             expect(job1.exception).to eq nil
             expect(job2.exception).to eq nil
@@ -93,7 +93,7 @@ RSpec.describe ChefApply::UI::Terminal do
           it "captures the exception in #exception" do
             expected_exception = StandardError.new("exception 1")
             job = subject.new("", nil) { |arg| raise expected_exception }
-            job.run(ChefApply::MockReporter.new)
+            job.run(ChefCore::Testing::MockReporter.new)
             expect(job.exception).to eq expected_exception
           end
         end
@@ -106,8 +106,8 @@ RSpec.describe ChefApply::UI::Terminal do
             job1 = subject.new("", nil) { |_| raise e1 }
             job2 = subject.new("", nil) { |_| raise e2 }
             threads = []
-            threads << Thread.new { job1.run(ChefApply::MockReporter.new) }
-            threads << Thread.new { job2.run(ChefApply::MockReporter.new) }
+            threads << Thread.new { job1.run(ChefCore::Testing::MockReporter.new) }
+            threads << Thread.new { job2.run(ChefCore::Testing::MockReporter.new) }
             threads.each(&:join)
             expect(job1.exception).to eq e1
             expect(job2.exception).to eq e2

@@ -18,51 +18,9 @@
 require "bundler/setup"
 require "simplecov"
 require "rspec/expectations"
-require "support/matchers/output_to_terminal"
-
-# class << Kernel
-#   alias :_require :require
-#   def require(*args)
-#
-#     show = false
-#     args.each do |a|
-#       if a =~ /chef_apply.*/
-#         show = true
-#         break
-#       end
-#     end
-#
-#     $stderr.puts "from #{File.basename(caller[1])}: require: %s" % [args.inspect] if show
-#     _require(*args)
-#   end
-#
-#   alias :_load :load
-#   def load(*args)
-#     show = false
-#     args.each do |a|
-#       if a =~ /chef_apply.*/
-#         show = true
-#         break
-#       end
-#     end
-#     $stderr.puts "from #{File.basename(caller[1])}: load: %s" % [args.inspect] if show
-#     _load(*args)
-#   end
-#
-# end
-#
-# module Kernel
-#   def require(*args)
-#     Kernel.require(*args)
-#   end
-#   def load(*args)
-#     Kernel.load(*args)
-#   end
-# end
-
 RemoteExecResult = Struct.new(:exit_status, :stdout, :stderr)
 
-class ChefApply::MockReporter
+class ChefCore::Testing::MockReporter
   def update(msg); ChefApply::UI::Terminal.output msg; end
 
   def success(msg); ChefApply::UI::Terminal.output "SUCCESS: #{msg}"; end
@@ -70,39 +28,6 @@ class ChefApply::MockReporter
   def error(msg); ChefApply::UI::Terminal.output "FAILURE: #{msg}"; end
 end
 
-RSpec::Matchers.define :exit_with_code do |expected_code|
-  actual_code = nil
-  match do |block|
-    begin
-      block.call
-    rescue SystemExit => e
-      actual_code = e.status
-    end
-    actual_code && actual_code == expected_code
-  end
-
-  failure_message do |block|
-    result = actual.nil? ? " did not call exit" : " called exit(#{actual_code})"
-    "expected exit(#{expected_code}) but it #{result}."
-  end
-
-  failure_message_when_negated do |block|
-    "expected exit(#{expected_code}) but it did."
-  end
-
-  description do
-    "expect exit(#{expected_code})"
-  end
-
-  supports_block_expectations do
-    true
-  end
-end
-# TODO would read better to make this a custom matcher.
-# Simulates a recursive string lookup on the Text object
-#
-# assert_string_lookup("tree.tree.tree.leaf", "a returned string")
-# TODO this can be more cleanly expressed as a custom matcher...
 def assert_string_lookup(key, retval = "testvalue")
   it "should look up string #{key}" do
     top_level_method, *call_seq = key.split(".")
@@ -113,7 +38,7 @@ def assert_string_lookup(key, retval = "testvalue")
     # we need to add this individually instead of using
     # `receive_messages`, which doesn't appear to give a way to
     # guarantee ordering
-    expect(ChefApply::Text).to receive(top_level_method)
+    expect(ChefCore::Text).to receive(top_level_method)
       .and_return(tmock)
     call_seq.each do |m|
       expect(tmock).to receive(m).ordered.and_return(tmock)
@@ -142,8 +67,8 @@ RSpec.configure do |config|
   end
 
   config.before(:all) do
-    ChefApply::Log.setup "/dev/null", :error
-    ChefApply::UI::Terminal.init(File.open("/dev/null", "w"))
+    ChefCore::Log.setup "/dev/null", :error
+    ChefCore::CLIUX::UI::Terminal.init(File.open("/dev/null", "w"))
   end
 end
 

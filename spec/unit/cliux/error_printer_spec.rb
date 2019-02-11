@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-require "spec_helper"
+require "cliux/spec_helper"
 require "chef_apply/ui/error_printer"
 require "chef_apply/text/error_translation"
 require "chef_apply/errors/standard_error_resolver"
@@ -139,7 +139,7 @@ RSpec.describe ChefApply::UI::ErrorPrinter do
       job2 = double("Job", target_host: double("TargetHost", hostname: "host2"),
                            exception: StandardError.new("Hello World"))
 
-      expected_content = File.read("spec/unit/fixtures/multi-error.out")
+      expected_content = File.read("spec/unit/cliux/fixtures/multi-error.out")
       multifailure = ChefApply::MultiJobFailure.new([job1, job2] )
       subject.capture_multiple_failures(multifailure)
       expect(file_content_capture.string).to eq expected_content
