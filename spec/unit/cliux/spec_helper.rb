@@ -18,6 +18,8 @@
 require "bundler/setup"
 require "simplecov"
 require "rspec/expectations"
+require "support/matchers/output_to_terminal"
+
 RemoteExecResult = Struct.new(:exit_status, :stdout, :stderr)
 
 module ChefCore

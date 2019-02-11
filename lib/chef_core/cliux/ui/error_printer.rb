@@ -17,11 +17,10 @@
 
 require "train/errors"
 require "pastel"
-require "chef_apply/error"
-require "chef_apply/config"
-require "chef_apply/text"
-require "chef_apply/ui/terminal"
-require "chef_apply/errors/standard_error_resolver"
+require "chef_core/error"
+require "chef_core/text"
+require "chef_core/cliux/ui/terminal"
+require "chef_core/errors/standard_error_resolver"
 
 module ChefCore
   module CLIUX
@@ -37,12 +36,12 @@ module ChefCore
 
         DEFAULT_ERROR_NO = "CHEFINT001".freeze
 
-        def self.show_error(e)
+        def self.show_error(e, output_path_for_multiple_errors)
           # Name is misleading - it's unwrapping but also doing further
           # error resolution for common errors:
           unwrapped = ChefCore::Errors::StandardErrorResolver.unwrap_exception(e)
           if unwrapped.class == ChefCore::MultiJobFailure
-            capture_multiple_failures(unwrapped)
+            capture_multiple_failures(unwrapped, output_path_for_multiple_errors)
           end
           formatter = ErrorPrinter.new(e, unwrapped)
           Terminal.output(formatter.format_error)
@@ -50,10 +49,9 @@ module ChefCore
           dump_unexpected_error(e)
         end
 
-        def self.capture_multiple_failures(e)
-          out_file = ChefCore::Config.error_output_path
-          e.params << out_file # Tell the operator where to find this info
-          File.open(out_file, "w") do |out|
+        def self.capture_multiple_failures(e, error_output_path)
+          e.params << error_output_path # Tell the operator where to find this info
+          File.open(error_output_path, "w") do |out|
             e.jobs.each do |j|
               wrapped = ChefCore::Errors::StandardErrorResolver.wrap_exception(j.exception, j.target_host)
               ep = ErrorPrinter.new(wrapped)

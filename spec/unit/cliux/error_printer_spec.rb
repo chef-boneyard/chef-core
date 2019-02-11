@@ -16,10 +16,10 @@
 #
 
 require "cliux/spec_helper"
-require "chef_apply/ui/error_printer"
-require "chef_apply/text/error_translation"
-require "chef_apply/errors/standard_error_resolver"
-require "chef_apply/target_host"
+require "chef_core/text/error_translation"
+require "chef_core/errors/standard_error_resolver"
+require "chef_core/cliux/ui/error_printer"
+require "chef_core/target_host"
 
 RSpec.describe ChefCore::CLIUX::UI::ErrorPrinter do
 
@@ -103,8 +103,8 @@ RSpec.describe ChefCore::CLIUX::UI::ErrorPrinter do
       it "recognizes it and invokes capture_multiple_failures" do
         underlying_error = ChefCore::MultiJobFailure.new([])
         error_to_process = ChefCore::Errors::StandardErrorResolver.wrap_exception(underlying_error)
-        expect(subject).to receive(:capture_multiple_failures).with(underlying_error)
-        subject.show_error(error_to_process)
+        expect(subject).to receive(:capture_multiple_failures).with(underlying_error, "/tmp/path")
+        subject.show_error(error_to_process, "/tmp/path")
 
       end
     end
@@ -116,7 +116,7 @@ RSpec.describe ChefCore::CLIUX::UI::ErrorPrinter do
         # Intercept a known call to raise an error
         expect(ChefCore::CLIUX::UI::Terminal).to receive(:output).and_raise error_to_raise
         expect(subject).to receive(:dump_unexpected_error).with(error_to_raise)
-        subject.show_error(error_to_process)
+        subject.show_error(error_to_process, "/tmp/path")
       end
     end
 
@@ -126,8 +126,7 @@ RSpec.describe ChefCore::CLIUX::UI::ErrorPrinter do
     subject { ChefCore::CLIUX::UI::ErrorPrinter }
     let(:file_content_capture) { StringIO.new }
     before do
-      allow(ChefCore::Config).to receive(:error_output_path).and_return "/dev/null"
-      allow(File).to receive(:open).with("/dev/null", "w").and_yield(file_content_capture)
+      allow(File).to receive(:open).with("/tmp/path", "w").and_yield(file_content_capture)
     end
 
     it "should write a properly formatted error file" do
@@ -141,7 +140,7 @@ RSpec.describe ChefCore::CLIUX::UI::ErrorPrinter do
 
       expected_content = File.read("spec/unit/cliux/fixtures/multi-error.out")
       multifailure = ChefCore::MultiJobFailure.new([job1, job2] )
-      subject.capture_multiple_failures(multifailure)
+      subject.capture_multiple_failures(multifailure, "/tmp/path")
       expect(file_content_capture.string).to eq expected_content
     end
   end

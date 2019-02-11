@@ -16,7 +16,7 @@
 #
 
 require "cliux/spec_helper"
-require "chef_apply/ui/terminal"
+require "chef_core/cliux/ui/terminal"
 
 RSpec.describe ChefCore::CLIUX::UI::Terminal do
   Terminal = ChefCore::CLIUX::UI::Terminal

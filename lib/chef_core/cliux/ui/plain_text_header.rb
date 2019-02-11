@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 require "thread"
-require "chef_apply/ui/plain_text_element"
+require "chef_core/cliux/ui/plain_text_element"
 
 module ChefCore
   module CLIUX

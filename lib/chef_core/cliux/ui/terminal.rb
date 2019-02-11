@@ -17,11 +17,11 @@
 
 require "tty-spinner"
 require "tty-cursor"
-require "chef_apply/status_reporter"
-require "chef_apply/config"
-require "chef_apply/log"
-require "chef_apply/ui/plain_text_element"
-require "chef_apply/ui/plain_text_header"
+require "chef_core/log"
+require "chef_core/cliux/status_reporter"
+require "chef_core/cliux/ui/plain_text_element"
+require "chef_core/cliux/ui/plain_text_header"
+require "chef_core/cliux/ui/terminal/job"
 
 module ChefCore
   module CLIUX
@@ -29,9 +29,10 @@ module ChefCore
       class Terminal
         class << self
           # To support matching in test
-          attr_accessor :location
+          attr_accessor :location, :enable_spinners
 
-          def init(location)
+          def init(location, enable_spinners: false)
+            @enable_spinners = enable_spinners
             @location = location
           end
 
@@ -84,11 +85,12 @@ module ChefCore
           end
 
           def get_multispinner
-            ChefCore::Config.dev.spinner ? TTY::Spinner::Multi : PlainTextHeader
+            enable_spinners ? TTY::Spinner::Multi : PlainTextHeader
           end
 
           def get_spinner
-            ChefCore::Config.dev.spinner ? TTY::Spinner : PlainTextElement
+              # TODO bootstrap - these was as below, which seems backwards:
+            enable_spinners ? TTY::Spinner : PlainTextElement
           end
 
           def show_cursor
