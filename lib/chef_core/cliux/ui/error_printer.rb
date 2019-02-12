@@ -53,7 +53,7 @@ module ChefCore
 
         def self.capture_multiple_failures(e, config)
           e.params << config[:error_output_path] # Tell the operator where to find this info
-          File.open(error_output_path, "w") do |out|
+          File.open(config[:error_output_path], "w") do |out|
             e.jobs.each do |j|
               wrapped = ChefCore::Errors::StandardErrorResolver.wrap_exception(j.exception, j.target_host)
               ep = ErrorPrinter.new(wrapped, config)
