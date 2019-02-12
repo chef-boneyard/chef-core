@@ -34,15 +34,13 @@ Gem::Specification.new do |spec|
     Dir.glob("Gemfile*") + # Includes Gemfile and locks
     Dir.glob("*.gemspec") +
     Dir.glob("{lib,spec,resources}/**/*", File::FNM_DOTMATCH).reject { |f| File.directory?(f) }
-  # spec.bindir        = "bin"
-  # spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
-   spec.add_dependency "mixlib-log"    # Basis for our traditional logger
-   spec.add_dependency "train" # remote connection management over ssh, winrm
-   spec.add_dependency "chef-telemetry"
+  spec.add_dependency "mixlib-log"    # Basis for our traditional logger
+  spec.add_dependency "train" # remote connection management over ssh, winrm
+  spec.add_dependency "chef-telemetry"
   spec.add_dependency "r18n-desktop" # easy path to message text management via
-                                     # localization gem...
+  # localization gem...
 
   spec.add_development_dependency "bundler"
   spec.add_development_dependency "rake"
