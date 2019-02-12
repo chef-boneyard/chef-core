@@ -20,7 +20,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require "chef_core/cliux/version"
 
 Gem::Specification.new do |spec|
-  spec.name          = "chef-core_cliux"
+  spec.name          = "chef_core-cliux"
   spec.version       = ChefCore::CLIUX::VERSION
   spec.authors       = ["Chef Software, Inc"]
   spec.email         = ["workstation@chef.io"]

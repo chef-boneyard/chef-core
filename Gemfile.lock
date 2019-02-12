@@ -12,7 +12,7 @@ GIT
 PATH
   remote: .
   specs:
-    chef-core_cliux (0.0.1)
+    chef_core-cliux (0.0.1)
       chef_core
       pastel
       tty-color
@@ -253,8 +253,8 @@ PLATFORMS
 
 DEPENDENCIES
   bundler
-  chef-core_cliux!
   chef_core!
+  chef_core-cliux!
   chefstyle
   pry
   pry-byebug
