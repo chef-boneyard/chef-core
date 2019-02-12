@@ -20,7 +20,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require "chef_core/actions/version"
 
 Gem::Specification.new do |spec|
-  spec.name          = "chef-core_actions"
+  spec.name          = "chef_core-actions"
   spec.version       = ChefCore::Actions::VERSION
   spec.authors       = ["Chef Software, Inc"]
   spec.email         = ["workstation@chef.io"]

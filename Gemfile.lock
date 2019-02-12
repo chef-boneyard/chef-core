@@ -12,7 +12,7 @@ GIT
 PATH
   remote: .
   specs:
-    chef-core_actions (0.0.1)
+    chef_core-actions (0.0.1)
       chef
       chef-dk
       chef_core
@@ -372,8 +372,8 @@ PLATFORMS
 
 DEPENDENCIES
   bundler
-  chef-core_actions!
   chef_core!
+  chef_core-actions!
   chefstyle
   pry
   pry-byebug
