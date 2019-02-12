@@ -16,6 +16,19 @@
 #
 
 require "cliux/spec_helper"
+require "chef_core/text"
+
+# This is a bit of a hack - the 'errors' key does not actually exist
+# on Text because we're not loading real data.  We're going to fake it
+# this way, which will let us mock out 'Text.errors' for testing that
+# ErrorPrinter correctly looks up errors.
+module ChefCore
+  module Text
+    def self.errors
+    end
+  end
+end
+
 require "chef_core/text/error_translation"
 require "chef_core/errors/standard_error_resolver"
 require "chef_core/cliux/ui/error_printer"
@@ -32,6 +45,19 @@ RSpec.describe ChefCore::CLIUX::UI::ErrorPrinter do
   let(:show_stack) { true }
   let(:has_decorations) { true }
   let(:show_header) { true }
+  let(:log_location) { "/tmp/cliux-log/default.log" }
+  let(:output_path_for_multiple_errors) { "/tmp/cliux-log/multi" }
+  let(:stack_trace_path) { "/tmp/cliux-log/stack.out" }
+
+  let(:error_config) do
+    {
+      log_location: log_location,
+      output_path_for_multiple_errors: output_path_for_multiple_errors,
+      stack_trace_path: stack_trace_path
+    }
+  end
+
+
   let(:translation_mock) do
     instance_double("ChefCore::Errors::ErrorTranslation",
                     footer: show_footer,
@@ -41,7 +67,7 @@ RSpec.describe ChefCore::CLIUX::UI::ErrorPrinter do
                     decorations: has_decorations
                    )
   end
-  subject { ChefCore::CLIUX::UI::ErrorPrinter.new(wrapped_exception, nil) }
+  subject { ChefCore::CLIUX::UI::ErrorPrinter.new(wrapped_exception, nil, error_config) }
 
   before do
     allow(ChefCore::Text::ErrorTranslation).to receive(:new).and_return translation_mock
@@ -103,8 +129,8 @@ RSpec.describe ChefCore::CLIUX::UI::ErrorPrinter do
       it "recognizes it and invokes capture_multiple_failures" do
         underlying_error = ChefCore::MultiJobFailure.new([])
         error_to_process = ChefCore::Errors::StandardErrorResolver.wrap_exception(underlying_error)
-        expect(subject).to receive(:capture_multiple_failures).with(underlying_error, "/tmp/path")
-        subject.show_error(error_to_process, "/tmp/path")
+        expect(subject).to receive(:capture_multiple_failures).with(underlying_error, error_config)
+        subject.show_error(error_to_process, error_config)
 
       end
     end
@@ -116,7 +142,7 @@ RSpec.describe ChefCore::CLIUX::UI::ErrorPrinter do
         # Intercept a known call to raise an error
         expect(ChefCore::CLIUX::UI::Terminal).to receive(:output).and_raise error_to_raise
         expect(subject).to receive(:dump_unexpected_error).with(error_to_raise)
-        subject.show_error(error_to_process, "/tmp/path")
+        subject.show_error(error_to_process, error_config)
       end
     end
 
@@ -140,7 +166,7 @@ RSpec.describe ChefCore::CLIUX::UI::ErrorPrinter do
 
       expected_content = File.read("spec/unit/cliux/fixtures/multi-error.out")
       multifailure = ChefCore::MultiJobFailure.new([job1, job2] )
-      subject.capture_multiple_failures(multifailure, "/tmp/path")
+      subject.capture_multiple_failures(multifailure,  error_config)
       expect(file_content_capture.string).to eq expected_content
     end
   end
