@@ -1,6 +1,7 @@
 GIT
   remote: https://github.com/chef/chef_core
-  revision: e7cb52a3257ec6f7ac52856daf41ace1029074f7
+  revision: a6b46980ac7c14ef227f47106be276e6333ab7ee
+  branch: chef-core-split
   specs:
     chef_core (0.0.1)
       chef-telemetry
@@ -22,13 +23,13 @@ GEM
     addressable (2.5.2)
       public_suffix (>= 2.0.2, < 4.0)
     ast (2.4.0)
-    aws-sdk (2.11.216)
-      aws-sdk-resources (= 2.11.216)
-    aws-sdk-core (2.11.216)
+    aws-sdk (2.11.218)
+      aws-sdk-resources (= 2.11.218)
+    aws-sdk-core (2.11.218)
       aws-sigv4 (~> 1.0)
       jmespath (~> 1.0)
-    aws-sdk-resources (2.11.216)
-      aws-sdk-core (= 2.11.216)
+    aws-sdk-resources (2.11.218)
+      aws-sdk-core (= 2.11.218)
     aws-sigv4 (1.0.3)
     azure_graph_rbac (0.17.0)
       ms_rest_azure (~> 0.11.0)
@@ -324,7 +325,7 @@ GEM
     syslog-logger (1.6.8)
     systemu (2.6.5)
     thor (0.20.3)
-    timeliness (0.3.10)
+    timeliness (0.4.0)
     tomlrb (1.2.8)
     train (1.7.2)
       aws-sdk (~> 2)
