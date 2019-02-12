@@ -28,6 +28,9 @@ module ChefCore
     end
   end
 
+  # TODO 2019-02-08
+  # TODO dts  t's consider namespacing these under errors
+  #
   # These helpers are obsolete
   class ErrorNoLogs < Error
     def initialize(id, *params)
