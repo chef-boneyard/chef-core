@@ -17,7 +17,7 @@
 
 require "pathname"
 require "tempfile"
-require "chef/util/path_helper"
+require "chef-config/path_helper"
 require "chef_core/actions/base"
 
 module ChefCore
@@ -134,7 +134,7 @@ module ChefCore
 
       def upload_trusted_certs(dir)
         # TODO BOOTSTRAP - trusted certs dir and other config to be received as argument to constructor
-        local_tcd = Chef::Util::PathHelper.escape_glob_dir(config[:trusted_certs_dir])
+        local_tcd = ChefConfig::PathHelper.escape_glob_dir(config[:trusted_certs_dir])
         certs = Dir.glob(File.join(local_tcd, "*.{crt,pem}"))
         return if certs.empty?
 

@@ -37,8 +37,9 @@ Gem::Specification.new do |spec|
     Dir.glob("{lib,spec}/**/*", File::FNM_DOTMATCH).reject { |f| File.directory?(f) }
   spec.require_paths = ["lib"]
 
+  spec.add_dependency "chef", ">= 14.10"
+  spec.add_dependency "chef-config" # Provides the PathHelper utility
   spec.add_dependency "chef_core"
-  spec.add_dependency "chef"
 
   spec.add_development_dependency "bundler"
   spec.add_development_dependency "rake"
