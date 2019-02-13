@@ -75,8 +75,8 @@ module ChefCore
           color false
           cache_path "#{target_host.ws_cache_path}"
           chef_repo_path "#{target_host.ws_cache_path}"
-          require_relative "reporter"
-          reporter = ChefCore::Actions::Reporter.new
+          require_relative "chef_run_reporter"
+          reporter = ChefCore::ChefRunReporter.new
           report_handlers << reporter
           exception_handlers << reporter
         EOM
@@ -115,12 +115,11 @@ module ChefCore
       end
 
       def create_remote_handler(remote_dir)
-        remote_handler_path = File.join(remote_dir, "reporter.rb")
+        remote_handler_path = File.join(remote_dir, "chef_run_reporter.rb")
         begin
-          # TODO - why don't we upload the original remote_handler_path instead of making a temp copy?
           handler_file = Tempfile.new()
           # TODO - ideally this is a resource in the gem, and not placed in with source files.
-          handler_file.write(File.read(File.join(__dir__, "reporter.rb")))
+          handler_file.write(File.read(File.join(__dir__, "../../../resources/chef_run_reporter.rb")))
           handler_file.close
           target_host.upload_file(handler_file.path, remote_handler_path)
           # TODO - should we be more specific in our error catch?

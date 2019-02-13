@@ -1,5 +1,5 @@
 #
-# Copyright:: Copyright (c) 2017 Chef Software Inc.
+# Copyright:: Copyright (c) 2017-2019 Chef Software Inc.
 # License:: Apache License, Version 2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,11 +16,12 @@
 #
 
 require "chef/handler"
+require "chef/log"
+require "chef/file_cache"
 require "chef/resource/directory"
 
 module ChefCore
-  class Reporter < ::Chef::Handler
-
+  class ChefRunReporter < ::Chef::Handler
     def report
       if exception
         Chef::Log.error("Creating exception report")

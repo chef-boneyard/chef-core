@@ -94,7 +94,6 @@ RSpec.describe ChefCore::Actions::ConvergeTarget, :focus do
     end
 
     describe "when target_level is left default" do
-      # TODO - this is a windows config, but we don't set windows?
       it "creates a config file without a specific log_level (leaving default for chef-client)" do
         expect(Tempfile).to receive(:new).and_return(local_tempfile)
         expect(local_tempfile).to receive(:write).with(<<~EOM
@@ -102,8 +101,8 @@ RSpec.describe ChefCore::Actions::ConvergeTarget, :focus do
           color false
           cache_path "#{cache_path}"
           chef_repo_path "#{cache_path}"
-          require_relative "reporter"
-          reporter = ChefCore::Actions::Reporter.new
+          require_relative "chef_run_reporter"
+          reporter = ChefCore::ChefRunReporter.new
           report_handlers << reporter
           exception_handlers << reporter
         EOM
@@ -123,8 +122,8 @@ RSpec.describe ChefCore::Actions::ConvergeTarget, :focus do
           color false
           cache_path "#{cache_path}"
           chef_repo_path "#{cache_path}"
-          require_relative "reporter"
-          reporter = ChefCore::Actions::Reporter.new
+          require_relative "chef_run_reporter"
+          reporter = ChefCore::ChefRunReporter.new
           report_handlers << reporter
           exception_handlers << reporter
           log_level :info
@@ -147,8 +146,8 @@ RSpec.describe ChefCore::Actions::ConvergeTarget, :focus do
           color false
           cache_path "#{cache_path}"
           chef_repo_path "#{cache_path}"
-          require_relative "reporter"
-          reporter = ChefCore::Actions::Reporter.new
+          require_relative "chef_run_reporter"
+          reporter = ChefCore::ChefRunReporter.new
           report_handlers << reporter
           exception_handlers << reporter
           data_collector.server_url "dc.url"
@@ -175,8 +174,8 @@ RSpec.describe ChefCore::Actions::ConvergeTarget, :focus do
           color false
           cache_path "#{cache_path}"
           chef_repo_path "#{cache_path}"
-          require_relative "reporter"
-          reporter = ChefCore::Actions::Reporter.new
+          require_relative "chef_run_reporter"
+          reporter = ChefCore::ChefRunReporter.new
           report_handlers << reporter
           exception_handlers << reporter
         EOM
@@ -191,7 +190,7 @@ RSpec.describe ChefCore::Actions::ConvergeTarget, :focus do
 
   describe "#create_remote_handler" do
     let(:remote_folder) { "/tmp/foo" }
-    let(:remote_reporter) { "#{remote_folder}/reporter.rb" }
+    let(:remote_reporter) { "#{remote_folder}/chef_run_reporter.rb" }
     let!(:local_tempfile) { Tempfile.new }
 
     it "pushes it to the remote machine" do
