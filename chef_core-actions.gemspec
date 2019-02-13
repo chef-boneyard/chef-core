@@ -39,7 +39,6 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "chef_core"
   spec.add_dependency "chef"
-  spec.add_dependency "chef-dk"
 
   spec.add_development_dependency "bundler"
   spec.add_development_dependency "rake"
