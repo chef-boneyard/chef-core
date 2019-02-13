@@ -24,6 +24,8 @@ module ChefCore
   module Actions
     class ConvergeTarget < Base
 
+      RUN_REPORTER_PATH = File.join(__dir__, "../../../resources/chef_run_reporter.rb").freeze
+
       def perform_action
         local_policy_path = config.delete :local_policy_path
         remote_tmp = target_host.temp_dir()
@@ -116,23 +118,13 @@ module ChefCore
 
       def create_remote_handler(remote_dir)
         remote_handler_path = File.join(remote_dir, "chef_run_reporter.rb")
-        begin
-          handler_file = Tempfile.new()
-          # TODO - ideally this is a resource in the gem, and not placed in with source files.
-          handler_file.write(File.read(File.join(__dir__, "../../../resources/chef_run_reporter.rb")))
-          handler_file.close
-          target_host.upload_file(handler_file.path, remote_handler_path)
-          # TODO - should we be more specific in our error catch?
-        rescue RuntimeError
-          raise HandlerUploadFailed.new()
-        ensure
-          handler_file.unlink
-        end
+        target_host.upload_file(RUN_REPORTER_PATH, remote_handler_path)
         remote_handler_path
+      rescue RuntimeError
+        raise HandlerUploadFailed.new()
       end
 
       def upload_trusted_certs(dir)
-        # TODO BOOTSTRAP - trusted certs dir and other config to be received as argument to constructor
         local_tcd = ChefConfig::PathHelper.escape_glob_dir(config[:trusted_certs_dir])
         certs = Dir.glob(File.join(local_tcd, "*.{crt,pem}"))
         return if certs.empty?

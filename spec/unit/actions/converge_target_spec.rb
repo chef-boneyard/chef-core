@@ -191,23 +191,19 @@ RSpec.describe ChefCore::Actions::ConvergeTarget, :focus do
   describe "#create_remote_handler" do
     let(:remote_folder) { "/tmp/foo" }
     let(:remote_reporter) { "#{remote_folder}/chef_run_reporter.rb" }
-    let!(:local_tempfile) { Tempfile.new }
 
     it "pushes it to the remote machine" do
-      expect(Tempfile).to receive(:new).and_return(local_tempfile)
-      expect(target_host).to receive(:upload_file).with(local_tempfile.path, remote_reporter)
+      expect(target_host).to receive(:upload_file).with(ChefCore::Actions::ConvergeTarget::RUN_REPORTER_PATH, remote_reporter)
       expect(subject.create_remote_handler(remote_folder)).to eq(remote_reporter)
-      # ensure the tempfile is deleted locally
-      expect(local_tempfile.closed?).to eq(true)
     end
 
     it "raises an error if the upload fails" do
-      expect(Tempfile).to receive(:new).and_return(local_tempfile)
-      expect(target_host).to receive(:upload_file).with(local_tempfile.path, remote_reporter).and_raise("foo")
+      expect(target_host).to receive(:upload_file).
+        with(ChefCore::Actions::ConvergeTarget::RUN_REPORTER_PATH, remote_reporter).
+        and_raise("error")
+
       err = ChefCore::Actions::ConvergeTarget::HandlerUploadFailed
       expect { subject.create_remote_handler(remote_folder) }.to raise_error(err)
-      # ensure the tempfile is deleted locally
-      expect(local_tempfile.closed?).to eq(true)
     end
   end
 
