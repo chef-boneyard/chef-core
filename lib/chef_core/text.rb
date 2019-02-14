@@ -1,5 +1,5 @@
 #
-# Copyright:: Copyright (c) 2017 Chef Software Inc.
+# Copyright:: Copyright (c) 2018-2019 Chef Software Inc.
 # License:: Apache License, Version 2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,35 +23,44 @@ require "chef_core/text/error_translation"
 # down the road and don't want to have to change all of our commands.
 module ChefCore
   module Text
-    def self._error_table
-      # Though ther may be several translations, en.yml will be the only one with
-      # error metadata.
-      path = File.join(_translation_path, "errors", "en.yml")
-      raw_yaml = File.read(path)
-      @error_table ||= YAML.load(raw_yaml, _translation_path, symbolize_names: true)[:errors]
+
+    DEFAULT_LOCALIZATION_PATH = File.absolute_path(File.join(File.dirname(__FILE__), "..", "..", "i18n"))
+
+    # Set up this gem's localization as the only one present
+    def self.reset!
+      @localization_paths = []
+      add_localization(DEFAULT_LOCALIZATION_PATH)
     end
 
-    def self._translation_path
-      @translation_path ||= File.join(File.dirname(__FILE__), "..", "..", "i18n")
+    def self.add_localization(base_path)
+      @localization_paths << base_path
+      @localization_paths << File.join(base_path, "errors")
+      reload!
     end
 
-    # TODO BOOTSTRAP - must support loading from each gem's
-    #                  text (in particular i18n/errors/*.yml)
-    #                  We may need to accept the translation paths
-    #                  as a list.
-    def self.load
-      R18n.from_env(Text._translation_path)
-      R18n.extension_places << File.join(Text._translation_path, "errors")
+    def self.reload!
+      R18n.reset!
+      R18n.from_env(@localization_paths)
       t = R18n.get.t
       t.translation_keys.each do |k|
         k = k.to_sym
         define_singleton_method k do |*args|
-          TextWrapper.new(t.send(k, *args))
+          # If this is a top-level entry without children
+          # (such as 'cancel') it will have no translation
+          # keys and doees not need a wrapper
+          tree = t.send(k, *args)
+          if tree.methods.include?(:translation_keys)
+            TextWrapper.new(tree)
+          else
+            tree.to_s
+          end
         end
       end
     end
-
-    # Load on class load to ensure our text accessor methods are available from the start.
-    load
+    # Load this gem's built-in errors during class load to ensure that
+    # error display info will be available.
+    reset!
   end
+
+
 end
