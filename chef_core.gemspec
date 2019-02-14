@@ -33,7 +33,7 @@ Gem::Specification.new do |spec|
   spec.files = %w{Rakefile LICENSE README.md warning.txt} +
     Dir.glob("Gemfile*") + # Includes Gemfile and locks
     Dir.glob("*.gemspec") +
-    Dir.glob("{lib,spec,resources}/**/*", File::FNM_DOTMATCH).reject { |f| File.directory?(f) }
+    Dir.glob("{i18n,lib,spec,resources}/**/*", File::FNM_DOTMATCH).reject { |f| File.directory?(f) }
   spec.require_paths = ["lib"]
 
   spec.add_dependency "mixlib-log"    # Basis for our traditional logger
@@ -51,6 +51,4 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "pry-stack_explorer"
   spec.add_development_dependency "rspec_junit_formatter"
   spec.add_development_dependency "chefstyle"
-
-  # spec.post_install_message = File.read(File.expand_path("../warning.txt", __FILE__))
 end
