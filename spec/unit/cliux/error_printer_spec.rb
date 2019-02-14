@@ -123,31 +123,36 @@ RSpec.describe ChefCore::CLIUX::UI::ErrorPrinter do
       end
     end
 
-    xcontext "when an error occurs in error handling",  "This is broken until we correct R18n under new libs"  do
+    context "when an error occurs in error handling" do
       it "processes the new failure with dump_unexpected_error" do
-        error_to_raise = StandardError.new("this will be raised")
         error_to_process = ChefCore::Errors::StandardErrorResolver.wrap_exception(StandardError.new("this is being shown"))
-        expect(subject).to receive(:dump_unexpected_error).with(error_to_raise)
+        expect(subject).to receive(:dump_unexpected_error).with(NoMethodError)
         # Pass in a nil config - this will forece NoMethodError, "undefined method '[]' for nil:NilClass"
-        require 'pry'; binding.pry
         subject.show_error(error_to_process, nil)
       end
     end
 
   end
 
-  xcontext ".capture_multiple_failures", "This is broken until we correct R18n under new libs"  do
+  context ".capture_multiple_failures" do
     subject { ChefCore::CLIUX::UI::ErrorPrinter }
     let(:file_content_capture) { StringIO.new }
     before do
+      ChefCore::Text.add_localization("spec/unit/cliux/fixtures/i18n")
+      # Looks like File.open will intefere iwth lazy-loading of localizations, so
+      # allow the general case to call the original, and capture our specific case.
+      allow(File).to receive(:open).and_call_original
       allow(File).to receive(:open).with(error_output_path, "w").and_yield(file_content_capture)
+    end
+    after do
+      ChefCore::Text.reset!
     end
 
     it "should write a properly formatted error file" do
       job1 = double("Job", target_host: double("TargetHost", hostname: "host1"),
-                           exception: StandardError.new("Hello World"))
+                    exception: ChefCore::Error.new("CLIUXTEST001", "Hello World"))
       job2 = double("Job", target_host: double("TargetHost", hostname: "host2"),
-                           exception: StandardError.new("Hello Universe"))
+                           exception: StandardError.new("Hello World"))
 
       expected_content = File.read("spec/unit/cliux/fixtures/multi-error.out")
       multifailure = ChefCore::MultiJobFailure.new([job1, job2] )
@@ -156,14 +161,9 @@ RSpec.describe ChefCore::CLIUX::UI::ErrorPrinter do
     end
   end
 
-  xcontext "#format_footer", "This is broken until we correct R18n under new libs"  do
+  context "#format_footer" do
     let(:formatter) do
-      ChefCore::CLIUX::UI::ErrorPrinter.new(wrapped_exception, nil)
-    end
-
-    before do
-
-      allow(formatter).to receive(:t).and_return t_mock
+      ChefCore::CLIUX::UI::ErrorPrinter.new(wrapped_exception, nil, nil, error_config)
     end
 
     subject do
