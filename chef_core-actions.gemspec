@@ -34,7 +34,7 @@ Gem::Specification.new do |spec|
   spec.files = %w{Rakefile LICENSE README.md warning.txt} +
     Dir.glob("Gemfile*") + # Includes Gemfile and locks
     Dir.glob("*.gemspec") +
-    Dir.glob("{lib,spec}/**/*", File::FNM_DOTMATCH).reject { |f| File.directory?(f) }
+    Dir.glob("{i18n,lib,spec}/**/*", File::FNM_DOTMATCH).reject { |f| File.directory?(f) }
   spec.require_paths = ["lib"]
 
   spec.add_dependency "chef-config" # Provides the PathHelper utility
