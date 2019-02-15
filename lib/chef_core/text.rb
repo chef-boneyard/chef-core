@@ -29,12 +29,19 @@ module ChefCore
     # Set up this gem's localization as the only one present
     def self.reset!
       @localization_paths = []
+      @raw_localization_paths = []
       add_localization(DEFAULT_LOCALIZATION_PATH)
     end
 
     def self.add_localization(base_path)
+      return if @raw_localization_paths.include? base_path
+      # @localization_paths will get modified by R18n, so we'll
+      # keep them as strings as well, to ensure we can avoid duplicate loading.
+      errors_path = File.join(base_path, "errors")
       @localization_paths << base_path
-      @localization_paths << File.join(base_path, "errors")
+      @localization_paths << errors_path
+      @raw_localization_paths << base_path
+      @raw_localization_paths << errors_path
       reload!
     end
 
@@ -69,6 +76,4 @@ module ChefCore
     # error display info will be available.
     reset!
   end
-
-
 end
