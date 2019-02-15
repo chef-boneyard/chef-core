@@ -80,7 +80,7 @@ module ChefCore
           target_data[:hostname_sha1] = Digest::SHA1.hexdigest(target.hostname.downcase)
           target_data[:transport_type] = target.transport_type
         end
-        timed_capture(:action, { action: action.name, target: target_data }, &block)
+        ChefCore::Telemeter.timed_capture(:action, { action: action.name, target: target_data }, &block)
       end
 
 
