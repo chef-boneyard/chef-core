@@ -19,6 +19,9 @@ require "bundler/setup"
 require "simplecov"
 require "rspec/expectations"
 require "chef_core"
+require "chef_core/text"
+
+ChefCore::Text.add_gem_localization("chef_core-actions")
 
 if ENV["CIRCLE_ARTIFACTS"]
   dir = File.join(ENV["CIRCLE_ARTIFACTS"], "coverage")
