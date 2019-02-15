@@ -71,8 +71,16 @@ module ChefCore
           when /.*NoMethodError: undefined method `(.+)' for cookbook.+/
             # Invalid resource type in most cases
             ["CHEFCCR005", $1]
+          when /.*undefined method `(.*)' for Chef::Resource::(.+)::/
+            # If we can get a resource name show that instead of the class name
+            # TODO - for the best experience, we could instantiate the resource in invoke resource.name
+            ["CHEFCCR006", $1, $2]
           when /.*undefined method `(.*)' for (.+)/
-            # Unknown resource property
+            # TODO - we started showing the class name instead of hte resource name.
+            # name, which is confusing -
+            # 'blah' is not a property of 'Chef::Resource::User::LinuxUser'.
+            #
+
             ["CHEFCCR006", $1, $2]
 
             # Below would catch the general form of most errors, but the

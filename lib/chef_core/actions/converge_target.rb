@@ -158,7 +158,9 @@ module ChefCore
           ChefCore::Log.error("Remote chef-client error follows:")
           ChefCore::Log.error(report["exception"])
         end
-        mapper = ChefCore::Actions::ConvergeTarget::CCRFailureMapper.new(report["exception"], mapper_opts)
+
+        mapper = ConvergeTarget::CCRFailureMapper.new(report["exception"],
+                                                      mapper_opts)
         mapper.raise_mapped_exception!
       end
 
