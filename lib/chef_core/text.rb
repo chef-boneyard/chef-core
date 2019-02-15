@@ -38,6 +38,14 @@ module ChefCore
       reload!
     end
 
+    def self.add_gem_localization(gem_name)
+      spec = Gem::Specification.find_by_name(gem_name)
+      path = File.join(spec.gem_dir, "i18n")
+      if File.directory? path
+        add_localization(path)
+      end
+    end
+
     def self.reload!
       R18n.reset!
       R18n.from_env(@localization_paths)
