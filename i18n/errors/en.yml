@@ -68,7 +68,7 @@ errors:
 
 # Local errors trying to create policy to send to target
   CHEFPOLICY001:
-    options: { stack: true, log: true }
+    options: " { stack: true, log: true } "
     text: |
       Could not create local Policyfile bundle.
 
@@ -245,49 +245,10 @@ errors:
       %1
 
   # validation errors. TODO:  Numbering is a bit odd because of the gem split; give these their own space, eg
-  # ACTIONVAL for actions validation or similar.
-
-  CHEFVAL005:
-    options: { decorations: false }
-    text: |
-      The cookbook provided could not be loaded. Ensure it contains a valid
-      'metadata.rb'.
-
-      Cookbook path is '%1'.
-
-  CHEFVAL006:
-    options: { decorations: false }
-    text: |
-      Cookbook '%1' could not be found in any of the following directories
-
-      %2
-
-  CHEFVAL007:
-    options: { decorations: false }
-    text: |
-      There is no default recipe in cookbook '%2'. Please provide the name of the recipe to run, for example:
-        %2::some_recipe
-
-      Cookbook path is '%1'.
-
-  CHEFVAL008:
-    options: { decorations: false }
-    text: |
-      There is no recipe named '%2' in the cookbook '%4', which I found at '%1'.
-
-      Please include the name of the recipe you wish to converge on the remote target.
-
-      These are the available recipes in '%4':
-      %3
-
-  CHEFVAL009:
-    options: { decorations: false }
-    text: |
-      File extension '%1' is unsupported. Currently recipes must be specified with a `.rb` extension.
 
   # Internal API errors - give them some formatting
   CHEFAPI001:
-    options: { log: true, stack: true }
+    options: " { log: true, stack: true } "
     text: |
       API error: provide either :recipe_spec or :resouce_name, :resource_type,
       and :resource_properties
@@ -307,17 +268,17 @@ errors:
 
   # Remote chef client run failure start here.
   CHEFUPL003:
-    options: { log: true, stack: true }
+    options: " { log: true, stack: true } "
     text: |
       Uploading config to target failed.
 
   CHEFUPL004:
-    options: { log: true, stack: true }
+    options: " { log: true, stack: true } "
     text: |
       Uploading handler to target failed.
 
   CHEFUPL005:
-    options: { log: true, stack: true }
+    options: " { log: true, stack: true } "
     text: |
       Uploading policy bundle to target failed.
 
