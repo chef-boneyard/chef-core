@@ -20,6 +20,8 @@ require "simplecov"
 require "rspec/expectations"
 require "support/matchers/output_to_terminal"
 
+ChefCore::Text.add_gem_localization("chef_core-cliux")
+
 RemoteExecResult = Struct.new(:exit_status, :stdout, :stderr)
 
 module ChefCore
