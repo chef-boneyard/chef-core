@@ -66,25 +66,6 @@ errors:
 
       Please upgrade the Chef client on this node to version %2 or later.
 
-# Local errors trying to create policy to send to target
-  CHEFPOLICY001:
-    options: " { stack: true, log: true } "
-    text: |
-      Could not create local Policyfile bundle.
-
-      The following error was reported:
-
-        %1
-
-# Remote execution and file operation errors are prefixed CHEFRMT
-  CHEFRMT001:
-    text: |
-      The command '%1' exited with return code '%2' on '%3'.
-
-      The following error was reported:
-
-      %4
-
   # Remote chef client run failure start here.
   CHEFCCR001:
     text: |
@@ -174,6 +155,10 @@ errors:
   # are prefixed CHEFTRN. Non-specific descendants of Train::Error
   # will resolve to CHEFTRN001, and we can add additional
   # more specific text as we need it.
+  #
+  # TODO - move train-specific bits out of ErrorPrinter so that _all_ TRAIN error ids
+  #        originate from chef_core
+  #
   CHEFTRN001:
     text: |
       An error has occurred on the %1 connection to %2:
@@ -186,180 +171,4 @@ errors:
 
         %1.
 
-  CHEFTRN003:
-    text: |
-      Password required for sudo.
-
-      This target requires a password to perform sudo operations.  Please provide a
-      password using the --sudo-password option. For example if the sudo password is
-      in the environment variable $CHEF_RUN_SUDO_PASSWORD, you could use:
-
-      --sudo-password $CHEF_RUN_SUDO_PASSWORD
-
-  CHEFTRN004:
-    text: |
-      Incorrect sudo password provided.
-
-      Please ensure that the password you provided with "--sudo-password" is correct.
-
-  CHEFTRN005:
-    text: |
-      sudo command '%1' not found.
-
-      Please verify that the --sudo-command '%1' is valid
-      and installed on this node.
-
-  CHEFTRN006:
-    text: |
-      sudo requires tty on this system
-
-      In order to continue, sudo must be configured to no longer require tty.
-      You can do this by modifying /etc/sudoers:
-
-      For all users:
-        Defaults !requiretty
-
-      Per-user:
-        Defaults:username !requiretty
-
-  CHEFTRN007:
-    text: |
-      No authentication methods available.
-
-      Try...
-      - Provide a password with "--password PASSWORD"
-      - Provide a key with "-identity-file PATH/TO/FILE"
-      - Enable ssh-agent and add keys
-      - Add a host entry to your ssh configuration
-
-      Additional instructions can be found in the troubleshooting documentation:
-
-      https://www.chef.sh/docs/chef-workstation/troubleshooting/#error-code-cheftrn007
-
-  CHEFTRN999:
-    text: |
-      Connection failed: %1
-
-      The following error occured while attempting to connect and authenticate to the target.
-
-      %1
-
-  # validation errors. TODO:  Numbering is a bit odd because of the gem split; give these their own space, eg
-
-  # Internal API errors - give them some formatting
-  CHEFAPI001:
-    options: " { log: true, stack: true } "
-    text: |
-      API error: provide either :recipe_spec or :resouce_name, :resource_type,
-      and :resource_properties
-
-      You provided: %1
-
-
-  # Maps to: NameError
-  CHEFNET001:
-    text: |
-      A network error occurred:
-
-        %1
-
-      Please verify the host name or address is correct and that the host is
-      reachable before trying again.
-
-  # Remote chef client run failure start here.
-  CHEFUPL003:
-    options: " { log: true, stack: true } "
-    text: |
-      Uploading config to target failed.
-
-  CHEFUPL004:
-    options: " { log: true, stack: true } "
-    text: |
-      Uploading handler to target failed.
-
-  CHEFUPL005:
-    options: " { log: true, stack: true } "
-    text: |
-      Uploading policy bundle to target failed.
-
-  # Maps to: SSL::SSLError with message text indicating verification failure
-  CHEFNET002:
-    text: |
-      SSL host verification failed.
-
-      I could not verify the identity of the remote host.
-
-      If you are certain that you are connecting to the correct host,
-      you can specify the '--no-ssl-verify' option for this command, or
-      make it the default by setting the following in your configuration:
-
-        [connection.winrm]
-        ssl_verify=false
-
-  # Errors specifying target ranges
-  CHEFRANGE001: |
-    text: |
-      The target '%1' contains an invalid range.
-
-      The range '%2' mixes alphabetic and numeric values.
-      A range must be one or the other.
-
-  CHEFRANGE002:
-    text: |
-      The target '%1' contains too many ranges.
-
-      A single target name can contain up two ranges.
-
-  CHEFRANGE003:
-    text: !!pl
-      1:
-        The target provided resolves to too many hosts.
-
-        At this time there is a limit of %2 hosts in a single operation.
-      n:
-        The targets provided resolve to too many hosts.
-
-        At this time there is a limit of %2 hosts in a single operation.
-
-  # Errors related to multi-target execution
-  CHEFMULTI001:
-    text: |
-      One or more actions has failed.
-
-      A complete list of failures and possible resolutions can
-      be found in the file below:
-
-        %1
-
-  # Errors relating to target state:
-  CHEFTARG001:
-    text: |
-      '%1' is not a supported target operating system at this time.
-
-      We plan to support a range of target operating systems,
-      but during this targeted beta we are constraining our efforts
-      to Windows and Linux.
-
-
-  footer:
-    both: |
-      If you are not able to resolve this issue, please contact Chef support
-      at workstation@chef.io and include the log file and stack trace from the
-      locations below:
-
-        %1
-        %2
-
-    log_only:  |
-      If you are not able to resolve this issue, please contact Chef support
-      at workstation@chef.io and include the log file from the location below:
-        %1
-
-    stack_only:  |
-      If you are not able to resolve this issue, please contact Chef support
-      at workstation@chef.io and include the stack trace from the location below:
-        %1
-
-    neither:  |
-      If you are not able to resolve this issue, please contact Chef support
-      at workstation@chef.io
+        # T
