@@ -18,13 +18,9 @@
 module ChefCore
   class Error < StandardError
     attr_reader :id, :params
-    attr_accessor :show_stack, :show_log, :decorate
     def initialize(id, *params)
       @id = id
       @params = params || []
-      @show_log = true
-      @show_stack = true
-      @decorate = true
     end
   end
 
@@ -35,16 +31,12 @@ module ChefCore
   class ErrorNoLogs < Error
     def initialize(id, *params)
       super
-      @show_log = false
-      @show_stack = false
     end
   end
 
   class ErrorNoStack < Error
     def initialize(id, *params)
       super
-      @show_log = true
-      @show_stack = false
     end
   end
 
