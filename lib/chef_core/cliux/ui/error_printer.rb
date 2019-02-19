@@ -261,4 +261,3 @@ module ChefCore
     end
   end
 end
-

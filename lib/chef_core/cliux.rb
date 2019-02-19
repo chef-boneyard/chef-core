@@ -5,4 +5,3 @@ module ChefCore
   module CLIUX
   end
 end
-

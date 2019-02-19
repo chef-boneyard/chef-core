@@ -42,7 +42,7 @@ RSpec.describe ChefCore::CLIUX::UI::ErrorPrinter do
     {
       log_location: log_location,
       error_output_path: error_output_path,
-      stack_trace_path: stack_trace_path
+      stack_trace_path: stack_trace_path,
     }
   end
 
@@ -156,7 +156,7 @@ RSpec.describe ChefCore::CLIUX::UI::ErrorPrinter do
 
       expected_content = File.read("spec/unit/cliux/fixtures/multi-error.out")
       multifailure = ChefCore::MultiJobFailure.new([job1, job2] )
-      subject.capture_multiple_failures(multifailure,  error_config)
+      subject.capture_multiple_failures(multifailure, error_config)
       expect(file_content_capture.string).to eq expected_content
     end
   end
