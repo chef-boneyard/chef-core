@@ -92,15 +92,15 @@ module ChefCore
           end
         end
 
-        class RemoteChefClientRunFailed < ChefCore::ErrorNoLogs
+        class RemoteChefClientRunFailed < ChefCore::Error
           def initialize(id, *args); super(id, *args); end
         end
 
-        class RemoteChefClientRunFailedUnknownReason < ChefCore::ErrorNoStack
+        class RemoteChefClientRunFailedUnknownReason < ChefCore::Error
           def initialize(); super("CHEFCCR099"); end
         end
 
-        class RemoteChefRunFailedToResolveError < ChefCore::ErrorNoStack
+        class RemoteChefRunFailedToResolveError < ChefCore::Error
           def initialize(path); super("CHEFCCR001", path); end
         end
 

@@ -64,17 +64,17 @@ module ChefCore
           :minimum_version_met
         end
 
-        class ClientNotInstalled < ChefCore::ErrorNoLogs
+        class ClientNotInstalled < ChefCore::Error
           def initialize(); super("CHEFINS002"); end
         end
 
-        class Client13Outdated < ChefCore::ErrorNoLogs
+        class Client13Outdated < ChefCore::Error
           def initialize(current_version, min_13_version, min_14_version)
             super("CHEFINS003", current_version, min_13_version, min_14_version)
           end
         end
 
-        class Client14Outdated < ChefCore::ErrorNoLogs
+        class Client14Outdated < ChefCore::Error
           def initialize(current_version, target_version)
             super("CHEFINS004", current_version, target_version)
           end
