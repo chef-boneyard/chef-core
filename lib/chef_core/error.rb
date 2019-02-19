@@ -24,21 +24,6 @@ module ChefCore
     end
   end
 
-  # TODO 2019-02-08
-  # TODO dts  t's consider namespacing these under errors
-  #
-  # These helpers are obsolete
-  class ErrorNoLogs < Error
-    def initialize(id, *params)
-      super
-    end
-  end
-
-  class ErrorNoStack < Error
-    def initialize(id, *params)
-      super
-    end
-  end
 
   class WrappedError < StandardError
     attr_accessor :target_host, :contained_exception
@@ -49,12 +34,11 @@ module ChefCore
     end
   end
 
-  class MultiJobFailure < ErrorNoLogs
+  class MultiJobFailure < Error
     attr_reader :jobs
     def initialize(jobs)
       super("CHEFMULTI001")
       @jobs = jobs
-      @decorate = false
     end
   end
 
