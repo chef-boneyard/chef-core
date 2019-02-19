@@ -17,7 +17,6 @@
 
 require "chef_core/text"
 
-
 RSpec.describe ChefCore::Text do
   subject { ChefCore::Text }
   after do
@@ -27,7 +26,7 @@ RSpec.describe ChefCore::Text do
   context "default" do
     it "it loads default i18n tables and resolves a nested key correctly" do
       # We reference a known key that we ship in this gem's default localization
-      expect(ChefCore::Text.errors.footer.neither).to match /resolve/
+      expect(ChefCore::Text.errors.footer.neither).to match(/resolve/)
     end
 
     it "resolves a top-level key correctly to its text" do
@@ -63,4 +62,3 @@ RSpec.describe ChefCore::Text do
     end
   end
 end
-

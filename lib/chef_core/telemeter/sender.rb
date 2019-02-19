@@ -33,7 +33,7 @@ module ChefCore
         session_files = Sender.find_session_files(config)
         sender = Sender.new(session_files, config)
         Thread.new { sender.run }
-     end
+      end
 
       def self.find_session_files(config)
         ChefCore::Log.info("Looking for telemetry data to submit")

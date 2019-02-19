@@ -24,10 +24,10 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Chef Software, Inc"]
   spec.email         = ["workstation@chef.io"]
 
-  spec.summary       = "Common functionality for Chef ruby components"
-  spec.description  = "Common functionality for Chef ruby components"
-  spec.homepage      = "https://github.com/chef/chef_core"
-  spec.license       = "Apache-2.0"
+  spec.summary     = "Common functionality for Chef ruby components"
+  spec.description = "Common functionality for Chef ruby components"
+  spec.homepage    = "https://github.com/chef/chef_core"
+  spec.license     = "Apache-2.0"
   spec.required_ruby_version = ">= 2.5.0"
 
   spec.files = %w{Rakefile LICENSE README.md warning.txt} +
@@ -36,7 +36,7 @@ Gem::Specification.new do |spec|
     Dir.glob("{i18n,lib,spec,resources}/**/*", File::FNM_DOTMATCH).reject { |f| File.directory?(f) }
   spec.require_paths = ["lib"]
 
-  spec.add_dependency "mixlib-log"    # Basis for our traditional logger
+  spec.add_dependency "mixlib-log" # Basis for our traditional logger
   spec.add_dependency "train" # remote connection management over ssh, winrm
   spec.add_dependency "chef-telemetry"
   spec.add_dependency "r18n-desktop" # easy path to message text management via
