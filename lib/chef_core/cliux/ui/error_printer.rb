@@ -28,8 +28,9 @@ module ChefCore
       class ErrorPrinter
         attr_reader :id, :pastel, :translation, :exception, :target_host, :config
 
-        # TODO define 't' as a method is a temporary workaround
-        # to ensure that text key lookups are testable.
+        # 't' is a convenience method for accessing error i18n error definitions.
+        # It also serves as a workaround to let us verify that correct text key
+        # lookups happen in unit tests.
         def t
           ChefCore::Text.errors
         end
@@ -37,8 +38,6 @@ module ChefCore
         DEFAULT_ERROR_NO = "CHEFINT001".freeze
 
         def self.show_error(e, config)
-          log_location = config[:log_location]
-
           # Name is misleading - it's unwrapping but also doing further
           # error resolution for common errors:
           unwrapped = ChefCore::Errors::StandardErrorResolver.unwrap_exception(e)
@@ -47,8 +46,8 @@ module ChefCore
           end
           formatter = ErrorPrinter.new(e, unwrapped, config)
           Terminal.output(formatter.format_error)
-        rescue => e
-          dump_unexpected_error(e)
+        rescue => ex
+          dump_unexpected_error(ex)
         end
 
         def self.capture_multiple_failures(e, config)

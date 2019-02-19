@@ -19,6 +19,7 @@ require "bundler/setup"
 require "simplecov"
 require "rspec/expectations"
 require "support/matchers/output_to_terminal"
+require "chef_core/text"
 
 ChefCore::Text.add_gem_localization("chef_core-cliux")
 
