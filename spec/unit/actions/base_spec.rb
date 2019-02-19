@@ -98,5 +98,4 @@ RSpec.describe ChefCore::Actions::Base do
     end
   end
 
-
 end

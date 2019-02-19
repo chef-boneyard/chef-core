@@ -18,7 +18,7 @@
 require "actions/spec_helper"
 require "chef_core/target_host"
 require "chef_core/actions/converge_target"
-#require "chef_core/actions/converge_target/ccr_failure_mapper"
+# require "chef_core/actions/converge_target/ccr_failure_mapper"
 
 RSpec.describe ChefCore::Actions::ConvergeTarget, :focus do
   let(:archive) { "archive.tgz" }
@@ -43,7 +43,7 @@ RSpec.describe ChefCore::Actions::ConvergeTarget, :focus do
       trusted_certs_dir: trusted_certs_dir,
       data_collector_url: data_collector_url,
       data_collector_token: data_collector_token,
-      cache_path: cache_path
+      cache_path: cache_path,
     }
   end
   subject { ChefCore::Actions::ConvergeTarget.new(opts) }
@@ -198,9 +198,9 @@ RSpec.describe ChefCore::Actions::ConvergeTarget, :focus do
     end
 
     it "raises an error if the upload fails" do
-      expect(target_host).to receive(:upload_file).
-        with(ChefCore::Actions::ConvergeTarget::RUN_REPORTER_PATH, remote_reporter).
-        and_raise("error")
+      expect(target_host).to receive(:upload_file)
+        .with(ChefCore::Actions::ConvergeTarget::RUN_REPORTER_PATH, remote_reporter)
+        .and_raise("error")
 
       err = ChefCore::Actions::ConvergeTarget::HandlerUploadFailed
       expect { subject.create_remote_handler(remote_folder) }.to raise_error(err)

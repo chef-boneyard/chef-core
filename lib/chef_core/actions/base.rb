@@ -83,7 +83,6 @@ module ChefCore
         ChefCore::Telemeter.timed_capture(:action, { action: action.name, target: target_data }, &block)
       end
 
-
       def notify(action, *args)
         return if @notification_handler.nil?
         ChefCore::Log.debug("[#{self.class.name}] Action: #{action}, Action Data: #{args}")

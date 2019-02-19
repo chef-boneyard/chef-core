@@ -4,4 +4,3 @@ module ChefCore
   module Actions
   end
 end
-

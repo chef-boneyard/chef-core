@@ -92,7 +92,6 @@ module ChefCore
           EOM
         end
 
-
         # Maybe add data collector endpoint.
         if !config[:data_collector_url].nil? && !config[:data_collector_token].nil?
           workstation_rb << <<~EOM
