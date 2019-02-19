@@ -44,7 +44,10 @@ module ChefCore
           if unwrapped.class == ChefCore::MultiJobFailure
             capture_multiple_failures(unwrapped, config)
           end
-          formatter = ErrorPrinter.new(e, unwrapped, config)
+          formatter = ErrorPrinter.new(wrapper: e,
+                                       exception: unwrapped,
+                                       config: config)
+
           Terminal.output(formatter.format_error)
         rescue => ex
           dump_unexpected_error(ex)
@@ -55,7 +58,7 @@ module ChefCore
           File.open(config[:error_output_path], "w") do |out|
             e.jobs.each do |j|
               wrapped = ChefCore::Errors::StandardErrorResolver.wrap_exception(j.exception, j.target_host)
-              ep = ErrorPrinter.new(wrapped, config)
+              ep = ErrorPrinter.new(wrapper: wrapped, config: config)
               msg = ep.format_body().tr("\n", " ").gsub(/ {2,}/, " ").chomp.strip
               out.write("Host: #{j.target_host.hostname} ")
               if ep.exception.respond_to? :id
@@ -69,7 +72,7 @@ module ChefCore
         end
 
         def self.write_backtrace(e, args, config)
-          formatter = ErrorPrinter.new(e, config)
+          formatter = ErrorPrinter.new(wrapper: e, config: config)
           out = StringIO.new
           formatter.add_backtrace_header(out, args)
           formatter.add_formatted_backtrace(out)
@@ -90,15 +93,15 @@ module ChefCore
           Terminal.output "=-" * 30
         end
 
-        def initialize(wrapper, unwrapped = nil, target_host = nil, config)
-          @exception = unwrapped || wrapper.contained_exception
+        def initialize(wrapper: nil, config: nil, exception: nil)
+          @exception = exception || wrapper.contained_exception
           @target_host = wrapper.target_host || target_host
-          @command = exception.respond_to?(:command) ? exception.command : nil
+          @command = @exception.respond_to?(:command) ? @exception.command : nil
           @pastel = Pastel.new
           @content = StringIO.new
           @config = config
-          @id = if exception.kind_of? ChefCore::Error
-                  exception.id
+          @id = if @exception.kind_of? ChefCore::Error
+                  @exception.id
                 else
                   DEFAULT_ERROR_NO
                 end

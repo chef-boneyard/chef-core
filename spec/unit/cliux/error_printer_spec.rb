@@ -55,7 +55,7 @@ RSpec.describe ChefCore::CLIUX::UI::ErrorPrinter do
                     decorations: has_decorations
                    )
   end
-  subject { ChefCore::CLIUX::UI::ErrorPrinter.new(wrapped_exception, nil, error_config) }
+  subject { ChefCore::CLIUX::UI::ErrorPrinter.new(wrapper: wrapped_exception, config: error_config) }
 
   before do
     allow(ChefCore::Text::ErrorTranslation).to receive(:new).and_return translation_mock
@@ -163,7 +163,7 @@ RSpec.describe ChefCore::CLIUX::UI::ErrorPrinter do
 
   context "#format_footer" do
     let(:formatter) do
-      ChefCore::CLIUX::UI::ErrorPrinter.new(wrapped_exception, nil, nil, error_config)
+      ChefCore::CLIUX::UI::ErrorPrinter.new(wrapper: wrapped_exception, config: error_config)
     end
 
     subject do
