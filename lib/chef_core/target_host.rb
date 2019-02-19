@@ -279,7 +279,7 @@ module ChefCore
       Net::SSH::Config.for(host)
     end
 
-    class RemoteExecutionFailed < ChefCore::ErrorNoLogs
+    class RemoteExecutionFailed < ChefCore::Error
       attr_reader :stdout, :stderr
       def initialize(host, command, result)
         super("CHEFRMT001",
@@ -290,7 +290,7 @@ module ChefCore
       end
     end
 
-    class ConnectionFailure < ChefCore::ErrorNoLogs
+    class ConnectionFailure < ChefCore::Error
       # TODO: Currently this only handles sudo-related errors;
       # we should also look at e.cause for underlying connection errors
       # which are presently only visible in log files.
@@ -319,7 +319,7 @@ module ChefCore
       end
     end
     class ChefNotInstalled < StandardError; end
-    class UnsupportedTargetOS < ChefCore::ErrorNoLogs
+    class UnsupportedTargetOS < ChefCore::Error
       def initialize(os_name); super("CHEFTARG001", os_name); end
     end
   end
