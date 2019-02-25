@@ -74,22 +74,35 @@ module ChefCore
       connection_opts = { target: host_url,
                           sudo: opts_in[:sudo] === false ? false : true,
                           www_form_encoded_password: true,
-                          key_files: opts_in[:identity_file],
+                          # TODO stick with train names - identity_file is out of chef-run; and
+                          # it makes no sense to add another layer of name mapping for others using this (eg bootstrap) .
+                          key_files: opts_in[:identity_file] || opts_in[:key_files],
+                          # TODO do we always want this for knife-ssh case?
                           non_interactive: true,
                           # Prevent long delays due to retries on auth failure.
                           # This does reduce the number of attempts we'll make for transient conditions as well, but
                           # train does not currently exposes these as separate controls. Ideally I'd like to see a 'retry_on_auth_failure' option.
                           connection_retries: 2,
                           connection_retry_sleep: 0.15,
-                          logger: ChefCore::Log }
+                          logger: opts_in[:logger] || ChefCore::Log }
+      target_opts = Train.unpack_target_from_uri(host_url) # TODO: does upcoming credset work impact this?
       if opts_in.key? :ssl
         connection_opts[:ssl] = opts_in[:ssl]
         connection_opts[:self_signed] = (opts_in[:ssl_verify] === false ? true : false)
       end
 
-      [:sudo_password, :sudo, :sudo_command, :password, :user].each do |key|
+      if target_opts[:host].nil?
+        target_opts[:host] = host_url # host would be set if it were in proto://address form
+      end
+
+      if target_opts[:backend].nil?
+        target_opts[:backend] = "ssh"
+      end
+      connection_opts = connection_opts.merge(target_opts)
+      [:sudo_password, :sudo, :sudo_command, :password, :user, :port].each do |key|
         connection_opts[key] = opts_in[key] if opts_in.key? key
       end
+
 
       Train.target_config(connection_opts)
     end
@@ -187,6 +200,17 @@ module ChefCore
 
     def run_command(command)
       backend.run_command command
+    end
+
+    # TODO spec
+    def save_as_remote_file(content, remote_path)
+       t = Tempfile.new("chef-content")
+       t << content
+       t.close
+       upload_file(t.path, remote_path)
+    ensure
+        t.close
+        t.unlink
     end
 
     def upload_file(local_path, remote_path)
