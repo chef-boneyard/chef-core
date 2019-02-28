@@ -60,6 +60,17 @@ RSpec.describe ChefCore::TargetResolver do
       end
     end
 
+    context "when too many total targets are resolved" do
+      let(:target_string) { "ssh://host," * (ChefCore::TargetResolver::MAX_EXPANDED_TARGETS + 1) }
+      it "raises TooManyTargets" do
+        # Ensures that this test is valid by guaranteeing TooManyTargets
+        # does not come out of expand_targets.
+        allow(subject).to receive(:expand_targets).and_return ["ssh://host"]
+
+        expect { subject.targets }.to raise_error(ChefCore::TargetResolver::TooManyTargets)
+      end
+    end
+
     context "when a mixed list of targets containing user prefix and not are included" do
 
       let(:target_string) { "test_user1@node1,node2,test_user2:password@node3" }

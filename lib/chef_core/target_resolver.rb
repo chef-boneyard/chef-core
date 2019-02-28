@@ -21,14 +21,15 @@ require "chef_core/error"
 module ChefCore
 
   # This class will resolve a provided target host name to
-  # one or more TargetHost instances.  The target host name
-  # can contain ranges [0-9] and [a-zA-Z]
+  # one or more TargetHost instances.  The target host name passed in
+  # to the constructor can contain up to two ranges in the form [0-9] and [a-z].
+  # Multiple target host names can be passed in asa comma-separated list.
+  #
+  # Use resolver_inst.targets to get the expanded list of TargetHost instances.
   class TargetResolver
     MAX_EXPANDED_TARGETS = 24
     SUPPORTED_PROTOCOLS = %w{winrm ssh}
     def initialize(target, default_protocol, conn_options, max_expanded_targets: MAX_EXPANDED_TARGETS)
-
-
       @max_expanded_targets = max_expanded_targets
       @default_proto = default_protocol
       @unparsed_target = target
@@ -43,8 +44,17 @@ module ChefCore
       return @targets unless @targets.nil?
       expanded_urls = []
       @split_targets.each do |target|
-        expanded_urls = (expanded_urls | expand_targets(target))
+        expand_targets(target).each { |t| expanded_urls << t }
       end
+
+      # Apply max_expanded_targets to the total list of resolved
+      # targets, since multiple targets can be comma-separated.
+      # Limiting it only in the expression resolver could still
+      # yield more than the maximum.
+      if expanded_urls.length > @max_expanded_targets
+        raise TooManyTargets.new(expanded_urls.length, @max_expanded_targets)
+      end
+
       @targets = expanded_urls.map do |url|
         config = @conn_options.merge(config_for_target(url))
         TargetHost.new(config.delete(:url), config)
