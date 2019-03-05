@@ -99,10 +99,11 @@ module ChefCore
         target_opts[:backend] = "ssh"
       end
       connection_opts = connection_opts.merge(target_opts)
-      [:sudo_password, :sudo, :sudo_command, :password, :user, :port].each do |key|
+      # TODO we also accept self_signed directly - remove ssl_verify entirely and just use self_signed
+      [:sudo_password, :sudo, :sudo_command, :password, :user, :port,
+       :winrm_transport, :self_signed].each do |key|
         connection_opts[key] = opts_in[key] if opts_in.key? key
       end
-
 
       Train.target_config(connection_opts)
     end
@@ -160,6 +161,7 @@ module ChefCore
     def user
       return config[:user] unless config[:user].nil?
       require "train/transports/ssh"
+      # TODO - this should use the right transport, not default to SSH
       Train::Transports::SSH.default_options[:user][:default]
     end
 
