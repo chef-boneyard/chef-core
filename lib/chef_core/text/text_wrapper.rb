@@ -17,12 +17,11 @@
 
 module ChefCore
   module Text
-    # Our text spinner class really doesn't like handling the TranslatedString or Untranslated classes returned
-    # by the R18n library. So instead we return these TextWrapper instances which have dynamically defined methods
-    # corresponding to the known structure of the R18n text file. Most importantly, if a user has accessed
-    # a leaf node in the code we return a regular String instead of the R18n classes.
+    # TextWrapper is a wrapper around R18n that returns all resolved values
+    # as Strings, and raise an error when a given i18n key is not found.
     #
-    # TextWrapper is used for any key except for those at the top level, with no children.
+    # This simplifies behaviors when interfacing with other libraries/components
+    # that don't play nicely with TranslatedString or Untranslated out of R18n.
     class TextWrapper
       def initialize(translation_tree)
         @tree = translation_tree
