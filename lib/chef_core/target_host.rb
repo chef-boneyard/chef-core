@@ -199,16 +199,16 @@ module ChefCore
       backend.platform
     end
 
-    def run_command!(command)
-      result = run_command(command)
+    def run_command!(command, &data_handler)
+      result = run_command(command, &data_handler)
       if result.exit_status != 0
         raise RemoteExecutionFailed.new(@config[:host], command, result)
       end
       result
     end
 
-    def run_command(command)
-      backend.run_command command
+    def run_command(command, &data_handler)
+      backend.run_command command, &data_handler
     end
 
     # TODO spec
