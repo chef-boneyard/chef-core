@@ -74,21 +74,13 @@ module ChefCore
       connection_opts = { target: host_url,
                           sudo: opts_in[:sudo] === false ? false : true,
                           www_form_encoded_password: true,
-                          # TODO stick with train names - identity_file is out of chef-run; and
-                          # it makes no sense to add another layer of name mapping for others using this (eg bootstrap) .
                           key_files: opts_in[:identity_file] || opts_in[:key_files],
-                          # TODO do we always want this for knife-ssh case?
-                          non_interactive: true,
-
-                          # Prevent long delays due to retries on auth failure.
-                          # This does reduce the number of attempts we'll make for transient conditions as well,
-                          # but train does not currently exposes these as separate controls. Ideally I'd like to see a
-                          # 'retry_on_auth_failure' option.
+                          non_interactive: true, # Prevent password prompts
                           connection_retries: 2,
-                          connection_retry_sleep: 0.15,
+                          connection_retry_sleep: 1,
                           logger: opts_in[:logger] || ChefCore::Log }
 
-      target_opts = Train.unpack_target_from_uri(host_url) # TODO: does upcoming credset work impact this?
+      target_opts = Train.unpack_target_from_uri(host_url)
       if opts_in.key?(:ssl) && opts_in[:ssl]
         connection_opts[:ssl] = opts_in[:ssl]
         connection_opts[:self_signed] = opts_in[:self_signed] || (opts_in[:ssl_verify] === false ? true : false)
@@ -100,7 +92,7 @@ module ChefCore
 
       # From WinRM gem: It is recommended that you :disable_sspi => true if you are using the plaintext or ssl transport.
       #                 See note here: https://github.com/mwrock/WinRM#example
-      if target_opts[:winrm_transport] && ["ssl", "plaintext"].include?(target_opts[:winrm_transport])
+      if ["ssl", "plaintext"].include?(target_opts[:winrm_transport])
         target_opts[:winrm_disable_sspi] = true
       end
 
