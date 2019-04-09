@@ -17,24 +17,30 @@
 
 module ChefCore
   module Text
+    # Represents an error loaded from translation, with
+    # display attributes set.
     class ErrorTranslation
       ATTRIBUTES = [:decorations, :header, :footer, :stack, :log].freeze
       attr_reader :message, *ATTRIBUTES
 
       def initialize(id, params: [])
-        # To get access to the metadata we'll go directly through the parsed yaml.
-        # Accessing via R18n is unnecessarily complicated
-        yml = Text._error_table
+        error_translation = error_translation_for_id(id)
 
-        # We'll still use our Text mechanism for the text itself so that
-        # parameters, pluralization, etc will still work.
-        # This will raise if the key doesn't exist.
-        @message = Text.errors.send(id).text(*params)
-        options = yml[:display_defaults]
+        options = YAML.load(Text.errors.display_defaults, "display_defaults",
+                            symbolize_names: true)
 
-        # Override any defaults if display metadata is given
-        display_opts = yml[id.to_sym][:display]
+        # Display metadata is a string containing a YAML hash that is optionally under
+        # the error's 'options' attribute
+        # Note that we couldn't use :display, as that conflicts with a method on Object.
+        display_opts = if error_translation.methods.include?(:options)
+                         YAML.load(error_translation.options, @id, symbolize_names: true)
+                       else
+                         {}
+                       end
+
         options = options.merge(display_opts) unless display_opts.nil?
+
+        @message = error_translation.text(*params)
 
         ATTRIBUTES.each do |attribute|
           instance_variable_set("@#{attribute}", options.delete(attribute))
@@ -54,6 +60,13 @@ module ChefCore
         end
         inspection << "message: #{message.gsub("\n", "\\n")}"
         inspection
+      end
+
+      private
+
+      # This is split out for simplified unit testing of error formatting.
+      def error_translation_for_id(id)
+        Text.errors.send(id)
       end
 
       class InvalidDisplayAttributes < RuntimeError

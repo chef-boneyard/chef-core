@@ -22,14 +22,14 @@ RSpec.describe ChefCore::Telemeter::Sender do
   let(:session_files) { %w{file1 file2} }
   let(:enabled_flag) { true }
   let(:dev_mode) { false }
-  let(:config) {
+  let(:config) do
     {
       payload_dir: "/tmp/telemeter-test/payloads",
       session_file: "/tmp/telemeter-test/TELEMETRY_SESSION_ID",
       installation_identifier_file: "/etc/chef/chef_guid",
-      dev_mode:dev_mode
+      dev_mode: dev_mode,
     }
-  }
+  end
   let(:subject) { ChefCore::Telemeter::Sender.new(session_files, config) }
 
   before do

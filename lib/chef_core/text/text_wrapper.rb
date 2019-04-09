@@ -17,10 +17,11 @@
 
 module ChefCore
   module Text
-    # Our text spinner class really doesn't like handling the TranslatedString or Untranslated classes returned
-    # by the R18n library. So instead we return these TextWrapper instances which have dynamically defined methods
-    # corresponding to the known structure of the R18n text file. Most importantly, if a user has accessed
-    # a leaf node in the code we return a regular String instead of the R18n classes.
+    # TextWrapper is a wrapper around R18n that returns all resolved values
+    # as Strings, and raise an error when a given i18n key is not found.
+    #
+    # This simplifies behaviors when interfacing with other libraries/components
+    # that don't play nicely with TranslatedString or Untranslated out of R18n.
     class TextWrapper
       def initialize(translation_tree)
         @tree = translation_tree
@@ -34,11 +35,11 @@ module ChefCore
           k = k.to_sym
           define_singleton_method k do |*args|
             subtree = @tree.send(k, *args)
-            if subtree.translation_keys.empty?
+            if subtree.methods.include?(:translation_keys) && !subtree.translation_keys.empty?
               # If there are no more possible children, just return the translated value
-              subtree.to_s
-            else
               TextWrapper.new(subtree)
+            else
+              subtree.to_s
             end
           end
         end
@@ -67,7 +68,7 @@ module ChefCore
           # Calling back into Text here seems icky, this is an error
           # that only engineering should see.
           message = "i18n key #{path}.#{terminus} does not exist.\n"
-          message << "Referenced from #{line}"
+          message << "  Referenced from #{line}"
           super(message)
         end
       end
@@ -76,8 +77,8 @@ module ChefCore
         def initialize(path, terminus)
           set_call_context
           message = "i18n key #{path}.#{terminus} appears to reference a pluralization.\n"
-          message << "Please append the plural indicator '!!pl' to the end of #{path}.\n"
-          message << "Referenced from #{line}"
+          message << "  Please append the plural indicator '!!pl' to the end of #{path}.\n"
+          message << "  Referenced from #{line}"
           super(message)
         end
       end

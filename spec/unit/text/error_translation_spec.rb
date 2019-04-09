@@ -18,53 +18,46 @@
 require "spec_helper"
 require "chef_core/text"
 
-# This is a bit of a hack - the 'errors' key does not actually exist
-# on Text because we're not loading real data.  We're going to fake it
-# this way, which will let us mock out 'Text.errors' for testing the
-# error loading behaviors of ErrorTranslation
-module ChefCore
-  module Text
-    def self.errors
-    end
-  end
-end
-
 RSpec.describe ChefCore::Text::ErrorTranslation do
-
-
   let(:display_defaults) do
-    {
-    decorations: true,
-    header: true,
-    footer: true,
-    stack: false,
-    log: false }
+    # This is a string of yaml that gets parsed at run time in ErrorTranslation
+    "{
+        decorations: true,
+        header: true,
+        footer: true,
+        stack: false,
+        log: false
+     }"
   end
-
-  let(:error_table) do
-    { display_defaults: display_defaults,
-      TESTERROR: test_error } end
 
   let(:test_error_text) { "This is a test error" }
+  # Individual contexts set these:
   let(:test_error) { {} }
+  let(:test_display_opts) { nil }
 
   subject { ChefCore::Text::ErrorTranslation }
   let(:error_mock) do
+    double("R18n::Translated", text: test_error_text )
+  end
+
+  # R18n translation mock
+  let(:errors_translation_mock) do
     double("R18n::Translated",
-                            text: test_error_text ) end
-  let(:translation_mock) do
-    double("R18n::Translated",
-                                 TESTERROR: error_mock,
-                                 text: test_error_text ) end
+           display_defaults: display_defaults,
+           TESTERROR: error_mock)
+  end
   before do
-    # Mock out the R18n portion - our methods care only that the key exists, and
-    # the test focus is on the display metadata.
-    allow(ChefCore::Text).to receive(:errors).and_return translation_mock
-    allow(ChefCore::Text).to receive(:_error_table).and_return(error_table)
+    # Mock out the R18n portion - our methods care only that the key exists; these
+    # tests focus on proper loading of display metadata from correct R18n object its
+    # Text wrapper.
+    allow(ChefCore::Text).to receive(:errors).and_return errors_translation_mock
+    unless test_display_opts.nil?
+      allow(error_mock).to receive(:options).and_return test_display_opts
+    end
   end
 
   context "when some display attributes are specified" do
-    let(:test_error) { { display: { stack: true, log: true } } }
+    let(:test_display_opts) { "{ stack: true, log: true }" }
     it "sets display attributes to specified values and defaults remaining" do
       translation = subject.new("TESTERROR")
       expect(translation.decorations).to be true
@@ -77,13 +70,11 @@ RSpec.describe ChefCore::Text::ErrorTranslation do
   end
 
   context "when all display attributes are specified" do
-    let(:test_error) do
-      { display: { decorations: false, header: false,
-                   footer: false, stack: true, log: true } } end
+    let(:test_display_opts) { "{decorations: false, header: false, footer: false, stack: true, log: true }" }
     it "sets display attributes to specified values with no defaults" do
       translation = subject.new("TESTERROR")
-      expect(translation.decorations).to be false
       expect(translation.header).to be false
+      expect(translation.decorations).to be false
       expect(translation.footer).to be false
       expect(translation.stack).to be true
       expect(translation.log).to be true
@@ -92,7 +83,7 @@ RSpec.describe ChefCore::Text::ErrorTranslation do
   end
 
   context "when no attributes for an error are specified" do
-    let(:test_error) { {} }
+    let(:test_display_opts) { nil }
     it "sets display attribute to default values and references the correct message" do
       translation = subject.new("TESTERROR")
       expect(translation.decorations).to be true
@@ -105,7 +96,7 @@ RSpec.describe ChefCore::Text::ErrorTranslation do
   end
 
   context "when invalid attributes for an error are specified" do
-    let(:test_error) { { display: { bad_value: true } } }
+    let(:test_display_opts) { "{ bad_value: true }" }
     it "raises InvalidDisplayAttributes when invalid attributes are specified" do
       expect { subject.new("TESTERROR") }
         .to raise_error(ChefCore::Text::ErrorTranslation::InvalidDisplayAttributes) do |e|

@@ -1,0 +1,280 @@
+#
+# Copyright:: Copyright (c) 2018 Chef Software Inc.
+# License:: Apache License, Version 2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Error definitions, usage Text.e.ERR999
+#
+# General format:
+# ERRORID
+#   options: a stringified hash containing a optional hash of display options. See display_defaults below.
+#   text: |
+#      text of the message
+#
+# First Line: brief description of the error
+# Second line: blank
+# Third+ : detailed description, max 76 characters per line
+
+# Pluralizing Messages
+# If the text of an error differs based on quantity of subject,
+# you can specify different messages as follows:
+# ERRORID
+#   text: !!pl
+#     0: You have no things.
+#     1: You have one thing.
+#     n: You have lots of things.
+# Text.ERRORID(quanity, [other formatting params])
+
+errors:
+
+  # These are the default display attributes for all messages.
+  # If you want to override them in your gem or application,
+  # include 'errors' -> 'display_defaults' in your gem's i18n/errors/*.yml
+  # and enable it iwth Text.add_localization(path_to_yml)
+  # The most recent gem to add its own error translations will take precedence.
+  #
+  # If you want to override them for specific errors in your error yml,
+  # you can do so as follows:
+  # EXAMPLERROR001:
+  #   options: { decorations: false }
+  #   text: |
+  #     Here is the message text.
+  display_defaults:
+    # Set 'decorations: false' in a message to show only text. Equivalent
+    # to setting all of the other attributes to false individually
+    # stack: show reference to stack trace location in footer
+    # log: show reference to log file location in footer
+    # header: Show error header (currently bolded error id)
+    # footer: show standard footer
+    #
+    # This (end error 'options') are kept as YML strings that are parsed when
+    # the error is to be rendered.
+    # Using a string type is necessary bedcause we don't have access to the
+    # underlying tree structure via R18n.
+    "{ decorations: true, stack: false, log: false, header: true, footer: true }"
+
+
+  # Error headers and footers that are included with error messages will default to the
+  # text below. You can override this in your gem's localization, but make sure
+  # that you don't add additional argument placeholders (eg %3 if the original message
+  # only has %1 and %2) - they won't be populated since chef_core doesn't know about them.
+  footer:
+    both: |
+      If you are not able to resolve this issue, please contact Chef support
+      at workstation@chef.io and include the log file and stack trace from the
+      locations below:
+
+        %1
+        %2
+
+    log_only:  |
+      If you are not able to resolve this issue, please contact Chef support
+      at workstation@chef.io and include the log file from the location below:
+        %1
+
+    stack_only:  |
+      If you are not able to resolve this issue, please contact Chef support
+      at workstation@chef.io and include the stack trace from the location below:
+        %1
+
+    neither:  |
+      If you are not able to resolve this issue, please contact Chef support
+      at workstation@chef.io
+
+  #
+  # Below are the error text definitions for errors that chef_core will raise.
+  #
+
+  # Remote execution and file operation errors are prefixed CHEFRMT
+  CHEFRMT001:
+    text: |
+      The command '%1' exited with return code '%2' on '%3'.
+
+      The following error was reported:
+
+      %4
+
+  # Train-related errors (connectivity, auth failure, etc)
+  # are prefixed CHEFTRN. Note that due to the gem split,
+  # some renumbering would make sense - CHEFTRN001 and 2
+  # now live in chef_core-actions
+  CHEFTRN003:
+    text: |
+      Password required for sudo.
+
+      This target requires a password to perform sudo operations.  Please provide a
+      password using the --sudo-password option. For example if the sudo password is
+      in the environment variable $CHEF_RUN_SUDO_PASSWORD, you could use:
+
+      --sudo-password $CHEF_RUN_SUDO_PASSWORD
+
+  CHEFTRN004:
+    text: |
+      Incorrect sudo password provided.
+
+      Please ensure that the password you provided with "--sudo-password" is correct.
+
+  CHEFTRN005:
+    text: |
+      sudo command '%1' not found.
+
+      Please verify that the --sudo-command '%1' is valid
+      and installed on this node.
+
+  CHEFTRN006:
+    text: |
+      sudo requires tty on this system
+
+      In order to continue, sudo must be configured to no longer require tty.
+      You can do this by modifying /etc/sudoers:
+
+      For all users:
+        Defaults !requiretty
+
+      Per-user:
+        Defaults:username !requiretty
+
+  CHEFTRN007:
+    text: |
+      No authentication methods available.
+
+      Try...
+      - Provide a password with "--password PASSWORD"
+      - Provide a key with "-identity-file PATH/TO/FILE"
+      - Enable ssh-agent and add keys
+      - Add a host entry to your ssh configuration
+
+      Additional instructions can be found in the troubleshooting documentation:
+
+      https://www.chef.sh/docs/chef-workstation/troubleshooting/#error-code-cheftrn007
+
+  CHEFTRN999:
+    text: |
+      Connection failed: %1
+
+      The following error occured while attempting to connect and authenticate to the target.
+
+      %1
+
+
+  # General errors/unknown errors are handled with CHEFINT
+  CHEFINT001:
+    options: "{ log: true, stack: true }"
+    text: |
+      An unexpected error has occurred:
+
+        %1
+
+  # Internal API errors - give them some formatting
+  CHEFAPI001:
+    options: "{ log: true, stack: true }"
+    text: |
+      API error: provide either :recipe_spec or :resouce_name, :resource_type,
+      and :resource_properties
+
+      You provided: %1
+
+
+  # Maps to: NameError
+  CHEFNET001:
+    text: |
+      A network error occurred:
+
+        %1
+
+      Please verify the host name or address is correct and that the host is
+      reachable before trying again.
+
+  # Remote chef client run failure start here.
+  CHEFUPL003:
+    options: "{ log: true, stack: true }"
+    text: |
+      Uploading config to target failed.
+
+  CHEFUPL004:
+    options: "{ log: true, stack: true }"
+    text: |
+      Uploading handler to target failed.
+
+  CHEFUPL005:
+    options: "{ log: true, stack: true }"
+    text: |
+      Uploading policy bundle to target failed.
+
+  # Maps to: SSL::SSLError with message text indicating verification failure
+  CHEFNET002:
+    text: |
+      SSL host verification failed.
+
+      I could not verify the identity of the remote host.
+
+      If you are certain that you are connecting to the correct host,
+      you can specify the '--no-ssl-verify' option for this command, or
+      make it the default by setting the following in your configuration:
+
+        [connection.winrm]
+        ssl_verify=false
+
+  # Catch-all error when marshalling mulitple parallel failures.
+  CHEFMULTI001:
+    text: |
+      One or more actions has failed.
+
+      A complete list of failures and possible resolutions can
+      be found in the file below:
+
+        %
+
+  # Errors relating to target host state:
+  CHEFTARG001:
+    text: |
+      '%1' is not a supported target operating system at this time.
+
+      We plan to support a range of target operating systems,
+      but during this targeted beta we are constraining our efforts
+      to Windows and Linux.
+
+  # Errors specifying ranges for host names.
+  CHEFRANGE001: |
+    text: |
+      The target '%1' contains an invalid range.
+
+      The range '%2' mixes alphabetic and numeric values.
+      A range must be one or the other.
+
+  CHEFRANGE002:
+    text: |
+      The target '%1' contains too many ranges.
+
+      A single target name can contain up two ranges.
+
+  CHEFRANGE003:
+    text: !!pl
+      1:
+        The target provided resolves to too many hosts.
+
+        At this time there is a limit of %2 hosts in a single operation.
+      n:
+        The targets provided resolve to too many hosts.
+
+        At this time there is a limit of %2 hosts in a single operation.
+
+  CHEFVAL011:
+    display: " { decorations: false } "
+    text: |
+      The protocol '%1' is not supported.
+
+      Currently supported remote access protocols are:
+
+        %2

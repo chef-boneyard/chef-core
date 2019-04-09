@@ -23,15 +23,15 @@ RSpec.describe ChefCore::Telemeter do
   let(:host_platform) { "linux" }
   let(:enabled_flag) { false }
   let(:dev_mode) { false }
-  let(:config) {
+  let(:config) do
     {
       payload_dir: "/tmp/telemeter-test/paylaods",
       session_file: "/tmp/telemeter-test/TELEMETRY_SESSION_ID",
       installation_identifier_file: "/etc/chef/chef_guid",
       enabled: enabled_flag,
-      dev_mode: dev_mode
+      dev_mode: dev_mode,
     }
-  }
+  end
 
   before do
     allow(subject).to receive(:host_platform).and_return host_platform

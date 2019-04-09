@@ -74,21 +74,35 @@ module ChefCore
       connection_opts = { target: host_url,
                           sudo: opts_in[:sudo] === false ? false : true,
                           www_form_encoded_password: true,
-                          key_files: opts_in[:identity_file],
-                          non_interactive: true,
-                          # Prevent long delays due to retries on auth failure.
-                          # This does reduce the number of attempts we'll make for transient conditions as well, but
-                          # train does not currently exposes these as separate controls. Ideally I'd like to see a 'retry_on_auth_failure' option.
+                          key_files: opts_in[:identity_file] || opts_in[:key_files],
+                          non_interactive: true, # Prevent password prompts
                           connection_retries: 2,
-                          connection_retry_sleep: 0.15,
-                          logger: ChefCore::Log }
-      if opts_in.key? :ssl
+                          connection_retry_sleep: 1,
+                          logger: opts_in[:logger] || ChefCore::Log }
+
+      target_opts = Train.unpack_target_from_uri(host_url)
+      if opts_in.key?(:ssl) && opts_in[:ssl]
         connection_opts[:ssl] = opts_in[:ssl]
-        connection_opts[:self_signed] = (opts_in[:ssl_verify] === false ? true : false)
+        connection_opts[:self_signed] = opts_in[:self_signed] || (opts_in[:ssl_verify] === false ? true : false)
       end
 
-      [:sudo_password, :sudo, :sudo_command, :password, :user].each do |key|
-        connection_opts[key] = opts_in[key] if opts_in.key? key
+      target_opts[:host] = host_url if target_opts[:host].nil?
+      target_opts[:backend] = "ssh" if target_opts[:backend].nil?
+      connection_opts = connection_opts.merge(target_opts)
+
+      # From WinRM gem: It is recommended that you :disable_sspi => true if you are using the plaintext or ssl transport.
+      #                 See note here: https://github.com/mwrock/WinRM#example
+      if ["ssl", "plaintext"].include?(target_opts[:winrm_transport])
+        target_opts[:winrm_disable_sspi] = true
+      end
+
+      connection_opts = connection_opts.merge(target_opts)
+
+      # Anything we haven't explicitly set already, pass through to train.
+      Train.options(target_opts[:backend]).keys.each do |key|
+        if opts_in.key?(key) && !connection_opts.key?(key)
+          connection_opts[key] = opts_in[key]
+        end
       end
 
       Train.target_config(connection_opts)
@@ -119,7 +133,6 @@ module ChefCore
 
       # When the testing function `mock_instance` is used, it will set
       # this instance variable to false and handle this function call
-      # after the platform data is mocked; this will allow binding
       # of mixin functions based on the mocked platform.
       mix_in_target_platform! unless @mocked_connection
     rescue Train::UserError => e
@@ -147,6 +160,7 @@ module ChefCore
     def user
       return config[:user] unless config[:user].nil?
       require "train/transports/ssh"
+      # TODO - this should use the right transport, not default to SSH
       Train::Transports::SSH.default_options[:user][:default]
     end
 
@@ -177,16 +191,27 @@ module ChefCore
       backend.platform
     end
 
-    def run_command!(command)
-      result = run_command(command)
+    def run_command!(command, &data_handler)
+      result = run_command(command, &data_handler)
       if result.exit_status != 0
         raise RemoteExecutionFailed.new(@config[:host], command, result)
       end
       result
     end
 
-    def run_command(command)
-      backend.run_command command
+    def run_command(command, &data_handler)
+      backend.run_command command, &data_handler
+    end
+
+    # TODO spec
+    def save_as_remote_file(content, remote_path)
+       t = Tempfile.new("chef-content")
+       t << content
+       t.close
+       upload_file(t.path, remote_path)
+    ensure
+        t.close
+        t.unlink
     end
 
     def upload_file(local_path, remote_path)
@@ -279,7 +304,7 @@ module ChefCore
       Net::SSH::Config.for(host)
     end
 
-    class RemoteExecutionFailed < ChefCore::ErrorNoLogs
+    class RemoteExecutionFailed < ChefCore::Error
       attr_reader :stdout, :stderr
       def initialize(host, command, result)
         super("CHEFRMT001",
@@ -290,12 +315,11 @@ module ChefCore
       end
     end
 
-    class ConnectionFailure < ChefCore::ErrorNoLogs
+    class ConnectionFailure < ChefCore::Error
       # TODO: Currently this only handles sudo-related errors;
       # we should also look at e.cause for underlying connection errors
       # which are presently only visible in log files.
       def initialize(original_exception, connection_opts)
-        sudo_command = connection_opts[:sudo_command]
         init_params =
           #  Comments below show the original_exception.reason values to check for instead of strings,
           #  after train 1.4.12 is consumable.
@@ -307,6 +331,7 @@ module ChefCore
           when /Can't find sudo command/, /No such file/, /command not found/ # :sudo_command_not_found
             # NOTE: In the /No such file/ case, reason will be nil - we still have
             # to check message text. (Or PR to train to handle this case)
+            sudo_command = connection_opts[:sudo_command]
             ["CHEFTRN005", sudo_command] # :sudo_command_not_found
           when /Sudo requires a TTY.*/   # :sudo_no_tty
             "CHEFTRN006"
@@ -319,7 +344,7 @@ module ChefCore
       end
     end
     class ChefNotInstalled < StandardError; end
-    class UnsupportedTargetOS < ChefCore::ErrorNoLogs
+    class UnsupportedTargetOS < ChefCore::Error
       def initialize(os_name); super("CHEFTARG001", os_name); end
     end
   end

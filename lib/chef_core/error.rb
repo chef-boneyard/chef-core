@@ -18,32 +18,12 @@
 module ChefCore
   class Error < StandardError
     attr_reader :id, :params
-    attr_accessor :show_stack, :show_log, :decorate
     def initialize(id, *params)
       @id = id
       @params = params || []
-      @show_log = true
-      @show_stack = true
-      @decorate = true
     end
   end
 
-  # These helpers are obsolete
-  class ErrorNoLogs < Error
-    def initialize(id, *params)
-      super
-      @show_log = false
-      @show_stack = false
-    end
-  end
-
-  class ErrorNoStack < Error
-    def initialize(id, *params)
-      super
-      @show_log = true
-      @show_stack = false
-    end
-  end
 
   class WrappedError < StandardError
     attr_accessor :target_host, :contained_exception
@@ -54,12 +34,11 @@ module ChefCore
     end
   end
 
-  class MultiJobFailure < ErrorNoLogs
+  class MultiJobFailure < Error
     attr_reader :jobs
     def initialize(jobs)
       super("CHEFMULTI001")
       @jobs = jobs
-      @decorate = false
     end
   end
 

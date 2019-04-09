@@ -5,24 +5,17 @@ module ChefCore
     class StandardErrorResolver
       def self.resolve_exception(exception)
         deps
-        show_log = true
-        show_stack = true
         case exception
         when OpenSSL::SSL::SSLError
           if exception.message =~ /SSL.*verify failed.*/
             id = "CHEFNET002"
-            show_log = false
-            show_stack = false
           end
-        when SocketError then id = "CHEFNET001"; show_log = false; show_stack = false
+        when SocketError then id = "CHEFNET001"
         end
         if id.nil?
           exception
         else
-          e = ChefCore::Error.new(id, exception.message)
-          e.show_log = show_log
-          e.show_stack = show_stack
-          e
+          ChefCore::Error.new(id, exception.message)
         end
       end
 
