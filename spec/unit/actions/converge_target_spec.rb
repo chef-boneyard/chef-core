@@ -18,7 +18,7 @@
 require "actions/spec_helper"
 require "chef_core/target_host"
 require "chef_core/actions/converge_target"
-#require "chef_core/actions/converge_target/ccr_failure_mapper"
+# require "chef_core/actions/converge_target/ccr_failure_mapper"
 
 RSpec.describe ChefCore::Actions::ConvergeTarget, :focus do
   let(:archive) { "archive.tgz" }
@@ -43,7 +43,7 @@ RSpec.describe ChefCore::Actions::ConvergeTarget, :focus do
       trusted_certs_dir: trusted_certs_dir,
       data_collector_url: data_collector_url,
       data_collector_token: data_collector_token,
-      cache_path: cache_path
+      cache_path: cache_path,
     }
   end
   subject { ChefCore::Actions::ConvergeTarget.new(opts) }
@@ -94,7 +94,6 @@ RSpec.describe ChefCore::Actions::ConvergeTarget, :focus do
     end
 
     describe "when target_level is left default" do
-      # TODO - this is a windows config, but we don't set windows?
       it "creates a config file without a specific log_level (leaving default for chef-client)" do
         expect(Tempfile).to receive(:new).and_return(local_tempfile)
         expect(local_tempfile).to receive(:write).with(<<~EOM
@@ -102,8 +101,8 @@ RSpec.describe ChefCore::Actions::ConvergeTarget, :focus do
           color false
           cache_path "#{cache_path}"
           chef_repo_path "#{cache_path}"
-          require_relative "reporter"
-          reporter = ChefCore::Actions::Reporter.new
+          require_relative "chef_run_reporter"
+          reporter = ChefCore::ChefRunReporter.new
           report_handlers << reporter
           exception_handlers << reporter
         EOM
@@ -123,8 +122,8 @@ RSpec.describe ChefCore::Actions::ConvergeTarget, :focus do
           color false
           cache_path "#{cache_path}"
           chef_repo_path "#{cache_path}"
-          require_relative "reporter"
-          reporter = ChefCore::Actions::Reporter.new
+          require_relative "chef_run_reporter"
+          reporter = ChefCore::ChefRunReporter.new
           report_handlers << reporter
           exception_handlers << reporter
           log_level :info
@@ -147,8 +146,8 @@ RSpec.describe ChefCore::Actions::ConvergeTarget, :focus do
           color false
           cache_path "#{cache_path}"
           chef_repo_path "#{cache_path}"
-          require_relative "reporter"
-          reporter = ChefCore::Actions::Reporter.new
+          require_relative "chef_run_reporter"
+          reporter = ChefCore::ChefRunReporter.new
           report_handlers << reporter
           exception_handlers << reporter
           data_collector.server_url "dc.url"
@@ -175,8 +174,8 @@ RSpec.describe ChefCore::Actions::ConvergeTarget, :focus do
           color false
           cache_path "#{cache_path}"
           chef_repo_path "#{cache_path}"
-          require_relative "reporter"
-          reporter = ChefCore::Actions::Reporter.new
+          require_relative "chef_run_reporter"
+          reporter = ChefCore::ChefRunReporter.new
           report_handlers << reporter
           exception_handlers << reporter
         EOM
@@ -191,24 +190,20 @@ RSpec.describe ChefCore::Actions::ConvergeTarget, :focus do
 
   describe "#create_remote_handler" do
     let(:remote_folder) { "/tmp/foo" }
-    let(:remote_reporter) { "#{remote_folder}/reporter.rb" }
-    let!(:local_tempfile) { Tempfile.new }
+    let(:remote_reporter) { "#{remote_folder}/chef_run_reporter.rb" }
 
     it "pushes it to the remote machine" do
-      expect(Tempfile).to receive(:new).and_return(local_tempfile)
-      expect(target_host).to receive(:upload_file).with(local_tempfile.path, remote_reporter)
+      expect(target_host).to receive(:upload_file).with(ChefCore::Actions::ConvergeTarget::RUN_REPORTER_PATH, remote_reporter)
       expect(subject.create_remote_handler(remote_folder)).to eq(remote_reporter)
-      # ensure the tempfile is deleted locally
-      expect(local_tempfile.closed?).to eq(true)
     end
 
     it "raises an error if the upload fails" do
-      expect(Tempfile).to receive(:new).and_return(local_tempfile)
-      expect(target_host).to receive(:upload_file).with(local_tempfile.path, remote_reporter).and_raise("foo")
+      expect(target_host).to receive(:upload_file)
+        .with(ChefCore::Actions::ConvergeTarget::RUN_REPORTER_PATH, remote_reporter)
+        .and_raise("error")
+
       err = ChefCore::Actions::ConvergeTarget::HandlerUploadFailed
       expect { subject.create_remote_handler(remote_folder) }.to raise_error(err)
-      # ensure the tempfile is deleted locally
-      expect(local_tempfile.closed?).to eq(true)
     end
   end
 

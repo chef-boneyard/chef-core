@@ -59,7 +59,7 @@ RSpec.describe ChefCore::Actions::Base do
   end
   context "#timed_action_capture" do
     context "when a valid target_host is present" do
-      it "invokes timed_capture with action and valid target data" do
+      it "invokes Telemeter.timed_capture with action and valid target data" do
         target = instance_double("TargetHost",
                                  base_os: "windows",
                                  version: "10.0.0",
@@ -80,7 +80,7 @@ RSpec.describe ChefCore::Actions::Base do
             transport_type: "winrm",
           },
         }
-        expect(subject).to receive(:timed_capture).with(:action, expected_data)
+        expect(ChefCore::Telemeter).to receive(:timed_capture).with(:action, expected_data)
         subject.timed_action_capture(action) { :ok }
       end
 
@@ -89,8 +89,7 @@ RSpec.describe ChefCore::Actions::Base do
           expected_data = { action: "Base", target: { platform: {},
                                                       hostname_sha1: nil,
                                                       transport_type: nil } }
-          expect(subject).to receive(:timed_capture)
-            .with(:action, expected_data)
+          expect(ChefCore::Telemeter).to receive(:timed_capture).with(:action, expected_data)
           subject.timed_action_capture(
             ChefCore::Actions::Base.new(target_host: nil)
           ) { :ok }
@@ -98,6 +97,5 @@ RSpec.describe ChefCore::Actions::Base do
       end
     end
   end
-
 
 end

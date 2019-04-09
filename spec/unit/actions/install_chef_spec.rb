@@ -34,13 +34,12 @@ RSpec.describe ChefCore::Actions::InstallChef do
     ChefCore::TargetHost.mock_instance("mock://user1:password1@localhost", mock_opts)
   end
 
-
   let(:cache_path) { "/tmp/cache" }
   let(:config) do
     {
      target_host: target_host,
      check_only: false,
-     cache_path: cache_path
+     cache_path: cache_path,
     }
   end
 

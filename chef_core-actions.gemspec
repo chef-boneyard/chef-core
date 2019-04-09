@@ -20,7 +20,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require "chef_core/actions/version"
 
 Gem::Specification.new do |spec|
-  spec.name          = "chef-core_actions"
+  spec.name          = "chef_core-actions"
   spec.version       = ChefCore::Actions::VERSION
   spec.authors       = ["Chef Software, Inc"]
   spec.email         = ["workstation@chef.io"]
@@ -34,12 +34,11 @@ Gem::Specification.new do |spec|
   spec.files = %w{Rakefile LICENSE README.md warning.txt} +
     Dir.glob("Gemfile*") + # Includes Gemfile and locks
     Dir.glob("*.gemspec") +
-    Dir.glob("{lib,spec}/**/*", File::FNM_DOTMATCH).reject { |f| File.directory?(f) }
+    Dir.glob("{i18n,lib,spec}/**/*", File::FNM_DOTMATCH).reject { |f| File.directory?(f) }
   spec.require_paths = ["lib"]
 
+  spec.add_dependency "chef-config" # Provides the PathHelper utility
   spec.add_dependency "chef_core"
-  spec.add_dependency "chef"
-  spec.add_dependency "chef-dk"
 
   spec.add_development_dependency "bundler"
   spec.add_development_dependency "rake"

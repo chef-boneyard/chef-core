@@ -1,0 +1,174 @@
+#
+# Copyright:: Copyright (c) 2018 Chef Software Inc.
+# License:: Apache License, Version 2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
+# General error format format:
+# errors:
+#   ERRORID
+#     options: optional hash of display options. See display_defaults below.
+#     text: |
+#        text of the message
+#
+#   First Line: brief description of the error
+#   Second line: blank
+#   Third+ : detailed description, max 76 characters per line
+
+
+errors:
+
+  #
+  # This pulls in default display style and header/footer text from
+  # chef_core/i18n/errors/en.yml. See comments in that file for details.
+  #
+
+  # Installer action errors
+  CHEFINS002:
+    text: |
+      The target does not have chef-client installed.
+
+      This command is powered by the Chef client.  In order to make use of it
+      on this node, the Chef client must be installed first.
+
+      Re-running this command without the '--no-install' flag will
+      automatically perform the installation.
+
+  CHEFINS003: |
+    The target's installed version of Chef Client is too old.
+
+    Version %1 is installed, but this command requires a
+    minimum version of %2 (Chef 13) or %3 (Chef 14).
+
+  CHEFINS004: |
+    The target's installed version of Chef Client is too old.
+
+    Version %1 is installed, but this command requires a
+    minimum version of %2.
+
+  CHEFINS003:
+    text: |
+      The target has an older version of Chef client installed.
+
+      The target has version %1 installed, but this command
+      requires a minimum version of %2.
+
+      Please upgrade the Chef client on this node to version %2 or later.
+
+  # Remote chef client run failure start here.
+  CHEFCCR001:
+    text: |
+      Could not determine reason for converge failure.
+
+      An error occurred while converging the remote host.
+      I was unable to retrieve the log file which would allow
+      me to provide more information.  Here's where I looked:
+
+        %1
+
+  CHEFCCR002:
+    text: |
+      The converge of the remote host failed for the
+      following reason:
+
+        %1
+
+  CHEFCCR003:
+    text: |
+      The action '%1' is not valid.
+
+      Valid actions are:
+
+        %2
+
+      For more information, please consult the documentation
+      for this resource:
+
+        https://docs.chef.io/resource_reference.html
+
+  CHEFCCR004:
+    text: |
+      A property value you provided is not valid:
+
+        %1
+
+      Please consult the documentation for properties
+      supported by your resource and their valid values:
+
+        https://docs.chef.io/resource_reference.html
+
+  CHEFCCR005:
+    text: |
+      '%1' is not a valid Chef resource.
+
+      Please consult the documentation for a list of valid resources:
+
+        https://docs.chef.io/resource_reference.html
+
+  CHEFCCR006:
+    text: |
+      '%1' is not a property of '%2'.
+
+      Please consult the documentation for %2 for a list of
+      valid properties:
+
+        https://docs.chef.io/resource_reference.html
+
+  CHEFCCR099:
+    text: |
+      The converge of the remote host failed.
+
+      Please examine the log file for a detailed cause of failure.
+
+  # Train-related errors (connectivity, auth failure, etc)
+  # are prefixed CHEFTRN. Non-specific descendants of Train::Error
+  # will resolve to CHEFTRN001, and we can add additional
+  # more specific text as we need it.
+  #
+  # TODO: Note that due to a temporary oddity in the split of chef-apply
+  # reusable components into the chef_core gems, chef_core itself
+  # has the definitions for CHEFTRN003+ - that's where teh associated
+  # exceptions get thrown.
+  CHEFTRN001:
+    text: |
+      An error has occurred on the %1 connection to %2:
+
+      %2.
+
+  CHEFTRN002:
+    text: |
+      An remote error has occurred:
+
+        %1.
+  # Train-related errors (connectivy, auth failure, etc)
+  # are prefixed CHEFTRN. Non-specific descendants of Train::Error
+  # will resolve to CHEFTRN001, and we can add additional
+  # more specific text as we need it.
+  #
+  # TODO - move train-specific bits out of ErrorPrinter so that _all_ TRAIN error ids
+  #        originate from chef_core
+  #
+  CHEFTRN001:
+    text: |
+      An error has occurred on the %1 connection to %2:
+
+      %2.
+
+  CHEFTRN002:
+    text: |
+      An remote error has occurred:
+
+        %1.
+
+        # T

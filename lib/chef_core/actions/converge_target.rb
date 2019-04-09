@@ -17,12 +17,14 @@
 
 require "pathname"
 require "tempfile"
-require "chef/util/path_helper"
+require "chef-config/path_helper"
 require "chef_core/actions/base"
 
 module ChefCore
   module Actions
     class ConvergeTarget < Base
+
+      RUN_REPORTER_PATH = File.join(__dir__, "../../../resources/chef_run_reporter.rb").freeze
 
       def perform_action
         local_policy_path = config.delete :local_policy_path
@@ -75,8 +77,8 @@ module ChefCore
           color false
           cache_path "#{target_host.ws_cache_path}"
           chef_repo_path "#{target_host.ws_cache_path}"
-          require_relative "reporter"
-          reporter = ChefCore::Actions::Reporter.new
+          require_relative "chef_run_reporter"
+          reporter = ChefCore::ChefRunReporter.new
           report_handlers << reporter
           exception_handlers << reporter
         EOM
@@ -89,7 +91,6 @@ module ChefCore
             log_level :#{config[:target_log_level]}
           EOM
         end
-
 
         # Maybe add data collector endpoint.
         if !config[:data_collector_url].nil? && !config[:data_collector_token].nil?
@@ -115,26 +116,15 @@ module ChefCore
       end
 
       def create_remote_handler(remote_dir)
-        remote_handler_path = File.join(remote_dir, "reporter.rb")
-        begin
-          # TODO - why don't we upload the original remote_handler_path instead of making a temp copy?
-          handler_file = Tempfile.new()
-          # TODO - ideally this is a resource in the gem, and not placed in with source files.
-          handler_file.write(File.read(File.join(__dir__, "reporter.rb")))
-          handler_file.close
-          target_host.upload_file(handler_file.path, remote_handler_path)
-          # TODO - should we be more specific in our error catch?
-        rescue RuntimeError
-          raise HandlerUploadFailed.new()
-        ensure
-          handler_file.unlink
-        end
+        remote_handler_path = File.join(remote_dir, "chef_run_reporter.rb")
+        target_host.upload_file(RUN_REPORTER_PATH, remote_handler_path)
         remote_handler_path
+      rescue RuntimeError
+        raise HandlerUploadFailed.new()
       end
 
       def upload_trusted_certs(dir)
-        # TODO BOOTSTRAP - trusted certs dir and other config to be received as argument to constructor
-        local_tcd = Chef::Util::PathHelper.escape_glob_dir(config[:trusted_certs_dir])
+        local_tcd = ChefConfig::PathHelper.escape_glob_dir(config[:trusted_certs_dir])
         certs = Dir.glob(File.join(local_tcd, "*.{crt,pem}"))
         return if certs.empty?
 
@@ -167,7 +157,9 @@ module ChefCore
           ChefCore::Log.error("Remote chef-client error follows:")
           ChefCore::Log.error(report["exception"])
         end
-        mapper = ChefCore::Actions::ConvergeTarget::CCRFailureMapper.new(report["exception"], mapper_opts)
+
+        mapper = ConvergeTarget::CCRFailureMapper.new(report["exception"],
+                                                      mapper_opts)
         mapper.raise_mapped_exception!
       end
 

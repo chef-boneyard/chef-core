@@ -19,40 +19,10 @@ require "bundler/setup"
 require "simplecov"
 require "rspec/expectations"
 require "chef_core"
+require "chef_core/text"
 
-# RemoteExecResult = Struct.new(:exit_status, :stdout, :stderr)
-#
-# class ChefCore::Actions::MockReporter
-#   def update(msg); puts  msg; end
-#
-#   def success(msg); puts "SUCCESS: #{msg}"; end
-#
-#   def error(msg); puts output "FAILURE: #{msg}"; end
-# end
-#
-# RSpec.configure do |config|
-#   # Enable flags like --only-failures and --next-failure
-#   config.example_status_persistence_file_path = ".rspec_status"
-#   config.run_all_when_everything_filtered = true
-#   config.filter_run :focus
-#
-#   # Disable RSpec exposing methods globally on `Module` and `main`
-#   config.disable_monkey_patching!
-#
-#   config.expect_with :rspec do |c|
-#     c.syntax = :expect
-#   end
-#
-#   config.mock_with :rspec do |mocks|
-#     mocks.verify_partial_doubles = true
-#   end
-#
-#   config.before(:all) do
-#     ChefCore::Log.setup "/dev/null", :error
-#     ChefCore::Actions::UI::Terminal.init(File.open("/dev/null", "w"))
-#   end
-# end
-#
+ChefCore::Text.add_gem_localization("chef_core-actions")
+
 if ENV["CIRCLE_ARTIFACTS"]
   dir = File.join(ENV["CIRCLE_ARTIFACTS"], "coverage")
   SimpleCov.coverage_dir(dir)
