@@ -16,4 +16,4 @@
 #
 
 source "https://rubygems.org"
-gemspec
+gemspec name: "chef_core"
