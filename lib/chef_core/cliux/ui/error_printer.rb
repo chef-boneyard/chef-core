@@ -26,35 +26,39 @@ module ChefCore
   module CLIUX
     module UI
       class ErrorPrinter
-        attr_reader :id, :pastel, :translation, :exception, :target_host
+        attr_reader :id, :pastel, :translation, :exception, :target_host, :config
 
-        # TODO define 't' as a method is a temporary workaround
-        # to ensure that text key lookups are testable.
+        # 't' is a convenience method for accessing error i18n error definitions.
+        # It also serves as a workaround to let us verify that correct text key
+        # lookups happen in unit tests.
         def t
           ChefCore::Text.errors
         end
 
         DEFAULT_ERROR_NO = "CHEFINT001".freeze
 
-        def self.show_error(e, output_path_for_multiple_errors)
+        def self.show_error(e, config)
           # Name is misleading - it's unwrapping but also doing further
           # error resolution for common errors:
           unwrapped = ChefCore::Errors::StandardErrorResolver.unwrap_exception(e)
           if unwrapped.class == ChefCore::MultiJobFailure
-            capture_multiple_failures(unwrapped, output_path_for_multiple_errors)
+            capture_multiple_failures(unwrapped, config)
           end
-          formatter = ErrorPrinter.new(e, unwrapped)
+          formatter = ErrorPrinter.new(wrapper: e,
+                                       exception: unwrapped,
+                                       config: config)
+
           Terminal.output(formatter.format_error)
-        rescue => e
-          dump_unexpected_error(e)
+        rescue => ex
+          dump_unexpected_error(ex)
         end
 
-        def self.capture_multiple_failures(e, error_output_path)
-          e.params << error_output_path # Tell the operator where to find this info
-          File.open(error_output_path, "w") do |out|
+        def self.capture_multiple_failures(e, config)
+          e.params << config[:error_output_path] # Tell the operator where to find this info
+          File.open(config[:error_output_path], "w") do |out|
             e.jobs.each do |j|
               wrapped = ChefCore::Errors::StandardErrorResolver.wrap_exception(j.exception, j.target_host)
-              ep = ErrorPrinter.new(wrapped)
+              ep = ErrorPrinter.new(wrapper: wrapped, config: config)
               msg = ep.format_body().tr("\n", " ").gsub(/ {2,}/, " ").chomp.strip
               out.write("Host: #{j.target_host.hostname} ")
               if ep.exception.respond_to? :id
@@ -67,12 +71,12 @@ module ChefCore
           end
         end
 
-        def self.write_backtrace(e, args)
-          formatter = ErrorPrinter.new(e)
+        def self.write_backtrace(e, args, config)
+          formatter = ErrorPrinter.new(wrapper: e, config: config)
           out = StringIO.new
           formatter.add_backtrace_header(out, args)
           formatter.add_formatted_backtrace(out)
-          formatter.save_backtrace(out)
+          formatter.save_backtrace(out, config)
         rescue => ex
           dump_unexpected_error(ex)
         end
@@ -89,14 +93,15 @@ module ChefCore
           Terminal.output "=-" * 30
         end
 
-        def initialize(wrapper, unwrapped = nil, target_host = nil)
-          @exception = unwrapped || wrapper.contained_exception
+        def initialize(wrapper: nil, config: nil, exception: nil)
+          @exception = exception || wrapper.contained_exception
           @target_host = wrapper.target_host || target_host
-          @command = exception.respond_to?(:command) ? exception.command : nil
+          @command = @exception.respond_to?(:command) ? @exception.command : nil
           @pastel = Pastel.new
           @content = StringIO.new
-          @id = if exception.kind_of? ChefCore::Error
-                  exception.id
+          @config = config
+          @id = if @exception.kind_of? ChefCore::Error
+                  @exception.id
                 else
                   DEFAULT_ERROR_NO
                 end
@@ -151,10 +156,9 @@ module ChefCore
         def format_footer
           if translation.log
             if translation.stack
-              t.footer.both(ChefCore::Config.log.location,
-                            ChefCore::Config.stack_trace_path)
+              t.footer.both(config[:log_location], config[:stack_trace_path])
             else
-              t.footer.log_only(ChefCore::Config.log.location)
+              t.footer.log_only(config[:log_location])
             end
           else
             if translation.stack
@@ -172,8 +176,8 @@ module ChefCore
           out.print("Backtrace:\n")
         end
 
-        def save_backtrace(output)
-          File.open(ChefCore::Config.stack_trace_path, "ab+") do |f|
+        def save_backtrace(output, config)
+          File.open(config[:stack_trace_path], "ab+") do |f|
             f.write(output.string)
           end
         end
@@ -260,4 +264,3 @@ module ChefCore
     end
   end
 end
-

@@ -16,6 +16,8 @@
 #
 
 require "cliux/spec_helper"
+require "chef_core/text"
+
 require "chef_core/text/error_translation"
 require "chef_core/errors/standard_error_resolver"
 require "chef_core/cliux/ui/error_printer"
@@ -32,6 +34,18 @@ RSpec.describe ChefCore::CLIUX::UI::ErrorPrinter do
   let(:show_stack) { true }
   let(:has_decorations) { true }
   let(:show_header) { true }
+  let(:log_location) { "/tmp/cliux-log/default.log" }
+  let(:error_output_path) { "/tmp/cliux-log/errors.log" }
+  let(:stack_trace_path) { "/tmp/cliux-log/stack.out" }
+
+  let(:error_config) do
+    {
+      log_location: log_location,
+      error_output_path: error_output_path,
+      stack_trace_path: stack_trace_path,
+    }
+  end
+
   let(:translation_mock) do
     instance_double("ChefCore::Errors::ErrorTranslation",
                     footer: show_footer,
@@ -41,7 +55,7 @@ RSpec.describe ChefCore::CLIUX::UI::ErrorPrinter do
                     decorations: has_decorations
                    )
   end
-  subject { ChefCore::CLIUX::UI::ErrorPrinter.new(wrapped_exception, nil) }
+  subject { ChefCore::CLIUX::UI::ErrorPrinter.new(wrapper: wrapped_exception, config: error_config) }
 
   before do
     allow(ChefCore::Text::ErrorTranslation).to receive(:new).and_return translation_mock
@@ -103,20 +117,18 @@ RSpec.describe ChefCore::CLIUX::UI::ErrorPrinter do
       it "recognizes it and invokes capture_multiple_failures" do
         underlying_error = ChefCore::MultiJobFailure.new([])
         error_to_process = ChefCore::Errors::StandardErrorResolver.wrap_exception(underlying_error)
-        expect(subject).to receive(:capture_multiple_failures).with(underlying_error, "/tmp/path")
-        subject.show_error(error_to_process, "/tmp/path")
+        expect(subject).to receive(:capture_multiple_failures).with(underlying_error, error_config)
+        subject.show_error(error_to_process, error_config)
 
       end
     end
 
     context "when an error occurs in error handling" do
       it "processes the new failure with dump_unexpected_error" do
-        error_to_raise = StandardError.new("this will be raised")
         error_to_process = ChefCore::Errors::StandardErrorResolver.wrap_exception(StandardError.new("this is being shown"))
-        # Intercept a known call to raise an error
-        expect(ChefCore::CLIUX::UI::Terminal).to receive(:output).and_raise error_to_raise
-        expect(subject).to receive(:dump_unexpected_error).with(error_to_raise)
-        subject.show_error(error_to_process, "/tmp/path")
+        expect(subject).to receive(:dump_unexpected_error).with(NoMethodError)
+        # Pass in a nil config - this will forece NoMethodError, "undefined method '[]' for nil:NilClass"
+        subject.show_error(error_to_process, nil)
       end
     end
 
@@ -126,28 +138,32 @@ RSpec.describe ChefCore::CLIUX::UI::ErrorPrinter do
     subject { ChefCore::CLIUX::UI::ErrorPrinter }
     let(:file_content_capture) { StringIO.new }
     before do
-      allow(File).to receive(:open).with("/tmp/path", "w").and_yield(file_content_capture)
+      ChefCore::Text.add_localization("spec/unit/cliux/fixtures/i18n")
+      # Looks like File.open will intefere iwth lazy-loading of localizations, so
+      # allow the general case to call the original, and capture our specific case.
+      allow(File).to receive(:open).and_call_original
+      allow(File).to receive(:open).with(error_output_path, "w").and_yield(file_content_capture)
+    end
+    after do
+      ChefCore::Text.reset!
     end
 
     it "should write a properly formatted error file" do
-      # TODO - add support for test-only i18n content, so that we don't have
-      #        to rely on specific known error IDs that may change or be removed,
-      #        and arent' directly relevant to the test at hand.
       job1 = double("Job", target_host: double("TargetHost", hostname: "host1"),
-                           exception: ChefCore::Error.new("CHEFUPL005"))
+                    exception: ChefCore::Error.new("CLIUXTEST001", "Hello World"))
       job2 = double("Job", target_host: double("TargetHost", hostname: "host2"),
                            exception: StandardError.new("Hello World"))
 
       expected_content = File.read("spec/unit/cliux/fixtures/multi-error.out")
       multifailure = ChefCore::MultiJobFailure.new([job1, job2] )
-      subject.capture_multiple_failures(multifailure, "/tmp/path")
+      subject.capture_multiple_failures(multifailure, error_config)
       expect(file_content_capture.string).to eq expected_content
     end
   end
 
   context "#format_footer" do
     let(:formatter) do
-      ChefCore::CLIUX::UI::ErrorPrinter.new(wrapped_exception, nil)
+      ChefCore::CLIUX::UI::ErrorPrinter.new(wrapper: wrapped_exception, config: error_config)
     end
 
     subject do
@@ -190,7 +206,7 @@ RSpec.describe ChefCore::CLIUX::UI::ErrorPrinter do
       expect(inst).to receive(:add_backtrace_header).with(anything(), orig_args)
       expect(inst).to receive(:add_formatted_backtrace)
       expect(inst).to receive(:save_backtrace)
-      ChefCore::CLIUX::UI::ErrorPrinter.write_backtrace(wrapped_exception, orig_args)
+      ChefCore::CLIUX::UI::ErrorPrinter.write_backtrace(wrapped_exception, orig_args, error_config)
     end
   end
 end

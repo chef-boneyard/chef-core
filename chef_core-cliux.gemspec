@@ -20,7 +20,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require "chef_core/cliux/version"
 
 Gem::Specification.new do |spec|
-  spec.name          = "chef-core_cliux"
+  spec.name          = "chef_core-cliux"
   spec.version       = ChefCore::CLIUX::VERSION
   spec.authors       = ["Chef Software, Inc"]
   spec.email         = ["workstation@chef.io"]
@@ -34,7 +34,7 @@ Gem::Specification.new do |spec|
   spec.files = %w{LICENSE README.md} +
     Dir.glob("Gemfile*") + # Includes Gemfile and locks
     Dir.glob("*.gemspec") +
-    Dir.glob("{lib,spec}/**/*", File::FNM_DOTMATCH).reject { |f| File.directory?(f) }
+    Dir.glob("{i18n,lib,spec}/**/*", File::FNM_DOTMATCH).reject { |f| File.directory?(f) }
   spec.require_paths = ["lib"]
 
   spec.add_dependency "chef_core"
