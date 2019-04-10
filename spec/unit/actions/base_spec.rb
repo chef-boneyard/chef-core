@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-require "actions/spec_helper"
+require "spec_helper"
 require "chef_core/actions/base"
 require "chef_core/telemeter"
 require "chef_core/target_host"

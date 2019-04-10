@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-require "actions/spec_helper"
+require "spec_helper"
 require "chef_core/actions/converge_target/ccr_failure_mapper"
 
 RSpec.describe ChefCore::Actions::ConvergeTarget::CCRFailureMapper do

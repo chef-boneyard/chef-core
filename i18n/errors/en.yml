@@ -79,17 +79,17 @@ errors:
         %1
         %2
 
-    log_only:  |
+    log_only: |
       If you are not able to resolve this issue, please contact Chef support
       at workstation@chef.io and include the log file from the location below:
         %1
 
-    stack_only:  |
+    stack_only: |
       If you are not able to resolve this issue, please contact Chef support
       at workstation@chef.io and include the stack trace from the location below:
         %1
 
-    neither:  |
+    neither: |
       If you are not able to resolve this issue, please contact Chef support
       at workstation@chef.io
 
@@ -106,6 +106,26 @@ errors:
 
       %4
 
+  # Train-related errors (connectivity, auth failure, etc)
+  # are prefixed CHEFTRN. Non-specific descendants of Train::Error
+  # will resolve to CHEFTRN001, and we can add additional
+  # more specific text as we need it.
+  #
+  # TODO: Note that due to a temporary oddity in the split of chef-apply
+  # reusable components into the chef_core gems, chef_core itself
+  # has the definitions for CHEFTRN003+ - that's where the associated
+  # exceptions get thrown.
+  CHEFTRN001:
+    text: |
+      An error has occurred on the %1 connection to %2:
+
+      %2.
+
+  CHEFTRN002:
+    text: |
+      An remote error has occurred:
+
+        %1.
   # Train-related errors (connectivity, auth failure, etc)
   # are prefixed CHEFTRN. Note that due to the gem split,
   # some renumbering would make sense - CHEFTRN001 and 2
@@ -372,45 +392,3 @@ errors:
 
       Please examine the log file for a detailed cause of failure.
 
-  # Train-related errors (connectivity, auth failure, etc)
-  # are prefixed CHEFTRN. Non-specific descendants of Train::Error
-  # will resolve to CHEFTRN001, and we can add additional
-  # more specific text as we need it.
-  #
-  # TODO: Note that due to a temporary oddity in the split of chef-apply
-  # reusable components into the chef_core gems, chef_core itself
-  # has the definitions for CHEFTRN003+ - that's where teh associated
-  # exceptions get thrown.
-  CHEFTRN001:
-    text: |
-      An error has occurred on the %1 connection to %2:
-
-      %2.
-
-  CHEFTRN002:
-    text: |
-      An remote error has occurred:
-
-        %1.
-  # Train-related errors (connectivy, auth failure, etc)
-  # are prefixed CHEFTRN. Non-specific descendants of Train::Error
-  # will resolve to CHEFTRN001, and we can add additional
-  # more specific text as we need it.
-  #
-  # TODO - move train-specific bits out of ErrorPrinter so that _all_ TRAIN error ids
-  #        originate from chef_core
-  #
-  CHEFTRN001:
-    text: |
-      An error has occurred on the %1 connection to %2:
-
-      %2.
-
-  CHEFTRN002:
-    text: |
-      An remote error has occurred:
-
-        %1.
-
-        # T
->>>>>>> 30e086774412f549d8f3cde8ae84ce58a01a2acd

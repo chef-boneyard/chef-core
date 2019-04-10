@@ -17,7 +17,7 @@
 
 require "chef_core/actions/install_chef/minimum_chef_version"
 require "chef_core/target_host"
-require "actions/spec_helper"
+require "spec_helper"
 
 RSpec.describe ChefCore::Actions::InstallChef::MinimumChefVersion do
   let(:base_os) { :linux }

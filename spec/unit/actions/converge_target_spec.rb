@@ -15,12 +15,11 @@
 # limitations under the License.
 #
 
-require "actions/spec_helper"
+require "spec_helper"
 require "chef_core/target_host"
 require "chef_core/actions/converge_target"
-# require "chef_core/actions/converge_target/ccr_failure_mapper"
 
-RSpec.describe ChefCore::Actions::ConvergeTarget, :focus do
+RSpec.describe ChefCore::Actions::ConvergeTarget do
   let(:archive) { "archive.tgz" }
   let(:cache_path) { "/var/chef-workstation" }
   let(:platform_family) { "windows" }

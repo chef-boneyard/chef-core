@@ -30,16 +30,20 @@ Gem::Specification.new do |spec|
   spec.license     = "Apache-2.0"
   spec.required_ruby_version = ">= 2.5.0"
 
-  spec.files = %w{Rakefile LICENSE README.md warning.txt} +
-    Dir.glob("Gemfile*") + # Includes Gemfile and locks
-    Dir.glob("*.gemspec") +
-    Dir.glob("{i18n,lib,spec,resources}/**/*", File::FNM_DOTMATCH).reject { |f| File.directory?(f) }
+  spec.files = %w{ LICENSE } +
+    Dir.glob("{i18n,lib,resources}/**/*", File::FNM_DOTMATCH).reject { |f| File.directory?(f) }
   spec.require_paths = ["lib"]
+
+  spec.add_dependency "pastel" # A color library
+  spec.add_dependency "tty-spinner" # The tty-* libraries are a nice set of terminal output gems
+  spec.add_dependency "tty-color"
+  spec.add_dependency "tty-cursor"
 
   spec.add_dependency "mixlib-log" # Basis for our traditional logger
   spec.add_dependency "train", "~> 2.0"  # remote connection management over ssh, winrm
   spec.add_dependency "chef-telemetry"
   spec.add_dependency "r18n-desktop" # easy path to message text management via
+  spec.add_dependency "chef-config" # Provides the PathHelper utility
   # localization gem...
 
   spec.add_development_dependency "bundler"

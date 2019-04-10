@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-require "cliux/spec_helper"
+require "spec_helper"
 require "chef_core/cliux/ui/terminal"
 
 RSpec.describe ChefCore::CLIUX::UI::Terminal do

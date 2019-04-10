@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-require "actions/spec_helper"
+require "spec_helper"
 require "chef_core/actions/install_chef"
 
 RSpec.describe ChefCore::Actions::InstallChef do

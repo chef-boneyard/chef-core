@@ -16,11 +16,33 @@
 #
 
 require "bundler/setup"
-require "simplecov"
 require "rspec/expectations"
+require "support/matchers/output_to_terminal"
+
+require "simplecov"
+if ENV["CIRCLE_ARTIFACTS"]
+  dir = File.join(ENV["CIRCLE_ARTIFACTS"], "coverage")
+  SimpleCov.coverage_dir(dir)
+end
+SimpleCov.start
+
+require "simplecov"
+require "chef_core"
+require "chef_core/text"
 
 RemoteExecResult = Struct.new(:exit_status, :stdout, :stderr)
 
+module ChefCore
+  module Testing
+    class MockReporter
+      def update(msg); ChefCore::CLIUX::UI::Terminal.output msg; end
+
+      def success(msg); ChefCore::CLIUX::UI::Terminal.output "SUCCESS: #{msg}"; end
+
+      def error(msg); ChefCore::CLIUX::UI::Terminal.output "FAILURE: #{msg}"; end
+    end
+  end
+end
 # TODO would read better to make this a custom matcher.
 # Simulates a recursive string lookup on the Text object
 #
