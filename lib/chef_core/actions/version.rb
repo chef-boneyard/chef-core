@@ -18,6 +18,6 @@ require "chef_core/version"
 
 module ChefCore
   module Actions
-    VERSION = ChefCore::Version::VERSION
+    VERSION = ChefCore::VERSION
   end
 end
