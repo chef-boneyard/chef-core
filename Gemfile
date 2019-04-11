@@ -16,4 +16,5 @@
 #
 
 source "https://rubygems.org"
-gemspec name: "chef_core"
+gemspec name: "chef-core"
+gemspec name: "chef-core-actions"
