@@ -34,13 +34,7 @@ Gem::Specification.new do |spec|
     Dir.glob("{i18n,lib/chef_core/actions}/**/*", File::FNM_DOTMATCH)
   spec.require_paths = ["lib"]
 
-  spec.add_dependency "pastel" # A color library
-  spec.add_dependency "tty-spinner" # The tty-* libraries are a nice set of terminal output gems
-  spec.add_dependency "tty-color"
-  spec.add_dependency "tty-cursor"
-
   spec.add_dependency "mixlib-log" # Basis for our traditional logger
-  spec.add_dependency "train", "~> 2.0"  # remote connection management over ssh, winrm
   spec.add_dependency "chef_core"
   spec.add_dependency "chef-dk"   # Policyfile support, we use it to pre-configure remote ad-hoc runs. Used by actions.
   spec.add_dependency "chef-config" # Provides the PathHelper utility
