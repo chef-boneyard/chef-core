@@ -24,8 +24,8 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Chef Software, Inc"]
   spec.email         = ["workstation@chef.io"]
 
-  spec.summary     = "Common functionality for Chef ruby components"
-  spec.description = "Common functionality for Chef ruby components"
+  spec.summary     = "Composable common actions for assembling Chef workflows"
+  spec.description = "Composable common actions for assembling Chef workflows"
   spec.homepage    = "https://github.com/chef/chef_core"
   spec.license     = "Apache-2.0"
   spec.required_ruby_version = ">= 2.5.0"
