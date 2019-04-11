@@ -19,7 +19,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require "chef_core/version"
 
 Gem::Specification.new do |spec|
-  spec.name          = "chef-core"
+  spec.name          = "chef-core-actions"
   spec.version       = ChefCore::VERSION
   spec.authors       = ["Chef Software, Inc"]
   spec.email         = ["workstation@chef.io"]
@@ -30,8 +30,8 @@ Gem::Specification.new do |spec|
   spec.license     = "Apache-2.0"
   spec.required_ruby_version = ">= 2.5.0"
 
-  spec.files = %w{ LICENSE } +
-    Dir.glob("{i18n,lib,resources}/**/*", File::FNM_DOTMATCH).reject { |f| File.directory?(f) || f =~ /chef_core\/actions.*$/ }
+  spec.files = %w{ LICENSE lib/chef_core/actions.rb } +
+    Dir.glob("{i18n,lib/chef_core/actions}/**/*", File::FNM_DOTMATCH)
   spec.require_paths = ["lib"]
 
   spec.add_dependency "pastel" # A color library
@@ -41,8 +41,10 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "mixlib-log" # Basis for our traditional logger
   spec.add_dependency "train", "~> 2.0"  # remote connection management over ssh, winrm
-  spec.add_dependency "chef-telemetry"
-  spec.add_dependency "r18n-desktop" # easy path to message text management via localization gem...
+  spec.add_dependency "chef_core"
+  spec.add_dependency "chef-dk"   # Policyfile support, we use it to pre-configure remote ad-hoc runs. Used by actions.
+  spec.add_dependency "chef-config" # Provides the PathHelper utility
+  # localization gem...
 
   spec.add_development_dependency "bundler"
   spec.add_development_dependency "rake"
