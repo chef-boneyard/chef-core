@@ -36,7 +36,6 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "mixlib-log" # Basis for our traditional logger
   spec.add_dependency "chef-core"
-  spec.add_dependency "chef-dk"   # Policyfile support, we use it to pre-configure remote ad-hoc runs. Used by actions.
   spec.add_dependency "chef-config" # Provides the PathHelper utility
 
 end

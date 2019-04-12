@@ -40,7 +40,8 @@ Gem::Specification.new do |spec|
   spec.add_dependency "tty-cursor"
 
   spec.add_dependency "mixlib-log" # Basis for our traditional logger
-  spec.add_dependency "train", "~> 2.0"  # remote connection management over ssh, winrm
+  #spec.add_dependency "train-core", "~> 2.0.6"  # remote connection management over ssh, winrm. 0.0.5 pin because before that train-core didn't have ssh/winrm
+  spec.add_dependency "train", "~> 2"  # remote connection management over ssh, winrm. 0.0.5 pin because before that train-core didn't have ssh/winrm
   spec.add_dependency "chef-telemetry"
   spec.add_dependency "r18n-desktop" # easy path to message text management via localization gem...
 
