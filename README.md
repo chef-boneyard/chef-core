@@ -18,9 +18,9 @@ implementation.
 ## Connectivity
 
 `chef-core` provides an interface to Train via `ChefCore::TargetHost`.  This is a light wrapper
-around Train that encapsulates the process of setting up and acquiring the underlying connection; and has
+around Train that encapsulates the process of setting up and acquiring the underlying connection. `chef-core` also has
 platform-specific awareness of how to perform common operations on the
-remote host such as file delete, package installation, directory and tempdir creation.
+remote host, such as file delete, package installation, directory and tempdir creation.
 It currently supports Linux and Windows platforms using ssh or winrm protocols. Connection options can
 be found in [https://github.com/inspec/train.git](the train repository).
 
@@ -29,9 +29,9 @@ be found in [https://github.com/inspec/train.git](the train repository).
 
 chef-core provides an i18n interface via `ChefCore::Text`.  This sits atop [r18n](https://github.com/r18n/r18n)
 and allows you to define text definitions for your gem. To use this,
-create a file `i18n/LANG.yml` where LANG is the language (eg 'en', 'fr') and ensure it
+create a `i18n/LANG.yml` file where LANG is the language (eg 'en', 'fr') and ensure it
 is distributed as part of your gem build.  During your application's
-start-up, call `ChefCore::Text.add_gem_localization('your-gem-name') to load the localizations.
+start-up, call `ChefCore::Text.add_gem_localization('your-gem-name')` to load the localizations.
 
 
 The default language is English. If a translation is defined in the default language but not in
@@ -54,7 +54,7 @@ hello_something:
 
 ```
 
-Usage
+Usage:
 
 ```ruby
 require 'chef_core/text'
@@ -82,8 +82,8 @@ Parameterized: Hello world!
 ### Usage Notes
 
 1. If a key is not found on any lookup, it will raise `ChefCore::Text::InvalidKey`.  The exception
-   message will include the file and line on which the invalid key was referenced, and the full key name.
-2. If you define an entry in your en.yml that is already defined (such as in another gem already loaded),
+   message will include the file and the line on which the invalid key was referenced, and the full key name.
+2. If you define an entry in your `en.yml` file that is already defined (such as in another gem already loaded),
    the most recently loaded version of the entry will be used in all places that reference it, including
    other gems that loaded first.
 3. The top-level key 'errors' is used by chef-core's error rendering. Do not add a top-level
@@ -96,7 +96,7 @@ Parameterized: Hello world!
 Any exception can be passed into `ChefCore::CLIUX::UI::ErrorPrinter.show_error`.
 
 If the exception has a method `id`, that ID will be used to look up the error text and rendering
-definition. See 'error definitions'.
+definition. See the 'error definitions' section below.
 
 When you invoke `ChefCore::Text#add_gem_localization`, the error table in `i18n/errors/LANG.yml` will
 also be loaded.
@@ -160,7 +160,7 @@ end
 ChefCore::ErrorPrinter.show_error(MyError.new, {stack_trace_path: '/my/stack', log_location: 'my/log'})`
 ```
 
-Output given the dispaly defaults and the definition above:
+Output given the display defaults and the definition above:
 
 ```
 BADFILE001
@@ -188,7 +188,7 @@ override these in your own `errors/LANG.yml`:
 
 * `footer` - contains footers to show when decorations = true, footer = true.  Content
              will vary based on whether `stack` and `log` are true.  Contains separate subkeys:
-  * `both` - footer to dispaly when both stack and log are true
+  * `both` - footer to display when both stack and log are true
   * `log_only` - text when only log is true
   * `stack_only` - text when only stack is true
   * `neither` - text when neither one is true
@@ -202,7 +202,7 @@ client on a remote system, or converging a remote system; and a light framework 
 additional actions. Our intent with this component is to build a library of reusable actions
 that are shared across Chef tooling and beyond.
 
-Actions evolved out of some of our early chef-run work, when we were looking to provide
+Actions evolved out of some of our early `chef-run` work, when we were looking to provide
 multiple new tools with common functionality. They were developed to provide self-contained
 actions that have no direct interface to the user/terminal or any external configuration providers.
 This makes them well-suited for use in any existing CLI tool, even if that tool is not making
@@ -214,10 +214,10 @@ A well-written, shareable Action...
 
 * ...informs the listener of what it's doing via :notify, so that the listener can pass it along to the operator
 in whatever way is appropriate for the application.
-* ...does not perform any user-facing actions (such as requesting input or dispalying results)
+* ...does not perform any user-facing actions, such as requesting input or displaying results.
 * ...has no knowledge of configuration options loaded from an external system. Instead it will
 the configuration hash passed into the action constructor, provided in-instance as `#config`.
-This allows it to be used in any application without concerns of tying in to a given configuration method
+This allows the action to be used in any application without concerns of tying in to a given configuration method.
 * ...does not expose a public interface other than `perform_action`. All other outputs are communicated via
 notifications.
 * ...will be named to describe an action and not a thing. For example, `FindFile` is preferable to `FileFinderAction`.
@@ -234,7 +234,7 @@ for inclusion in `chef-actions`.
 Any unhandled exception in an action is re-raised, but only after invoking `notify(:error, exception)`.
 This gives the caller a chance to perform any cleanup in the notification handler - particularly helpful
 when the action is running on a different thread, in which case the exception may never be seen by
-your main thread (depending on your Ruby configuratoin).
+your main thread (depending on your Ruby configuration).
 
 To define an action, create a class that inherits from `ChefCore::Actions::Base` and implement
 `perform_action`. Here's an example:
