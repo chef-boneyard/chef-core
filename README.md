@@ -21,8 +21,9 @@ implementation.
 around Train that encapsulates the process of setting up and acquiring the underlying connection. `chef-core` also has
 platform-specific awareness of how to perform common operations on the
 remote host, such as file delete, package installation, directory and tempdir creation.
-It currently supports Linux and Windows platforms using ssh or winrm protocols. Connection options can
-be found in [https://github.com/inspec/train.git](the train repository).
+It currently supports Linux and Windows platforms using ssh or winrm protocols.
+
+Connection options can be found in the [train](https://github.com/inspec/train.git) repository.
 
 
 ## i18n
@@ -101,13 +102,19 @@ definition. See the 'error definitions' section below.
 When you invoke `ChefCore::Text#add_gem_localization`, the error table in `i18n/errors/LANG.yml` will
 also be loaded.
 
+The interface described here may change as discover new requirements in the process of
+rolling out standardized error handling across repositories.
+
 ### Error Definitions
 
 Error definitions in `errors/LANG.yml` contain error metadata that indicate how the error message
-should be formatted. Defaults for all messages can be found in `chef-core`'s [https://github.com/chef/chef-core/blob/6a9db0c7ecc9c047273380c5a2603ef99a31e70b/i18n/errors/en.yml#L54](i18n/errors/en.yml`)
+should be formatted. Defaults for all messages can be
+found in [chef-core/i18n/errors/en.yml](https://github.com/chef/chef-core/blob/master/i18n/errors/en.yml#L54)
+under the key `errors.display_defaults`.
 
-Each error definition is located under the key 'errors' in `i18n/errors/LANG.yml`, with
+Each error definition is located under the key 'errors' in your `i18n/errors/LANG.yml`, with
 a name that matches the error ID.  It will have up to two sub-keys:
+
 * `text`: the error message.
 * `options`: optional quoted json strong with error message display options. If not provided,
              defaults taken from `chef-core/i18n/errors/en.yml`, `display_defaults`.
@@ -130,11 +137,13 @@ errors:
 
 
 Error message should be in the following format:
-```
+
+```yml
 errors:
   YOURERRORID:
     options: options-json-string
     text: text to use for this message
+
 ```
 
 Sample error definition (i18n/errors/en.yml):
@@ -215,9 +224,9 @@ A well-written, shareable Action...
 * ...informs the listener of what it's doing via :notify, so that the listener can pass it along to the operator
 in whatever way is appropriate for the application.
 * ...does not perform any user-facing actions, such as requesting input or displaying results.
-* ...has no knowledge of configuration options loaded from an external system. Instead it will
-the configuration hash passed into the action constructor, provided in-instance as `#config`.
-This allows the action to be used in any application without concerns of tying in to a given configuration method.
+* ...has no knowledge of configuration options loaded from an external system. All configuration is pulled
+in from the configuration provided to the constructor via instance method `#config`.  This allows the
+action to be used in any application without concerns resulting from tying in to a given configuration method.
 * ...does not expose a public interface other than `perform_action`. All other outputs are communicated via
 notifications.
 * ...will be named to describe an action and not a thing. For example, `FindFile` is preferable to `FileFinderAction`.
@@ -230,6 +239,8 @@ background threads in order to manage multiple concurrent action executions.
 
 Your actions need not adhere to these requirements, but only those that do adhere can be considered
 for inclusion in `chef-actions`.
+
+### Error Handling
 
 Any unhandled exception in an action is re-raised, but only after invoking `notify(:error, exception)`.
 This gives the caller a chance to perform any cleanup in the notification handler - particularly helpful
@@ -314,11 +325,11 @@ Please read our [Community Contributions Guidelines](https://docs.chef.io/commun
 The general development process is:
 
 1. Fork this repo and clone it to your workstation.
+2. `bundle install --with development`
 2. Create a feature branch for your change.
 3. Write code and tests.
 4. Push your feature branch to GitHub and open a pull request against master.
 
-Once your repository is set up, you can start working on the code. We do utilize RSpec for test driven development, so you'll need to get a development environment running. Follow the above procedure ("Installing from Git") to get your local copy of the source running.
 
 # License
 
