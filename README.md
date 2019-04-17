@@ -260,7 +260,7 @@ module MyApp
       def perform_action
         notify(:looking_for_something, config[:search_criteria])
 
-        # Just sleep instead of doing anything. For future peformance
+        # Just sleep instead of doing anything. For future performance
         # improvement, reduce the sleep time.
         sleep(1)
 
@@ -278,7 +278,7 @@ To invoke the action:
 ```ruby
 require 'my_app/actions/find_something'
 
-criteria = gets("What should I seach for?").chomp
+criteria = gets("What should I search for?").chomp
 action = LookForSomething.new(search_criteria: criteria)
 action.run do |event, *args|
   case event
