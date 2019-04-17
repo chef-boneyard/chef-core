@@ -186,7 +186,7 @@ below:
 
 As seen in the example, BADFILE001 takes a parameter. Your exception will need to provide a member 'parameters'
 that returns a list of error message parameters. Exceptions derived from `ChefCore::Error` will take
-care of this for you.  You may also note references to Chef support and emails - this is the default
+care of this for you.  You may also note references to Chef support and email address - this is the default
 message footer, which is described in the next section.
 
 
@@ -325,7 +325,7 @@ Please read our [Community Contributions Guidelines](https://docs.chef.io/commun
 The general development process is:
 
 1. Fork this repo and clone it to your workstation.
-2. `bundle install --with development`
+2. Run `bundle install --with development`
 2. Create a feature branch for your change.
 3. Write code and tests.
 4. Push your feature branch to GitHub and open a pull request against master.
