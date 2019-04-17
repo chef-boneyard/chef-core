@@ -35,7 +35,7 @@ is distributed as part of your gem build.  During your application's
 start-up, call `ChefCore::Text.add_gem_localization('your-gem-name')` to load the localizations.
 
 
-The default language is English. If a translation is defined in the default language but not in
+The default language is English. If a translation is defined in the default language, but not in
 the current language, it will fall back to the English version.
 
 
@@ -102,7 +102,7 @@ definition. See the 'error definitions' section below.
 When you invoke `ChefCore::Text#add_gem_localization`, the error table in `i18n/errors/LANG.yml` will
 also be loaded.
 
-The interface described here may change as discover new requirements in the process of
+The interface described here may change as we discover new requirements in the process of
 rolling out standardized error handling across repositories.
 
 ### Error Definitions
