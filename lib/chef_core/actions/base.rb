@@ -83,10 +83,18 @@ module ChefCore
         ChefCore::Telemeter.timed_capture(:action, { action: action.name, target: target_data }, &block)
       end
 
-      def notify(action, *args)
+      # Invokes the notification handler with notifications of progress or events
+      # that occur while the action his running.
+      # The notification handler is provided as a block to `#run`.
+      #
+      # event - a symbol describing the thing currently being done by your
+      #        action , eg ":download", ":error", ":version_check", etc.
+      # *args - any arguments that should be passed along with this notification to the
+      #         notification handler block.
+      def notify(event, *args)
         return if @notification_handler.nil?
-        ChefCore::Log.debug("[#{self.class.name}] Action: #{action}, Action Data: #{args}")
-        @notification_handler.call(action, args) if @notification_handler
+        ChefCore::Log.debug("[#{name}] Event: #{event}, Event Data: #{args}")
+        @notification_handler.call(event, args) if @notification_handler
       end
     end
   end
