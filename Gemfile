@@ -16,5 +16,4 @@
 #
 
 source "https://rubygems.org"
-gem "train-core", git: "https://github.com/inspec/train"
 gemspec name: "chef-core"
