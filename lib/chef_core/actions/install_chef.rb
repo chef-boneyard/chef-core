@@ -26,6 +26,11 @@ module ChefCore
         super
       end
 
+      # We have not yet implemented install behaviors outside of these OSs
+      def supported_base_os_types
+        [:linux, :windows].freeze
+      end
+
       def perform_action
         if InstallChef::MinimumChefVersion.check!(target_host, config[:check_only]) == :minimum_version_met
           notify(:already_installed)

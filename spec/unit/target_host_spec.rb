@@ -37,6 +37,14 @@ RSpec.describe ChefCore::TargetHost do
       end
     end
 
+    context "for a unix os" do
+      let(:family) { "os" }
+      let(:name) { "mac_os_x" }
+      it "reports :unix" do
+        expect(subject.base_os).to eq :unix
+      end
+    end
+
     context "for a linux os" do
       let(:family) { "debian" }
       let(:name) { "ubuntu" }
@@ -111,6 +119,14 @@ RSpec.describe ChefCore::TargetHost do
       let(:base_os) { :windows }
       it "mixes in Windows support" do
         expect(subject.class).to receive(:include).with(ChefCore::TargetHost::Windows)
+        subject.mix_in_target_platform!
+      end
+    end
+
+    context "when base_os is unix" do
+      let(:base_os) { :unix }
+      it "mixes in Windows support" do
+        expect(subject.class).to receive(:include).with(ChefCore::TargetHost::Unix)
         subject.mix_in_target_platform!
       end
     end

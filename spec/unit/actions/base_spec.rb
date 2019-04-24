@@ -21,14 +21,18 @@ require "chef_core/telemeter"
 require "chef_core/target_host"
 
 RSpec.describe ChefCore::Actions::Base do
+  let(:base_os) { :windows }
   let(:family) { "windows" }
   let(:target_host) do
     p = double("platform", family: family)
-    instance_double(ChefCore::TargetHost, platform: p)
+    instance_double(ChefCore::TargetHost, platform: p, base_os: base_os)
   end
+
   let(:opts) do
     { target_host: target_host,
-      other: "something-else" } end
+      other: "something-else" }
+  end
+
   subject { ChefCore::Actions::Base.new(opts) }
 
   context "#initialize" do
@@ -39,6 +43,30 @@ RSpec.describe ChefCore::Actions::Base do
   end
 
   context "#run" do
+    describe "when the target OS is supported by the action" do
+      let(:base_os) { :linux }
+      before do
+        allow(subject).to receive(:timed_action_capture).with(subject).and_yield
+        allow(subject).to receive(:supported_base_os_types).and_return([:linux])
+      end
+
+      it "runs the action" do
+        expect(subject).to receive(:perform_action)
+        subject.run
+      end
+    end
+
+    describe "when the target OS is not supported by the action" do
+      let(:base_os) { :linux }
+      before do
+        allow(subject).to receive(:timed_action_capture).with(subject).and_yield
+        allow(subject).to receive(:supported_base_os_types).and_return([:windows])
+      end
+      it "raises UnsupportedTargetOS instead of running the action" do
+        expect { subject.run }.to raise_error ChefCore::TargetHost::UnsupportedTargetOS
+      end
+    end
+
     it "runs the underlying action, capturing timing via telemetry" do
       expect(subject).to receive(:timed_action_capture).with(subject).and_yield
       expect(subject).to receive(:perform_action)

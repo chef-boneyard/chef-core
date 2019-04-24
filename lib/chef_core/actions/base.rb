@@ -42,6 +42,9 @@ module ChefCore
         @notification_handler = block
         timed_action_capture(self) do
           begin
+            if target_host && !supported_base_os_types.include?(target_host.base_os)
+              raise TargetHost::UnsupportedTargetOS.new(target_host.base_os)
+            end
             perform_action
           rescue StandardError => e
             # Give the caller a chance to clean up - if an exception is
@@ -63,6 +66,11 @@ module ChefCore
         raise NotImplemented
       end
 
+      # Return a list of base_os types, based on TargetHost#base_os potential values.
+      def supported_base_os_types
+        [:linux, :unix, :windows].freeze
+      end
+
       # TODO bootstrap 2019-02-07  - we'll need to find the right way to keep this in telemeter,
       # there are a bunch of exposed details here that the caller shouldn't care about.
       # I've moved it here temporarily to keep things running until we come back to this
@@ -74,7 +82,7 @@ module ChefCore
         target = action.target_host
         target_data = { platform: {}, hostname_sha1: nil, transport_type: nil }
         if target
-          target_data[:platform][:name] = target.base_os # :windows, :linux, eventually :macos
+          target_data[:platform][:name] = target.base_os # :windows, :linux, :unix f
           target_data[:platform][:version] = target.version
           target_data[:platform][:architecture] = target.architecture
           target_data[:hostname_sha1] = Digest::SHA1.hexdigest(target.hostname.downcase)

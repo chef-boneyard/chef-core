@@ -92,7 +92,7 @@ module ChefCore
 
       # From WinRM gem: It is recommended that you :disable_sspi => true if you are using the plaintext or ssl transport.
       #                 See note here: https://github.com/mwrock/WinRM#example
-      if ["ssl", "plaintext"].include?(target_opts[:winrm_transport])
+      if %w{ssl plaintext}.include?(target_opts[:winrm_transport])
         target_opts[:winrm_disable_sspi] = true
       end
 
@@ -148,6 +148,9 @@ module ChefCore
       when :linux
         require "chef_core/target_host/linux"
         class << self; include ChefCore::TargetHost::Linux; end
+      when :unix
+        require "chef_core/target_host/unix"
+        class << self; include ChefCore::TargetHost::Unix; end
       when :windows
         require "chef_core/target_host/windows"
         class << self; include ChefCore::TargetHost::Windows; end
@@ -181,6 +184,8 @@ module ChefCore
         :windows
       elsif platform.linux?
         :linux
+      elsif platform.unix?
+        :unix
       else
         :other
       end
@@ -205,13 +210,13 @@ module ChefCore
 
     # TODO spec
     def save_as_remote_file(content, remote_path)
-       t = Tempfile.new("chef-content")
-       t << content
-       t.close
-       upload_file(t.path, remote_path)
+      t = Tempfile.new("chef-content")
+      t << content
+      t.close
+      upload_file(t.path, remote_path)
     ensure
-        t.close
-        t.unlink
+      t.close
+      t.unlink
     end
 
     def upload_file(local_path, remote_path)
