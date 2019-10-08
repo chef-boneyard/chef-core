@@ -28,7 +28,7 @@ Gem::Specification.new do |spec|
   spec.description = "Common functionality for Chef ruby components"
   spec.homepage    = "https://github.com/chef/chef_core"
   spec.license     = "Apache-2.0"
-  spec.required_ruby_version = ">= 2.5.0"
+  spec.required_ruby_version = ">= 2.4.0"
 
   spec.files = %w{ LICENSE lib/chef_core/actions.rb } +
     Dir.glob("{i18n,lib/chef_core/actions}/**/*", File::FNM_DOTMATCH)
