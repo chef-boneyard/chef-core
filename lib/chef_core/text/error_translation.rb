@@ -26,14 +26,13 @@ module ChefCore
       def initialize(id, params: [])
         error_translation = error_translation_for_id(id)
 
-        options = YAML.load(Text.errors.display_defaults, "display_defaults",
-                            symbolize_names: true)
+        options = _sym(YAML.load(Text.errors.display_defaults, "display_defaults"))
 
         # Display metadata is a string containing a YAML hash that is optionally under
         # the error's 'options' attribute
         # Note that we couldn't use :display, as that conflicts with a method on Object.
         display_opts = if error_translation.methods.include?(:options)
-                         YAML.load(error_translation.options, @id, symbolize_names: true)
+                         _sym(YAML.load(error_translation.options, @id))
                        else
                          {}
                        end
@@ -51,6 +50,10 @@ module ChefCore
           # typos in attr names
           raise InvalidDisplayAttributes.new(id, options)
         end
+      end
+
+      def _sym hash
+        hash.map { |k,v| [k.to_sym, v] }.to_h
       end
 
       def inspect
