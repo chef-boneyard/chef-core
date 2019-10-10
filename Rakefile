@@ -15,7 +15,9 @@
 # limitations under the License.
 #
 
-require "bundler/gem_tasks"
+# Temporarily disable this; it breaks the Rakefile because there are multiple gemspecs.
+# Proper fix is to put each gemspec in its own dir or not use bundler/gem_tasks.
+# require "bundler/gem_tasks"
 
 task default: [:spec, :style]
 
