@@ -28,7 +28,8 @@ RSpec.describe ChefCore::Actions::Base do
   end
   let(:opts) do
     { target_host: target_host,
-      other: "something-else" } end
+      other: "something-else" }
+  end
   subject { ChefCore::Actions::Base.new(opts) }
 
   context "#initialize" do
@@ -61,11 +62,11 @@ RSpec.describe ChefCore::Actions::Base do
     context "when a valid target_host is present" do
       it "invokes Telemeter.timed_capture with action and valid target data" do
         target = instance_double("TargetHost",
-                                 base_os: "windows",
-                                 version: "10.0.0",
-                                 architecture: "x86_64",
-                                 hostname: "My_Host",
-                                 transport_type: "winrm")
+          base_os: "windows",
+          version: "10.0.0",
+          architecture: "x86_64",
+          hostname: "My_Host",
+          transport_type: "winrm")
         action = instance_double("Action::Base", name: "test_action",
                                                  target_host: target)
         expected_data = {

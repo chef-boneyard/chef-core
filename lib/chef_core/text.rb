@@ -35,6 +35,7 @@ module ChefCore
 
     def self.add_localization(base_path)
       return if @raw_localization_paths.include? base_path
+
       # @localization_paths will get modified by R18n, so we'll
       # keep them as strings as well, to ensure we can avoid duplicate loading.
       errors_path = File.join(base_path, "errors")

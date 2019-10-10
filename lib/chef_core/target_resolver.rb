@@ -28,7 +28,7 @@ module ChefCore
   # Use resolver_inst.targets to get the expanded list of TargetHost instances.
   class TargetResolver
     MAX_EXPANDED_TARGETS = 24
-    SUPPORTED_PROTOCOLS = %w{winrm ssh}
+    SUPPORTED_PROTOCOLS = %w{winrm ssh}.freeze
     def initialize(target, default_protocol, conn_options, max_expanded_targets: MAX_EXPANDED_TARGETS)
       @max_expanded_targets = max_expanded_targets
       @default_proto = default_protocol
@@ -42,6 +42,7 @@ module ChefCore
     # Returns the list of targets as an array of TargetHost instances
     def targets
       return @targets unless @targets.nil?
+
       expanded_urls = []
       @split_targets.each do |target|
         expand_targets(target).each { |t| expanded_urls << t }
@@ -100,7 +101,7 @@ module ChefCore
     end
 
     def prefix_from_target(target)
-      if target =~ /^(.+?):\/\/(.*)/
+      if target =~ %r{^(.+?)://(.*)}
         # We'll store the existing prefix to avoid it interfering
         # with the check further below.
         if SUPPORTED_PROTOCOLS.include? $1.downcase
@@ -131,6 +132,7 @@ module ChefCore
 
     def do_parse(targets, depth = 0)
       raise TooManyRanges.new(@current_target) if depth > 2
+
       new_targets = []
       done = false
       targets.each do |target|
@@ -191,7 +193,7 @@ module ChefCore
     end
     # Provide an error base for all targetresolver errors, to simplify
     # handling when caller is not concerned with the specific failure.
-    class TargetResolverError  < ChefCore::Error; end
+    class TargetResolverError < ChefCore::Error; end
 
     class InvalidRange < TargetResolverError
       def initialize(unresolved_target, given_range)

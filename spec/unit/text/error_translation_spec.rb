@@ -43,8 +43,8 @@ RSpec.describe ChefCore::Text::ErrorTranslation do
   # R18n translation mock
   let(:errors_translation_mock) do
     double("R18n::Translated",
-           display_defaults: display_defaults,
-           TESTERROR: error_mock)
+      display_defaults: display_defaults,
+      TESTERROR: error_mock)
   end
   before do
     # Mock out the R18n portion - our methods care only that the key exists; these
@@ -100,8 +100,8 @@ RSpec.describe ChefCore::Text::ErrorTranslation do
     it "raises InvalidDisplayAttributes when invalid attributes are specified" do
       expect { subject.new("TESTERROR") }
         .to raise_error(ChefCore::Text::ErrorTranslation::InvalidDisplayAttributes) do |e|
-        expect(e.invalid_attrs).to eq({ bad_value: true })
-      end
+          expect(e.invalid_attrs).to eq({ bad_value: true })
+        end
 
     end
   end

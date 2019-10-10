@@ -18,7 +18,7 @@ RSpec.describe ChefCore::TargetHost::Windows do
       expect(subject).to receive(:run_command!)
         .with(ChefCore::TargetHost::Windows::MKTEMP_COMMAND)
         .and_return(instance_double("result", stdout: path))
-      expect(subject.make_temp_dir()).to eq(path)
+      expect(subject.make_temp_dir).to eq(path)
     end
   end
 

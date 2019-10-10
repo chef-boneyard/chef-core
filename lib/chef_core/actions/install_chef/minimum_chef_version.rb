@@ -40,8 +40,9 @@ module ChefCore
             installed_version = target.installed_chef_version
           rescue ChefCore::TargetHost::ChefNotInstalled
             if check_only
-              raise ClientNotInstalled.new()
+              raise ClientNotInstalled.new
             end
+
             return :client_not_installed
           end
 

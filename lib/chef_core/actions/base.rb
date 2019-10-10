@@ -93,6 +93,7 @@ module ChefCore
       #         notification handler block.
       def notify(event, *args)
         return if @notification_handler.nil?
+
         ChefCore::Log.debug("[#{name}] Event: #{event}, Event Data: #{args}")
         @notification_handler.call(event, args) if @notification_handler
       end

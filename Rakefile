@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-task default: [:spec, :style]
+task default: %i{spec style}
 
 require "rspec/core/rake_task"
 RSpec::Core::RakeTask.new(:spec)

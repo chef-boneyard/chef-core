@@ -45,14 +45,16 @@ RSpec.describe ChefCore::Actions::ConvergeTarget::CCRFailureMapper do
           it "returns a correct CHEFCCR004 when details are available" do
             expect(subject.exception_args_from_cause).to eq(
               ["CHEFCCR004",
-               "Option force must be a kind of [TrueClass, FalseClass]!  You passed \"purle\"."])
+               "Option force must be a kind of [TrueClass, FalseClass]!  You passed \"purle\"."]
+            )
           end
         end
         context "And less detail is available" do
           let(:cause_line) { "Chef::Exceptions::User: linux_user[marc] ((chef-client cookbook)::(chef-client recipe) line 1) had an error: Chef::Exceptions::User: Couldn't lookup integer GID for group name blah" }
           it "returns a correct CHEFCCR002" do
             expect(subject.exception_args_from_cause).to eq(
-              ["CHEFCCR002", "Couldn't lookup integer GID for group name blah"])
+              ["CHEFCCR002", "Couldn't lookup integer GID for group name blah"]
+            )
           end
         end
       end
@@ -70,14 +72,16 @@ RSpec.describe ChefCore::Actions::ConvergeTarget::CCRFailureMapper do
       let(:cause_line) { "NoMethodError: undefined method `badresourceprop' for Chef::Resource::User::LinuxUser" }
       it "returns a correct CHEFCCR006 " do
         expect(subject.exception_args_from_cause).to eq(
-          %w{CHEFCCR006 badresourceprop User})
+          %w{CHEFCCR006 badresourceprop User}
+        )
       end
     end
     context "when a resource property does not exist for the given resource and the class name is not idenfifiable as a resource" do
       let(:cause_line) { "NoMethodError: undefined method `badresourceprop' for Chef::Confusion::Something" }
       it "returns a correct CHEFCCR006 " do
         expect(subject.exception_args_from_cause).to eq(
-          ["CHEFCCR006", "badresourceprop", "Chef::Confusion::Something"])
+          ["CHEFCCR006", "badresourceprop", "Chef::Confusion::Something"]
+        )
       end
     end
   end

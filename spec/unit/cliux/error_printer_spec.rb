@@ -48,12 +48,11 @@ RSpec.describe ChefCore::CLIUX::UI::ErrorPrinter do
 
   let(:translation_mock) do
     instance_double("ChefCore::Errors::ErrorTranslation",
-                    footer: show_footer,
-                    log: show_log,
-                    stack: show_stack,
-                    header: show_header,
-                    decorations: has_decorations
-                   )
+      footer: show_footer,
+      log: show_log,
+      stack: show_stack,
+      header: show_header,
+      decorations: has_decorations)
   end
   subject { ChefCore::CLIUX::UI::ErrorPrinter.new(wrapper: wrapped_exception, config: error_config) }
 
@@ -203,7 +202,7 @@ RSpec.describe ChefCore::CLIUX::UI::ErrorPrinter do
 
     let(:orig_args) { %w{test} }
     it "formats and saves the backtrace" do
-      expect(inst).to receive(:add_backtrace_header).with(anything(), orig_args)
+      expect(inst).to receive(:add_backtrace_header).with(anything, orig_args)
       expect(inst).to receive(:add_formatted_backtrace)
       expect(inst).to receive(:save_backtrace)
       ChefCore::CLIUX::UI::ErrorPrinter.write_backtrace(wrapped_exception, orig_args, error_config)

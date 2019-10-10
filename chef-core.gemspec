@@ -31,7 +31,7 @@ Gem::Specification.new do |spec|
   spec.required_ruby_version = ">= 2.5.0"
 
   spec.files = %w{ LICENSE } +
-    Dir.glob("{i18n,lib,resources}/**/*", File::FNM_DOTMATCH).reject { |f| File.directory?(f) || f =~ /chef_core\/actions.*$/ }
+    Dir.glob("{i18n,lib,resources}/**/*", File::FNM_DOTMATCH).reject { |f| File.directory?(f) || f =~ %r{chef_core/actions.*$} }
   spec.require_paths = ["lib"]
 
   spec.add_dependency "pastel" # A color library
@@ -40,7 +40,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "tty-cursor"
 
   spec.add_dependency "mixlib-log" # Basis for our traditional logger
-  spec.add_dependency "train-core", "~> 2.0", ">= 2.0.12"  # we need 2.0.12+ to get winrm and ssh support
+  spec.add_dependency "train-core", "~> 2.0", ">= 2.0.12" # we need 2.0.12+ to get winrm and ssh support
   spec.add_dependency "chef-telemetry"
   spec.add_dependency "r18n-desktop" # easy path to message text management via localization gem...
 
