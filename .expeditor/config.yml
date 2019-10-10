@@ -1,5 +1,5 @@
 # Documentation available at https://expeditor.chef.io/docs/getting-started/
-
+---
 # Slack channel in Chef Software slack to send notifications about build failures, etc
 slack:
   notify_channel: chef-ws-notify
@@ -40,6 +40,11 @@ merge_actions:
   - built_in:build_gem:
       only_if:
         - built_in:bump_version
+
+pipelines:
+  - verify:
+      description: Pull Request validation tests
+      public: true
 
 promote:
   actions:

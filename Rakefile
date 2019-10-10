@@ -15,8 +15,6 @@
 # limitations under the License.
 #
 
-require "bundler/gem_tasks"
-
 task default: [:spec, :style]
 
 require "rspec/core/rake_task"
