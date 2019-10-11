@@ -52,8 +52,8 @@ module ChefCore
         end
       end
 
-      def _sym hash
-        hash.map { |k,v| [k.to_sym, v] }.to_h
+      def _sym(hash)
+        hash.map { |k, v| [k.to_sym, v] }.to_h
       end
 
       def inspect

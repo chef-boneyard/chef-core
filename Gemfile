@@ -17,3 +17,27 @@
 
 source "https://rubygems.org"
 gemspec name: "chef-core"
+
+group :development do
+  gem "chefstyle"
+  gem "rake", ">= 10.1.0"
+  gem "rspec", "~> 3.0"
+end
+
+group :ci do
+  gem "rspec_junit_formatter"
+  gem "simplecov"
+end
+
+group :docs do
+  gem "yard"
+  gem "redcarpet"
+  gem "github-markup"
+end
+
+group :debug do
+  gem "pry"
+  gem "pry-byebug"
+  gem "pry-stack_explorer"
+  gem "rb-readline"
+end

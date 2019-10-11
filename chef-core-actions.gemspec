@@ -37,5 +37,4 @@ Gem::Specification.new do |spec|
   spec.add_dependency "mixlib-log" # Basis for our traditional logger
   spec.add_dependency "chef-core"
   spec.add_dependency "chef-config" # Provides the PathHelper utility
-
 end

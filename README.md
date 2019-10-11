@@ -1,7 +1,6 @@
-placeholder
-
 # Chef Core
-[![Gem Version](https://badge.fury.io/rb/chef-chef-core.svg)](https://badge.fury.io/rb/chef-core)
+
+[![Gem Version](https://badge.fury.io/rb/chef-core.svg)](https://badge.fury.io/rb/chef-core)
 
 Chef Core provides low-level tools for building Chef workflows. It contains the subset of
 functionality that we extracted from `chef-run` for use across CLI tools.
@@ -25,7 +24,6 @@ It currently supports Linux and Windows platforms using ssh or winrm protocols.
 
 Connection options can be found in the [train](https://github.com/inspec/train.git) repository.
 
-
 ## i18n
 
 chef-core provides an i18n interface via `ChefCore::Text`.  This sits atop [r18n](https://github.com/r18n/r18n)
@@ -34,12 +32,11 @@ create a `i18n/LANG.yml` file where LANG is the language (eg 'en', 'fr') and ens
 is distributed as part of your gem build.  During your application's
 start-up, call `ChefCore::Text.add_gem_localization('your-gem-name')` to load the localizations.
 
-
 The default language is English. If a translation is defined in the default language, but not in
 the current language, it will fall back to the English version.
 
-
 Example: 18n/en.yml
+
 ```yml
 product_name: Chef Core
 sample:
@@ -91,7 +88,6 @@ Parameterized: Hello world!
    `errors` key in your `i18n/en.yml`.  Instead, errors should be added to `i18n/errors/en.yml`, under the key
    `errors`.
 
-
 ## Error Rendering
 
 Any exception can be passed into `ChefCore::CLIUX::UI::ErrorPrinter.show_error`.
@@ -115,16 +111,15 @@ under the key `errors.display_defaults`.
 Each error definition is located under the key 'errors' in your `i18n/errors/LANG.yml`, with
 a name that matches the error ID.  It will have up to two sub-keys:
 
-* `text`: the error message.
-* `options`: optional quoted json strong with error message display options. If not provided,
+- `text`: the error message.
+- `options`: optional quoted json strong with error message display options. If not provided,
              defaults taken from `chef-core/i18n/errors/en.yml`, `display_defaults`.
              Supported display options:
-  *  `header` - boolean, when true the error ID is shown as the first line of the error, in bold if supported.
-  *  `stack` - include a line indicating where a stack trace has been saved.
-  *  `log` - include a line indicating where log file(s) have been saved.
-  *  `footer` - include the default footer which will contain stack/log locations
-  *  `decorations` - boolean, false means all decorations (header, footer, etc) are not shown.
-
+  - `header` - boolean, when true the error ID is shown as the first line of the error, in bold if supported.
+  - `stack` - include a line indicating where a stack trace has been saved.
+  - `log` - include a line indicating where log file(s) have been saved.
+  - `footer` - include the default footer which will contain stack/log locations
+  - `decorations` - boolean, false means all decorations (header, footer, etc) are not shown.
 
 `display_defaults` is defined in `chef-core/i18n/errors/en.yml` and controls
 what display options are used when a given error message does not specify options. This
@@ -134,7 +129,6 @@ can be overridden in your errors/LANG.yml, for example:
 errors:
   display_defaults: "{ decorations: true, stack: false, log: false, header: true, footer: false }"
 ```
-
 
 Error message should be in the following format:
 
@@ -189,20 +183,18 @@ that returns a list of error message parameters. Exceptions derived from `ChefCo
 care of this for you.  You may also note references to Chef support and email address - this is the default
 message footer, which is described in the next section.
 
-
 ### Overriding Common Elements
 
 Several common elements are defined in `chef-core/i18n/errors/en.yml`. It is likely that you'll want to
 override these in your own `errors/LANG.yml`:
 
-* `footer` - contains footers to show when decorations = true, footer = true.  Content
+- `footer` - contains footers to show when decorations = true, footer = true.  Content
              will vary based on whether `stack` and `log` are true.  Contains separate subkeys:
-  * `both` - footer to display when both stack and log are true
-  * `log_only` - text when only log is true
-  * `stack_only` - text when only stack is true
-  * `neither` - text when neither one is true
-* `header` - display the message header, which is the error ID.
-
+  - `both` - footer to display when both stack and log are true
+  - `log_only` - text when only log is true
+  - `stack_only` - text when only stack is true
+  - `neither` - text when neither one is true
+- `header` - display the message header, which is the error ID.
 
 ## Actions
 
@@ -221,17 +213,16 @@ This framework is minimal - it defines a base class, and invokes provided overri
 Invoking the actions is left to the calling application.
 A well-written, shareable Action...
 
-* ...informs the listener of what it's doing via :notify, so that the listener can pass it along to the operator
+- ...informs the listener of what it's doing via :notify, so that the listener can pass it along to the operator
 in whatever way is appropriate for the application.
-* ...does not perform any user-facing actions, such as requesting input or displaying results.
-* ...has no knowledge of configuration options loaded from an external system. All configuration is pulled
+- ...does not perform any user-facing actions, such as requesting input or displaying results.
+- ...has no knowledge of configuration options loaded from an external system. All configuration is pulled
 in from the configuration provided to the constructor via instance method `#config`.  This allows the
 action to be used in any application without concerns resulting from tying in to a given configuration method.
-* ...does not expose a public interface other than `perform_action`. All other outputs are communicated via
+- ...does not expose a public interface other than `perform_action`. All other outputs are communicated via
 notifications.
-* ...will be named to describe an action and not a thing. For example, `FindFile` is preferable to `FileFinderAction`.
-* ...does only what it says it will do.
-
+- ...will be named to describe an action and not a thing. For example, `FindFile` is preferable to `FileFinderAction`.
+- ...does only what it says it will do.
 
 Pre-defined actions in `chef-actions` are thread-safe, because they may be run in
 a background thread depending on how your UI is structured.  `chef-apply` runs them in
@@ -251,6 +242,7 @@ To define an action, create a class that inherits from `ChefCore::Actions::Base`
 `perform_action`. Here's an example:
 
 ### Simple Example
+
 ```ruby
 require 'chef-core/actions'
 module MyApp
@@ -291,7 +283,6 @@ action.run do |event, *args|
     # an perform_action raises an unhandled exception
     puts "I'm sorry, something happened: #{args[0].to_s}
 end
-
 ```
 
 Output:
@@ -305,18 +296,15 @@ I found it! You can pick it up here: /home
 I'm sorry, something happened: Ooops
 ```
 
-
 ### Real-life Usage
 
 [chef-apply](https://github.com/chef/chef-apply/blob/2a2b5d75641bc7fd0aaf3d12dd195a57cbdb9180/lib/chef_apply/cli.rb#L148) makes use
 of actions in a multi-threaded CLI that can perform actions simultaneously across multiple hosts.
 
-
 ## CLI User Experience
 
 More information coming here as we determine if what we have now is the right shape for future CLI tool
 development.
-
 
 ## Contributing/Development
 
@@ -326,10 +314,9 @@ The general development process is:
 
 1. Fork this repo and clone it to your workstation.
 2. Run `bundle install --with development`
-2. Create a feature branch for your change.
-3. Write code and tests.
-4. Push your feature branch to GitHub and open a pull request against master.
-
+3. Create a feature branch for your change.
+4. Write code and tests.
+5. Push your feature branch to GitHub and open a pull request against master.
 
 # License
 
@@ -351,4 +338,3 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ```
- 
