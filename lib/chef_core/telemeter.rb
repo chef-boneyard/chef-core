@@ -70,16 +70,16 @@ module ChefCore
       timed_capture(:run, arguments: arguments, &block)
     end
 
-    def timed_capture(name, data = {})
+    def timed_capture(name, data = {}, options = {})
       time = Benchmark.measure { yield }
       data[:duration] = time.real
-      capture(name, data)
+      capture(name, data, options)
     end
 
-    def capture(name, data = {})
+    def capture(name, data = {}, options = {})
       # Adding it to the head of the list will ensure that the
       # sequence of events is preserved when we send the final payload
-      payload = make_event_payload(name, data)
+      payload = make_event_payload(name, data, options)
       @events_to_send.unshift payload
     end
 
@@ -91,16 +91,21 @@ module ChefCore
       @events_to_send = []
     end
 
-    def make_event_payload(name, data)
-      {
+    def make_event_payload(name, data, options)
+      payload = {
         event: name,
         properties: {
           installation_id: installation_id,
           run_timestamp: run_timestamp,
           host_platform: host_platform,
-          event_data: data,
         },
       }
+      if options[:flatten]
+        payload[:properties].merge! data
+      else
+        payload[:properties][:event_data] = data
+      end
+      payload
     end
 
     def installation_id
