@@ -43,14 +43,4 @@ Gem::Specification.new do |spec|
   spec.add_dependency "train-core", "~> 2.0", ">= 2.0.12" # we need 2.0.12+ to get winrm and ssh support
   spec.add_dependency "chef-telemetry"
   spec.add_dependency "r18n-desktop" # easy path to message text management via localization gem...
-
-  spec.add_development_dependency "bundler"
-  spec.add_development_dependency "rake"
-  spec.add_development_dependency "rspec"
-  spec.add_development_dependency "pry"
-  spec.add_development_dependency "simplecov"
-  spec.add_development_dependency "pry-byebug"
-  spec.add_development_dependency "pry-stack_explorer"
-  spec.add_development_dependency "rspec_junit_formatter"
-  spec.add_development_dependency "chefstyle"
 end
