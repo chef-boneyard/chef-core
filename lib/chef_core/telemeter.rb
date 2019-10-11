@@ -91,7 +91,7 @@ module ChefCore
       @events_to_send = []
     end
 
-    def make_event_payload(name, data, options)
+    def make_event_payload(name, data, options = {})
       payload = {
         event: name,
         properties: {
