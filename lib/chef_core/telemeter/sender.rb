@@ -83,12 +83,12 @@ module ChefCore
         FileUtils.rm_rf(config[:session_file])
         # We'll use the version captured in the sesion file
         entries = content["entries"]
-        cli_version = content["version"]
         total = entries.length
-        telemetry = Telemetry.new(product: "chef-workstation",
-                                  origin: "command-line",
-                                  product_version: cli_version,
-                                  install_context: "omnibus")
+        product_info = config[:product] || {}
+        telemetry = Telemetry.new(product: product_info[:name] || "chef-workstation",
+                                  origin: product_info[:origin] || "command-line",
+                                  product_version: product_info[:version] || content["version"],
+                                  install_context: product_info[:install_context] || "omnibus")
         total = entries.length
         entries.each_with_index do |entry, x|
           submit_entry(telemetry, entry, x + 1, total)
