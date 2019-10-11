@@ -4,6 +4,11 @@
 slack:
   notify_channel: chef-ws-notify
 
+# This publish is triggered by the `built_in:publish_rubygems` artifact_action.
+rubygems:
+  - chef-core
+  - chef-core-actions
+
 github:
   # The file where the MAJOR.MINOR.PATCH version is kept. The version in this file
   # is bumped automatically via the `built_in:bump_version` merge_action.
@@ -21,9 +26,9 @@ github:
   major_bump_labels:
     - "Expeditor: Bump Version Major"
 
-rubygems:
-  - chef-core
-  - chef-core-actions
+
+changelog:
+  rollup_header: Changes not yet released to rubygems.org
 
 # These actions are taken, in order they are specified, anytime a Pull Request is merged.
 merge_actions:
