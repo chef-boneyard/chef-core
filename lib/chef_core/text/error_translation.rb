@@ -20,7 +20,7 @@ module ChefCore
     # Represents an error loaded from translation, with
     # display attributes set.
     class ErrorTranslation
-      ATTRIBUTES = [:decorations, :header, :footer, :stack, :log].freeze
+      ATTRIBUTES = %i{decorations header footer stack log}.freeze
       attr_reader :message, *ATTRIBUTES
 
       def initialize(id, params: [])

@@ -39,7 +39,7 @@ module ChefCore
       end
 
       def perform_local_install
-        package = lookup_artifact()
+        package = lookup_artifact
         notify(:downloading)
         local_path = download_to_workstation(package.url)
         notify(:uploading)
@@ -65,6 +65,7 @@ module ChefCore
 
       def lookup_artifact
         return @artifact_info if @artifact_info
+
         require "mixlib/install"
         c = train_to_mixlib(target_host.platform)
         Mixlib::Install.new(c).artifact_info
@@ -105,11 +106,11 @@ module ChefCore
       def download_to_workstation(url_path)
         require "chef_core/file_fetcher"
         ChefCore::FileFetcher.fetch(config[:cache_path],
-                                     url_path)
+          url_path)
       end
 
       def upload_to_target(local_path)
-        installer_dir = target_host.temp_dir()
+        installer_dir = target_host.temp_dir
         remote_path = File.join(installer_dir, File.basename(local_path))
         target_host.upload_file(local_path, remote_path)
         remote_path

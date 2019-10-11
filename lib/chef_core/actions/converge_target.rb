@@ -28,7 +28,7 @@ module ChefCore
 
       def perform_action
         local_policy_path = config.delete :local_policy_path
-        remote_tmp = target_host.temp_dir()
+        remote_tmp = target_host.temp_dir
         remote_dir_path = target_host.normalize_path(remote_tmp)
         # Ensure the directory is owned by the connecting user,
         # otherwise we won't be able to put things into it over scp as that user.
@@ -39,8 +39,8 @@ module ChefCore
 
         notify(:running_chef)
         cmd_str = run_chef_cmd(remote_dir_path,
-                               File.basename(remote_config_path),
-                               File.basename(remote_policy_path))
+          File.basename(remote_config_path),
+          File.basename(remote_policy_path))
         c = target_host.run_command(cmd_str)
         target_host.del_dir(remote_dir_path)
         if c.exit_status == 0
@@ -53,7 +53,7 @@ module ChefCore
           ChefCore::Log.error("Error running command [#{cmd_str}]")
           ChefCore::Log.error("stdout: #{c.stdout}")
           ChefCore::Log.error("stderr: #{c.stderr}")
-          handle_ccr_error()
+          handle_ccr_error
         end
       end
 
@@ -64,7 +64,7 @@ module ChefCore
           target_host.upload_file(local_policy_path, remote_policy_path)
         rescue RuntimeError => e
           ChefCore::Log.error(e)
-          raise PolicyUploadFailed.new()
+          raise PolicyUploadFailed.new
         end
         remote_policy_path
       end
@@ -86,7 +86,7 @@ module ChefCore
         # add the target host's log level value
         # (we don't set a location because we want output to
         #   go in stdout for reporting back to chef-apply)
-        if !config[:target_log_level].nil?
+        unless config[:target_log_level].nil?
           workstation_rb << <<~EOM
             log_level :#{config[:target_log_level]}
           EOM
@@ -108,7 +108,7 @@ module ChefCore
           config_file.close
           target_host.upload_file(config_file.path, remote_config_path)
         rescue RuntimeError
-          raise ConfigUploadFailed.new()
+          raise ConfigUploadFailed.new
         ensure
           config_file.unlink
         end
@@ -120,7 +120,7 @@ module ChefCore
         target_host.upload_file(RUN_REPORTER_PATH, remote_handler_path)
         remote_handler_path
       rescue RuntimeError
-        raise HandlerUploadFailed.new()
+        raise HandlerUploadFailed.new
       end
 
       def upload_trusted_certs(dir)
@@ -159,7 +159,7 @@ module ChefCore
         end
 
         mapper = ConvergeTarget::CCRFailureMapper.new(report["exception"],
-                                                      mapper_opts)
+          mapper_opts)
         mapper.raise_mapped_exception!
       end
 

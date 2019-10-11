@@ -40,7 +40,7 @@ module ChefCore
           @children.each do |child, block|
             @threads << Thread.new { block.call(child) }
           end
-          @threads.each { |thr| thr.join }
+          @threads.each(&:join)
         end
       end
     end

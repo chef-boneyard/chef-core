@@ -24,7 +24,6 @@ module ChefCore
     end
   end
 
-
   class WrappedError < StandardError
     attr_accessor :target_host, :contained_exception
     def initialize(e, target_host)

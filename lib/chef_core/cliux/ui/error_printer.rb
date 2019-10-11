@@ -59,7 +59,7 @@ module ChefCore
             e.jobs.each do |j|
               wrapped = ChefCore::Errors::StandardErrorResolver.wrap_exception(j.exception, j.target_host)
               ep = ErrorPrinter.new(wrapper: wrapped, config: config)
-              msg = ep.format_body().tr("\n", " ").gsub(/ {2,}/, " ").chomp.strip
+              msg = ep.format_body.tr("\n", " ").gsub(/ {2,}/, " ").chomp.strip
               out.write("Host: #{j.target_host.hostname} ")
               if ep.exception.respond_to? :id
                 out.write("Error: #{ep.exception.id}: ")
@@ -100,7 +100,7 @@ module ChefCore
           @pastel = Pastel.new
           @content = StringIO.new
           @config = config
-          @id = if @exception.kind_of? ChefCore::Error
+          @id = if @exception.is_a? ChefCore::Error
                   @exception.id
                 else
                   DEFAULT_ERROR_NO
@@ -122,7 +122,7 @@ module ChefCore
 
         def format_undecorated
           @content << "\n"
-          @content << format_body()
+          @content << format_body
           if @command
             @content << "\n"
             @content << @command.usage
@@ -131,11 +131,11 @@ module ChefCore
 
         def format_decorated
           @content << "\n"
-          @content << format_header()
+          @content << format_header
           @content << "\n\n"
-          @content << format_body()
+          @content << format_body
           @content << "\n"
-          @content << format_footer()
+          @content << format_footer
           @content << "\n"
         end
 
@@ -144,9 +144,9 @@ module ChefCore
         end
 
         def format_body
-          if exception.kind_of? ChefCore::Error
+          if exception.is_a? ChefCore::Error
             format_workstation_exception
-          elsif exception.kind_of? Train::Error
+          elsif exception.is_a? Train::Error
             format_train_exception
           else
             format_other_exception
@@ -172,7 +172,7 @@ module ChefCore
         def add_backtrace_header(out, args)
           out.write("\n#{"-" * 80}\n")
           out.print("#{Time.now}: Error encountered while running the following:\n")
-          out.print("  #{args.join(' ')}\n")
+          out.print("  #{args.join(" ")}\n")
           out.print("Backtrace:\n")
         end
 
@@ -183,10 +183,10 @@ module ChefCore
         end
 
         def self.error_summary(e)
-          if e.kind_of? ChefCore::Error
+          if e.is_a? ChefCore::Error
             # By convention, all of our defined messages have a short summary on the first line.
             ChefCore::Text.errors.send(e.id).text(*e.params).split("\n").first
-          elsif e.kind_of? String
+          elsif e.is_a? String
             e
           else
             if e.respond_to? :message
@@ -205,7 +205,7 @@ module ChefCore
         # TODO this gets moved to trainerrormapper  or simply removed since
         #     many of these issues are now handled in the RemoteTarget::ConnectionFailure
         def format_train_exception
-          backend, host = formatted_host()
+          backend, host = formatted_host
           if host.nil?
             t.CHEFTRN002.text(exception.message)
           else
@@ -219,6 +219,7 @@ module ChefCore
 
         def formatted_host
           return nil if target_host.nil?
+
           cfg = target_host.config
           port = cfg[:port].nil? ? "" : ":#{cfg[:port]}"
           user = cfg[:user].nil? ? "" : "#{cfg[:user]}@"
@@ -255,6 +256,7 @@ module ChefCore
           i = 1
           while i <= backtrace1.size && i <= backtrace2.size
             break if backtrace1[-i] != backtrace2[-i]
+
             i += 1
           end
           backtrace1[0..-i]

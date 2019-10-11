@@ -25,7 +25,7 @@ module ChefCore
     # These values may exist in .ssh/config but will be ignored by train
     # in favor of its defaults unless we specify them explicitly.
     # See #apply_ssh_config
-    SSH_CONFIG_OVERRIDE_KEYS = [:user, :port, :proxy].freeze
+    SSH_CONFIG_OVERRIDE_KEYS = %i{user port proxy}.freeze
 
     # We're borrowing a page from train here - because setting up a
     # reliable connection for testing is a multi-step process,
@@ -34,7 +34,7 @@ module ChefCore
     # OS, this instance will mix-in the supporting methods for the given platform;
     # otherwise those methods will raise NotImplementedError.
     def self.mock_instance(url, family: "unknown", name: "unknown",
-                                release: "unknown", arch: "x86_64")
+      release: "unknown", arch: "x86_64")
       # Specifying sudo: false ensures that attempted operations
       # don't fail because the mock platform doesn't support sudo
       target_host = TargetHost.new(url, { sudo: false })
@@ -92,7 +92,7 @@ module ChefCore
 
       # From WinRM gem: It is recommended that you :disable_sspi => true if you are using the plaintext or ssl transport.
       #                 See note here: https://github.com/mwrock/WinRM#example
-      if ["ssl", "plaintext"].include?(target_opts[:winrm_transport])
+      if %w{ssl plaintext}.include?(target_opts[:winrm_transport])
         target_opts[:winrm_disable_sspi] = true
       end
 
@@ -128,6 +128,7 @@ module ChefCore
     def connect!
       # Keep existing connections
       return unless @backend.nil?
+
       @backend = train_connection.connection
       @backend.wait_until_ready
 
@@ -159,6 +160,7 @@ module ChefCore
     # Returns the user being used to connect. Defaults to train's default user if not specified
     def user
       return config[:user] unless config[:user].nil?
+
       require "train/transports/ssh"
       # TODO - this should use the right transport, not default to SSH
       Train::Transports::SSH.default_options[:user][:default]
@@ -196,6 +198,7 @@ module ChefCore
       if result.exit_status != 0
         raise RemoteExecutionFailed.new(@config[:host], command, result)
       end
+
       result
     end
 
@@ -205,13 +208,13 @@ module ChefCore
 
     # TODO spec
     def save_as_remote_file(content, remote_path)
-       t = Tempfile.new("chef-content")
-       t << content
-       t.close
-       upload_file(t.path, remote_path)
+      t = Tempfile.new("chef-content")
+      t << content
+      t.close
+      upload_file(t.path, remote_path)
     ensure
-        t.close
-        t.unlink
+      t.close
+      t.unlink
     end
 
     def upload_file(local_path, remote_path)
@@ -234,9 +237,10 @@ module ChefCore
     # be found.
     def installed_chef_version
       return @installed_chef_version if @installed_chef_version
+
       # Note: In the case of a very old version of chef (that has no manifest - pre 12.0?)
       #       this will report as not installed.
-      manifest = read_chef_version_manifest()
+      manifest = read_chef_version_manifest
 
       # We split the version here because  unstable builds install from)
       # are in the form "Major.Minor.Build+HASH" which is not a valid
@@ -247,6 +251,7 @@ module ChefCore
     def read_chef_version_manifest
       manifest = fetch_file_contents(omnibus_manifest_path)
       raise ChefNotInstalled.new if manifest.nil?
+
       JSON.parse(manifest)
     end
 
@@ -258,7 +263,7 @@ module ChefCore
     #
     # The base temp dir is cached and will only be created once per connection lifetime.
     def temp_dir
-      dir = make_temp_dir()
+      dir = make_temp_dir
       chown(dir, user)
       dir
     end
