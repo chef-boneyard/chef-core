@@ -84,10 +84,11 @@ module ChefCore
         # We'll use the version captured in the sesion file
         entries = content["entries"]
         total = entries.length
-        telemetry = Telemetry.new(product: config.dig(:product, :name) || "chef-workstation",
-                                  origin: config.dig(:product, :origin) || "command-line",
-                                  product_version: config.dig(:product, :version) || content["version"],
-                                  install_context: config.dig(:product, :install_context) || "omnibus")
+        product_info = config[:product] || {}
+        telemetry = Telemetry.new(product: product_info[:name] || "chef-workstation",
+                                  origin: product_info[:origin] || "command-line",
+                                  product_version: product_info[:version] || content["version"],
+                                  install_context: product_info[:install_context] || "omnibus")
         total = entries.length
         entries.each_with_index do |entry, x|
           submit_entry(telemetry, entry, x + 1, total)
