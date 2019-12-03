@@ -27,7 +27,10 @@ RSpec.describe ChefCore::Log do
   end
 
   after do
-    Log.setup "/dev/null", :error
+    windows  = RbConfig::CONFIG["host_os"] =~ /mswin|mingw/
+    null_dev = windows ? "NUL" : "/dev/null"
+
+    Log.setup null_dev, :error
   end
 
   it "correctly logs to stdout" do

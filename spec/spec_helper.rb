@@ -18,6 +18,7 @@
 require "bundler/setup"
 require "rspec/expectations"
 require "support/matchers/output_to_terminal"
+require "rbconfig"
 
 require "simplecov"
 if ENV["CIRCLE_ARTIFACTS"]
@@ -87,7 +88,10 @@ RSpec.configure do |config|
   end
 
   config.before(:all) do
-    ChefCore::Log.setup "/dev/null", :error
+    windows  = RbConfig::CONFIG["host_os"] =~ /mswin|mingw/
+    null_dev = windows ? "NUL" : "/dev/null"
+
+    ChefCore::Log.setup null_dev, :error
   end
 end
 
