@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-require "chef_core/telemeter"
+require "chef/telemeter"
 require "chef_core/error"
 
 module ChefCore
@@ -51,7 +51,7 @@ module ChefCore
             @error = e
           end
         end
-        # Raise outside the block to ensure that the telemetry cpature completes
+        # Raise outside the block to ensure that the telemetry capture completes
         raise @error unless @error.nil?
       end
 
@@ -80,7 +80,7 @@ module ChefCore
           target_data[:hostname_sha1] = Digest::SHA1.hexdigest(target.hostname.downcase)
           target_data[:transport_type] = target.transport_type
         end
-        ChefCore::Telemeter.timed_capture(:action, { action: action.name, target: target_data }, &block)
+        Chef::Telemeter.timed_capture(:action, { action: action.name, target: target_data }, &block)
       end
 
       # Invokes the notification handler with notifications of progress or events

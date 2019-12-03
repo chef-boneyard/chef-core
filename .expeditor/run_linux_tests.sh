@@ -4,6 +4,7 @@
 
 set -e
 
+echo "--- dependencies"
 export USER="root"
 
 # make sure we have the aws cli
@@ -15,6 +16,7 @@ echo "Fetching bundle cache archive from s3://public-cd-buildkite-cache/${BUILDK
 aws s3 cp "s3://public-cd-buildkite-cache/${BUILDKITE_PIPELINE_SLUG}/${BUILDKITE_LABEL}/bundle.tar.bz2" bundle.tar.bz2 || echo 'Could not pull the bundler archive from s3 for caching. Builds may be slower than usual as all gems will have to install.'
 aws s3 cp "s3://public-cd-buildkite-cache/${BUILDKITE_PIPELINE_SLUG}/${BUILDKITE_LABEL}/bundle.sha256" bundle.sha256 || echo "Could not pull the sha256 hash of the vendor/bundle directory from s3. Without this we will compress and upload the bundler archive to S3 even if it hasn't changed"
 
+echo "--- bundle install"
 echo "Restoring the bundle cache archive to vendor/bundle"
 if [ -f bundle.tar.bz2 ]; then
   tar -xjf bundle.tar.bz2
@@ -22,8 +24,11 @@ fi
 bundle config --local path vendor/bundle
 
 bundle install --jobs=7 --retry=3
+
+echo "+++ bundle exec $1"
 bundle exec $1
 
+echo "--- caching bundle"
 if [[ -f bundle.tar.bz2 && -f bundle.sha256  ]]; then # dont' check the sha if we're missing either file
   if shasum --check bundle.sha256 --status; then # if the the sha matches we're done
     echo "Bundled gems have not changed. Skipping upload to s3"

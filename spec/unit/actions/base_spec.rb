@@ -17,8 +17,6 @@
 
 require "spec_helper"
 require "chef_core/actions/base"
-require "chef_core/telemeter"
-require "chef_core/target_host"
 
 RSpec.describe ChefCore::Actions::Base do
   let(:family) { "windows" }
@@ -81,7 +79,7 @@ RSpec.describe ChefCore::Actions::Base do
             transport_type: "winrm",
           },
         }
-        expect(ChefCore::Telemeter).to receive(:timed_capture).with(:action, expected_data)
+        expect(Chef::Telemeter).to receive(:timed_capture).with(:action, expected_data)
         subject.timed_action_capture(action) { :ok }
       end
 
@@ -90,7 +88,7 @@ RSpec.describe ChefCore::Actions::Base do
           expected_data = { action: "Base", target: { platform: {},
                                                       hostname_sha1: nil,
                                                       transport_type: nil } }
-          expect(ChefCore::Telemeter).to receive(:timed_capture).with(:action, expected_data)
+          expect(Chef::Telemeter).to receive(:timed_capture).with(:action, expected_data)
           subject.timed_action_capture(
             ChefCore::Actions::Base.new(target_host: nil)
           ) { :ok }
