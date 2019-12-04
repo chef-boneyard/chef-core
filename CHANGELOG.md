@@ -1,16 +1,17 @@
 # Change Log
 
-<!-- latest_release 0.1.0 -->
-## [v0.1.0](https://github.com/chef/chef-core/tree/v0.1.0) (2019-12-03)
+<!-- latest_release 0.1.1 -->
+## [v0.1.1](https://github.com/chef/chef-core/tree/v0.1.1) (2019-12-04)
 
 #### Merged Pull Requests
-- Moved telemeter to chef-telemetry gem. [#19](https://github.com/chef/chef-core/pull/19) ([zenspider](https://github.com/zenspider))
+- Update train-core requirement from ~&gt; 2.0, &gt;= 2.0.12 to &gt;= 2.0.12, &lt; 4 [#18](https://github.com/chef/chef-core/pull/18) ([dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
 <!-- latest_release -->
 
 <!-- release_rollup since=0.0.6 -->
 ### Changes not yet released to rubygems.org
 
 #### Merged Pull Requests
+- Update train-core requirement from ~&gt; 2.0, &gt;= 2.0.12 to &gt;= 2.0.12, &lt; 4 [#18](https://github.com/chef/chef-core/pull/18) ([dependabot-preview[bot]](https://github.com/dependabot-preview[bot])) <!-- 0.1.1 -->
 - Moved telemeter to chef-telemetry gem. [#19](https://github.com/chef/chef-core/pull/19) ([zenspider](https://github.com/zenspider)) <!-- 0.1.0 -->
 <!-- release_rollup -->
 
